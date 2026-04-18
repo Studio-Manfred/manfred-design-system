@@ -27,6 +27,14 @@ export const Playground: Story = {
   },
 };
 
+export const Labelled: Story = {
+  args: {
+    name: 'check',
+    size: 'md',
+    label: 'Check mark',
+  },
+};
+
 export const AllIcons: Story = {
   render: () => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', maxWidth: '600px' }}>

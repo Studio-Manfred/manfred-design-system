@@ -40,6 +40,10 @@ export const WithLabel: Story = {
   ),
 };
 
+export const Standalone: Story = {
+  args: { 'aria-label': 'Accept terms' },
+};
+
 export const ErrorState: Story = {
   render: () => (
     <Checkbox label="You must accept the terms to continue" error />

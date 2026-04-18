@@ -76,3 +76,11 @@ export const FullWidth: Story = {
     </div>
   ),
 };
+
+export const AsChild: Story = {
+  render: () => (
+    <Button asChild>
+      <a href="#top">Link styled as button</a>
+    </Button>
+  ),
+};

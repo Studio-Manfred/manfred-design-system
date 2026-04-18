@@ -67,6 +67,16 @@ describe('SearchBar', () => {
     expect(screen.getByRole('textbox')).toHaveValue('q');
   });
 
+  it('applies w-full when fullWidth is set', () => {
+    const { container } = render(<SearchBar fullWidth />);
+    expect(container.firstChild).toHaveClass('w-full');
+  });
+
+  it('passes through a custom className to the wrapper', () => {
+    const { container } = render(<SearchBar className="custom-wrap" />);
+    expect(container.firstChild).toHaveClass('custom-wrap');
+  });
+
   it('controlled clear: onChange and onClear fire without mutating value', async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();

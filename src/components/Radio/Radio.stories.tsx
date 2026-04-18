@@ -47,6 +47,15 @@ export const Controlled: Story = {
   },
 };
 
+export const StandaloneItems: Story = {
+  render: () => (
+    <RadioGroup defaultValue="a" aria-label="Plan">
+      <RadioGroupItem id="sa-a" value="a" aria-label="Plan A" />
+      <RadioGroupItem id="sa-b" value="b" aria-label="Plan B" />
+    </RadioGroup>
+  ),
+};
+
 export const States: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

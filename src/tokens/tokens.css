@@ -1,7 +1,10 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
 /* ============================================
    MANFRED DESIGN SYSTEM — DESIGN TOKENS
    ============================================
-   Two-layer architecture:
+   Three-layer architecture:
 
    Layer 1 — PRIMITIVE TOKENS
      Raw values with no semantic meaning.
@@ -10,16 +13,20 @@
    Layer 2 — SEMANTIC TOKENS
      Context-aware aliases that reference primitives.
      Named after what they do, not what they look like.
+
+   Layer 3 — SHADCN CONTRACT
+     Maps semantic tokens onto the shadcn/ui token
+     contract (--background, --foreground, --primary,
+     --accent, --muted, --destructive, --border, --ring)
+     so stock shadcn components drop in unchanged.
    ============================================ */
 
 :root {
-
   /* ==========================================
      LAYER 1: PRIMITIVE TOKENS
      ========================================== */
 
   /* --- Blue Scale --- */
-
   --blue-50:  #eaeafd;
   --blue-100: #d5d4fb;
   --blue-200: #aba9f7;
@@ -32,7 +39,6 @@
   --blue-900: #09082f;
 
   /* --- Neutral Scale --- */
-
   --neutral-50:  #f5f5f6;
   --neutral-100: #e8e8ea;
   --neutral-200: #d1d1d4;
@@ -45,15 +51,12 @@
   --neutral-900: #111116;
 
   /* --- Brand Warm Palette (flat — no scale) --- */
-
   --pink:        #efd6d3;  /* Human Pink */
   --beige:       #e6dcc8;  /* Beige */
   --beige-light: #f4f3e8;  /* Light Beige */
   --white:       #ffffff;
 
   /* --- Brand Color Aliases (backwards-compatible) --- */
-  /* Components reference these; they now resolve through the scales. */
-
   --color-almost-black:  var(--neutral-800);
   --color-business-blue: var(--blue-500);
   --color-human-pink:    var(--pink);
@@ -62,7 +65,6 @@
   --color-white:         var(--white);
 
   /* --- Typography --- */
-
   --font-family-base: 'Host Grotesk', sans-serif;
 
   --font-weight-light:     300;
@@ -72,15 +74,15 @@
   --font-weight-bold:      700;
   --font-weight-extrabold: 800;
 
-  --font-size-xs:  0.75rem;   /* 12px */
-  --font-size-sm:  0.875rem;  /* 14px */
-  --font-size-md:  1rem;      /* 16px — base */
-  --font-size-lg:  1.125rem;  /* 18px */
-  --font-size-xl:  1.25rem;   /* 20px */
-  --font-size-2xl: 1.5rem;    /* 24px */
-  --font-size-3xl: 2rem;      /* 32px */
-  --font-size-4xl: 2.5rem;    /* 40px */
-  --font-size-5xl: 3.5rem;    /* 56px */
+  --font-size-xs:  0.75rem;
+  --font-size-sm:  0.875rem;
+  --font-size-md:  1rem;
+  --font-size-lg:  1.125rem;
+  --font-size-xl:  1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 2rem;
+  --font-size-4xl: 2.5rem;
+  --font-size-5xl: 3.5rem;
 
   --line-height-tight:   1.1;
   --line-height-snug:    1.3;
@@ -92,57 +94,50 @@
   --letter-spacing-wide:    0.02em;
 
   /* --- Spacing (4px base grid) --- */
-
-  --space-1:  0.25rem;  /*  4px */
-  --space-2:  0.5rem;   /*  8px */
-  --space-3:  0.75rem;  /* 12px */
-  --space-4:  1rem;     /* 16px */
-  --space-5:  1.25rem;  /* 20px */
-  --space-6:  1.5rem;   /* 24px */
-  --space-8:  2rem;     /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
 
   /* --- Sizing (4px base grid) --- */
-
-  --size-1:  0.25rem;   /*   4px */
-  --size-2:  0.5rem;    /*   8px */
-  --size-3:  0.75rem;   /*  12px */
-  --size-4:  1rem;      /*  16px */
-  --size-5:  1.25rem;   /*  20px */
-  --size-6:  1.5rem;    /*  24px */
-  --size-8:  2rem;      /*  32px */
-  --size-10: 2.5rem;    /*  40px */
-  --size-12: 3rem;      /*  48px */
-  --size-16: 4rem;      /*  64px */
-  --size-20: 5rem;      /*  80px */
-  --size-24: 6rem;      /*  96px */
-  --size-32: 8rem;      /* 128px */
-  --size-40: 10rem;     /* 160px */
-  --size-48: 12rem;     /* 192px */
-  --size-64: 16rem;     /* 256px */
-  --size-80: 20rem;     /* 320px */
-  --size-96: 24rem;     /* 384px */
+  --size-1:  0.25rem;
+  --size-2:  0.5rem;
+  --size-3:  0.75rem;
+  --size-4:  1rem;
+  --size-5:  1.25rem;
+  --size-6:  1.5rem;
+  --size-8:  2rem;
+  --size-10: 2.5rem;
+  --size-12: 3rem;
+  --size-16: 4rem;
+  --size-20: 5rem;
+  --size-24: 6rem;
+  --size-32: 8rem;
+  --size-40: 10rem;
+  --size-48: 12rem;
+  --size-64: 16rem;
+  --size-80: 20rem;
+  --size-96: 24rem;
 
   /* --- Border Radius --- */
-
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   16px;
   --radius-full: 9999px;
 
   /* --- Transitions --- */
-
   --transition-fast: 150ms ease;
   --transition-base: 250ms ease;
-
 
   /* ==========================================
      LAYER 2: SEMANTIC TOKENS
      ========================================== */
-
-  /* --- Text --- */
 
   --color-text-primary:   var(--neutral-800);
   --color-text-secondary: var(--neutral-600);
@@ -152,63 +147,45 @@
   --color-text-brand:     var(--blue-500);
   --color-text-on-brand:  var(--white);
 
-  /* --- Background --- */
-
-  --color-bg-default:   var(--white);
-  --color-bg-subtle:    var(--neutral-50);
-  --color-bg-muted:     var(--neutral-100);
-  --color-bg-inverse:   var(--neutral-800);
-  --color-bg-brand:     var(--blue-500);
-  --color-bg-warm:      var(--beige-light);
+  --color-bg-default:    var(--white);
+  --color-bg-subtle:     var(--neutral-50);
+  --color-bg-muted:      var(--neutral-100);
+  --color-bg-inverse:    var(--neutral-800);
+  --color-bg-brand:      var(--blue-500);
+  --color-bg-warm:       var(--beige-light);
   --color-bg-warm-muted: var(--beige);
-  --color-bg-accent:    var(--pink);
-
-  /* --- Border --- */
+  --color-bg-accent:     var(--pink);
 
   --color-border-default: var(--neutral-200);
   --color-border-strong:  var(--neutral-400);
   --color-border-brand:   var(--blue-500);
   --color-border-focus:   var(--blue-400);
 
-  /* --- Focus --- */
-
   --color-focus-ring: var(--blue-400);
   --shadow-focus:     0 0 0 3px var(--blue-400);
-
-  /* --- Interactive: Primary variant (dark fill) --- */
 
   --color-interactive-primary-bg:        var(--neutral-800);
   --color-interactive-primary-bg-hover:  var(--neutral-700);
   --color-interactive-primary-bg-active: var(--neutral-900);
   --color-interactive-primary-fg:        var(--white);
 
-  /* --- Interactive: Brand variant (blue fill) --- */
-
   --color-interactive-brand-bg:        var(--blue-500);
   --color-interactive-brand-bg-hover:  var(--blue-600);
   --color-interactive-brand-bg-active: var(--blue-700);
   --color-interactive-brand-fg:        var(--white);
 
-  /* --- Interactive: Outline variant --- */
-
   --color-interactive-outline-border:       var(--neutral-800);
   --color-interactive-outline-border-hover: var(--blue-500);
   --color-interactive-outline-bg-hover:     var(--neutral-50);
 
-  /* --- Interactive: Ghost variant --- */
-
   --color-interactive-ghost-bg-hover: var(--neutral-50);
-
-  /* --- Interactive: Inverse variant (white fill for use on brand/dark backgrounds) --- */
 
   --color-interactive-inverse-bg:        var(--white);
   --color-interactive-inverse-bg-hover:  var(--blue-50);
   --color-interactive-inverse-bg-active: var(--blue-100);
   --color-interactive-inverse-fg:        var(--blue-500);
 
-  /* --- Backwards-compatible surface aliases --- */
-
-  --color-brand-primary:  var(--blue-500);
+  --color-brand-primary:   var(--blue-500);
   --color-surface-default: var(--color-bg-default);
   --color-surface-warm:    var(--color-bg-warm);
   --color-surface-beige:   var(--color-bg-warm-muted);
@@ -216,29 +193,21 @@
   --color-surface-dark:    var(--color-bg-inverse);
   --color-surface-brand:   var(--color-bg-brand);
 
-  /* --- Component heights --- */
+  --size-control-sm: var(--size-8);
+  --size-control-md: var(--size-10);
+  --size-control-lg: var(--size-12);
 
-  --size-control-sm: var(--size-8);   /* 32px — small inputs / buttons */
-  --size-control-md: var(--size-10);  /* 40px — default inputs / buttons */
-  --size-control-lg: var(--size-12);  /* 48px — large inputs / buttons */
+  --size-icon-xs: var(--size-3);
+  --size-icon-sm: var(--size-4);
+  --size-icon-md: var(--size-5);
+  --size-icon-lg: var(--size-6);
+  --size-icon-xl: var(--size-8);
 
-  /* --- Icon sizes --- */
-
-  --size-icon-xs: var(--size-3);  /* 12px */
-  --size-icon-sm: var(--size-4);  /* 16px */
-  --size-icon-md: var(--size-5);  /* 20px */
-  --size-icon-lg: var(--size-6);  /* 24px */
-  --size-icon-xl: var(--size-8);  /* 32px */
-
-  /* --- Container max-widths --- */
-
-  --size-container-sm:  40rem;   /* 640px */
-  --size-container-md:  48rem;   /* 768px */
-  --size-container-lg:  64rem;   /* 1024px */
-  --size-container-xl:  80rem;   /* 1280px */
-  --size-container-2xl: 96rem;   /* 1536px */
-
-  /* --- Feedback / Status colors --- */
+  --size-container-sm:  40rem;
+  --size-container-md:  48rem;
+  --size-container-lg:  64rem;
+  --size-container-xl:  80rem;
+  --size-container-2xl: 96rem;
 
   --color-feedback-success-bg: #d1fae5;
   --color-feedback-success-fg: #065f46;
@@ -249,4 +218,104 @@
   --color-feedback-info-bg:    var(--blue-50);
   --color-feedback-info-fg:    var(--blue-700);
 
+  /* ==========================================
+     LAYER 3: SHADCN CONTRACT
+     Map Manfred semantic tokens onto the names
+     shadcn/ui components expect.
+     ========================================== */
+
+  --radius: var(--radius-md);
+
+  --background:            var(--color-bg-default);
+  --foreground:            var(--color-text-primary);
+
+  --card:                  var(--color-bg-default);
+  --card-foreground:       var(--color-text-primary);
+
+  --popover:               var(--color-bg-default);
+  --popover-foreground:    var(--color-text-primary);
+
+  --primary:               var(--color-interactive-primary-bg);
+  --primary-foreground:    var(--color-interactive-primary-fg);
+
+  --secondary:             var(--color-bg-muted);
+  --secondary-foreground:  var(--color-text-primary);
+
+  --muted:                 var(--color-bg-subtle);
+  --muted-foreground:      var(--color-text-muted);
+
+  --accent:                var(--color-bg-accent);
+  --accent-foreground:     var(--color-text-primary);
+
+  --destructive:           var(--color-feedback-error-fg);
+  --destructive-foreground: var(--white);
+
+  --border:                var(--color-border-default);
+  --input:                 var(--color-border-default);
+  --ring:                  var(--color-focus-ring);
+
+  --brand:                 var(--color-interactive-brand-bg);
+  --brand-foreground:      var(--color-interactive-brand-fg);
+}
+
+/* ==========================================
+   TAILWIND V4 THEME
+   Bridge the CSS custom properties above into
+   Tailwind's utility class generation. Lets us
+   write `bg-primary`, `text-foreground`, `rounded-md`,
+   `p-4`, etc. and resolve through Manfred tokens.
+   ========================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+
+  --color-business-blue: var(--blue-500);
+  --color-almost-black: var(--neutral-800);
+  --color-human-pink: var(--pink);
+  --color-beige: var(--beige);
+  --color-light-beige: var(--beige-light);
+
+  --font-sans: var(--font-family-base);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
+  --radius-full: 9999px;
+
+  --animate-stripes: stripes 1.2s linear infinite;
+
+  @keyframes stripes {
+    from { background-position: 0 0; }
+    to { background-position: 200% 0; }
+  }
 }

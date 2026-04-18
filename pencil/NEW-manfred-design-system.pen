@@ -4699,6 +4699,7 @@
               "id": "w33Jv",
               "name": "toastRow",
               "width": "fill_container",
+              "height": 116,
               "gap": 12,
               "children": [
                 {
@@ -4740,7 +4741,7 @@
                       "type": "frame",
                       "id": "XeYh7",
                       "name": "toastInfoContent",
-                      "width": "fill_container",
+                      "width": 216,
                       "layout": "vertical",
                       "gap": 4,
                       "children": [
@@ -4807,7 +4808,7 @@
                       "type": "frame",
                       "id": "sloNw",
                       "name": "toastSuccessContent",
-                      "width": "fill_container",
+                      "width": 216,
                       "layout": "vertical",
                       "gap": 4,
                       "children": [
@@ -4841,6 +4842,7 @@
                   "name": "Toast/Error",
                   "reusable": true,
                   "width": 280,
+                  "height": 92,
                   "fill": "#fee2e2",
                   "cornerRadius": 8,
                   "stroke": {
@@ -4874,7 +4876,8 @@
                       "type": "frame",
                       "id": "dvdwX",
                       "name": "toastErrorContent",
-                      "width": "fill_container",
+                      "width": 271,
+                      "height": 38,
                       "layout": "vertical",
                       "gap": 4,
                       "children": [
@@ -4883,6 +4886,8 @@
                           "id": "Oe5ps",
                           "name": "toastErrorTitle",
                           "fill": "#991b1b",
+                          "textGrowth": "fixed-width",
+                          "width": 212,
                           "content": "Error",
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -4893,6 +4898,8 @@
                           "id": "OURny",
                           "name": "toastErrorMsg",
                           "fill": "#991b1b",
+                          "textGrowth": "fixed-width",
+                          "width": 212,
                           "content": "Something went wrong. Please try again.",
                           "fontFamily": "Inter",
                           "fontSize": 14,
@@ -6607,6 +6614,60 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "7hAVs",
+      "x": 93,
+      "y": 8700,
+      "name": "WF 1. Welcome — Desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "type": "frame",
+      "id": "wUEnp",
+      "x": 1453,
+      "y": 8700,
+      "name": "WF 2. Phone Number — Desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "type": "frame",
+      "id": "A2Ljy",
+      "x": 2813,
+      "y": 8700,
+      "name": "WF 3. SMS — Desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "type": "frame",
+      "id": "MOrAH",
+      "x": 4173,
+      "y": 8700,
+      "name": "WF 4. Verification — Desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "type": "frame",
+      "id": "culOi",
+      "x": 5533,
+      "y": 8700,
+      "name": "WF 5. Success — Desktop",
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "type": "frame",
+      "id": "Mv20j",
+      "x": 6893,
+      "y": 8700,
+      "name": "WF 8. Confirmation Email — Desktop",
+      "width": 1280,
+      "height": 800
     }
   ]
 }

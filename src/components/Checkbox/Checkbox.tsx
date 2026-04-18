@@ -28,8 +28,8 @@ export const Checkbox = React.forwardRef<
       className={cn(
         'peer shrink-0 w-[18px] h-[18px] rounded-[var(--radius-sm)] border-[1.5px] bg-background',
         'border-[var(--color-border-strong)]',
-        'data-[state=checked]:bg-[var(--color-bg-brand)] data-[state=checked]:border-[var(--color-bg-brand)] data-[state=checked]:text-white',
-        'data-[state=indeterminate]:bg-[var(--color-bg-brand)] data-[state=indeterminate]:border-[var(--color-bg-brand)] data-[state=indeterminate]:text-white',
+        'data-[state=checked]:bg-[var(--color-bg-brand)] data-[state=checked]:border-[var(--color-bg-brand)] data-[state=checked]:text-[var(--color-text-on-brand)]',
+        'data-[state=indeterminate]:bg-[var(--color-bg-brand)] data-[state=indeterminate]:border-[var(--color-bg-brand)] data-[state=indeterminate]:text-[var(--color-text-on-brand)]',
         'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
         'disabled:cursor-not-allowed disabled:opacity-50',
         error && 'border-[var(--color-feedback-error-fg)]',

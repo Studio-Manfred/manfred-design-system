@@ -155,6 +155,7 @@
   --color-bg-warm:       var(--beige-light);
   --color-bg-warm-muted: var(--beige);
   --color-bg-accent:     var(--pink);
+  --color-bg-overlay:    rgb(0 0 0 / 0.5);
 
   --color-border-default: var(--neutral-200);
   --color-border-strong:  var(--neutral-400);
@@ -256,6 +257,154 @@
 
   --brand:                 var(--color-interactive-brand-bg);
   --brand-foreground:      var(--color-interactive-brand-fg);
+}
+
+/* ==========================================
+   THEMED BASELINE
+   Zero-specificity defaults on body so every
+   surface picks up the right background, text
+   colour (used as inherited `currentColor` by
+   icons and controls), and focus ring under
+   either theme. Consumers override trivially.
+   ========================================== */
+
+:where(body) {
+  background-color: var(--color-bg-default);
+  color: var(--color-text-primary);
+}
+
+/* ==========================================
+   DARK MODE OVERRIDES
+   Activates from OS `prefers-color-scheme: dark`
+   by default, and from an explicit `.dark` class
+   on <html>/<body>. An explicit `.light` class
+   wins over the OS preference.
+
+   Only Layer 2 (semantic) tokens rebind here —
+   Layer 1 primitives and Layer 3 shadcn aliases
+   flip automatically via var() indirection.
+
+   The two selectors share the same declarations;
+   CSS can't group @media with a bare selector, so
+   the block is intentionally duplicated.
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    --color-text-primary:   var(--neutral-50);
+    --color-text-secondary: var(--neutral-200);
+    --color-text-muted:     var(--neutral-300);
+    --color-text-disabled:  var(--neutral-600);
+    --color-text-inverse:   var(--neutral-900);
+    --color-text-brand:     var(--blue-300);
+    --color-text-on-brand:  var(--white);
+
+    --color-bg-default:    var(--neutral-900);
+    --color-bg-subtle:     var(--neutral-800);
+    --color-bg-muted:      var(--neutral-700);
+    --color-bg-inverse:    var(--neutral-50);
+    --color-bg-brand:      var(--blue-400);
+    --color-bg-warm:       var(--neutral-800);
+    --color-bg-warm-muted: var(--neutral-700);
+    --color-bg-accent:     var(--neutral-700);
+    --color-bg-overlay:    rgb(0 0 0 / 0.7);
+
+    --color-border-default: var(--neutral-700);
+    --color-border-strong:  var(--neutral-500);
+    --color-border-brand:   var(--blue-400);
+    --color-border-focus:   var(--blue-300);
+
+    --color-focus-ring: var(--blue-300);
+    --shadow-focus:     0 0 0 3px var(--blue-300);
+
+    --color-interactive-primary-bg:        var(--neutral-50);
+    --color-interactive-primary-bg-hover:  var(--neutral-200);
+    --color-interactive-primary-bg-active: var(--white);
+    --color-interactive-primary-fg:        var(--neutral-900);
+
+    --color-interactive-brand-bg:        var(--blue-400);
+    --color-interactive-brand-bg-hover:  var(--blue-300);
+    --color-interactive-brand-bg-active: var(--blue-500);
+    --color-interactive-brand-fg:        var(--white);
+
+    --color-interactive-outline-border:       var(--neutral-200);
+    --color-interactive-outline-border-hover: var(--blue-300);
+    --color-interactive-outline-bg-hover:     var(--neutral-800);
+
+    --color-interactive-ghost-bg-hover: var(--neutral-800);
+
+    --color-interactive-inverse-bg:        var(--neutral-800);
+    --color-interactive-inverse-bg-hover:  var(--blue-900);
+    --color-interactive-inverse-bg-active: var(--blue-800);
+    --color-interactive-inverse-fg:        var(--blue-300);
+
+    --color-feedback-success-bg: #064e3b;
+    --color-feedback-success-fg: #6ee7b7;
+    --color-feedback-warning-bg: #78350f;
+    --color-feedback-warning-fg: #fcd34d;
+    --color-feedback-error-bg:   #7f1d1d;
+    --color-feedback-error-fg:   #fca5a5;
+    --color-feedback-info-bg:    var(--blue-800);
+    --color-feedback-info-fg:    var(--blue-200);
+  }
+}
+
+:root.dark {
+  --color-text-primary:   var(--neutral-50);
+  --color-text-secondary: var(--neutral-200);
+  --color-text-muted:     var(--neutral-300);
+  --color-text-disabled:  var(--neutral-600);
+  --color-text-inverse:   var(--neutral-900);
+  --color-text-brand:     var(--blue-300);
+  --color-text-on-brand:  var(--white);
+
+  --color-bg-default:    var(--neutral-900);
+  --color-bg-subtle:     var(--neutral-800);
+  --color-bg-muted:      var(--neutral-700);
+  --color-bg-inverse:    var(--neutral-50);
+  --color-bg-brand:      var(--blue-400);
+  --color-bg-warm:       var(--neutral-800);
+  --color-bg-warm-muted: var(--neutral-700);
+  --color-bg-accent:     var(--neutral-700);
+  --color-bg-overlay:    rgb(0 0 0 / 0.7);
+
+  --color-border-default: var(--neutral-700);
+  --color-border-strong:  var(--neutral-500);
+  --color-border-brand:   var(--blue-400);
+  --color-border-focus:   var(--blue-300);
+
+  --color-focus-ring: var(--blue-300);
+  --shadow-focus:     0 0 0 3px var(--blue-300);
+
+  --color-interactive-primary-bg:        var(--neutral-50);
+  --color-interactive-primary-bg-hover:  var(--neutral-200);
+  --color-interactive-primary-bg-active: var(--white);
+  --color-interactive-primary-fg:        var(--neutral-900);
+
+  --color-interactive-brand-bg:        var(--blue-400);
+  --color-interactive-brand-bg-hover:  var(--blue-300);
+  --color-interactive-brand-bg-active: var(--blue-500);
+  --color-interactive-brand-fg:        var(--white);
+
+  --color-interactive-outline-border:       var(--neutral-200);
+  --color-interactive-outline-border-hover: var(--blue-300);
+  --color-interactive-outline-bg-hover:     var(--neutral-800);
+
+  --color-interactive-ghost-bg-hover: var(--neutral-800);
+
+  --color-interactive-inverse-bg:        var(--neutral-800);
+  --color-interactive-inverse-bg-hover:  var(--blue-900);
+  --color-interactive-inverse-bg-active: var(--blue-800);
+  --color-interactive-inverse-fg:        var(--blue-300);
+
+  --color-feedback-success-bg: #064e3b;
+  --color-feedback-success-fg: #6ee7b7;
+  --color-feedback-warning-bg: #78350f;
+  --color-feedback-warning-fg: #fcd34d;
+  --color-feedback-error-bg:   #7f1d1d;
+  --color-feedback-error-fg:   #fca5a5;
+  --color-feedback-info-bg:    var(--blue-800);
+  --color-feedback-info-fg:    var(--blue-200);
 }
 
 /* ==========================================

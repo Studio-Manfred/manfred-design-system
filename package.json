@@ -1,6 +1,6 @@
 {
   "name": "@jens-wedin/design-system",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -64,6 +64,7 @@
   "devDependencies": {
     "@storybook/addon-a11y": "^10.3.5",
     "@storybook/addon-docs": "^10.3.5",
+    "@storybook/addon-themes": "^10.3.5",
     "@storybook/addon-vitest": "^10.3.5",
     "@storybook/react-vite": "^10.3.5",
     "@tailwindcss/vite": "^4.2.2",

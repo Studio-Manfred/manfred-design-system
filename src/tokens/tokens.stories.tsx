@@ -49,12 +49,12 @@ function SwatchRow({
           borderRadius: 6,
           backgroundColor: value,
           flexShrink: 0,
-          border: border ? '1px solid rgba(0,0,0,0.12)' : 'none',
+          border: border ? '1px solid var(--color-border-default)' : 'none',
         }}
       />
       <div>
         <div style={{ ...label, fontWeight: 600 }}>{name}</div>
-        <div style={{ ...label, color: '#666' }}>{value}</div>
+        <div style={{ ...label, color: 'var(--color-text-muted)' }}>{value}</div>
       </div>
     </div>
   );
@@ -80,10 +80,10 @@ function ScaleRow({
                 height: 52,
                 borderRadius: 6,
                 backgroundColor: scale[step],
-                border: Number(step) < 100 ? '1px solid rgba(0,0,0,0.08)' : 'none',
+                border: Number(step) < 100 ? '1px solid var(--color-border-default)' : 'none',
               }}
             />
-            <div style={{ ...label, marginTop: 4, color: '#888' }}>{step}</div>
+            <div style={{ ...label, marginTop: 4, color: 'var(--color-text-muted)' }}>{step}</div>
           </div>
         ))}
       </div>
@@ -101,8 +101,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
           fontWeight: 700,
           textTransform: 'uppercase',
           letterSpacing: '0.08em',
-          color: '#888',
-          borderBottom: '1px solid #e8e8ea',
+          color: 'var(--color-text-muted)',
+          borderBottom: '1px solid var(--color-border-default)',
           paddingBottom: 8,
           marginBottom: 20,
         }}
@@ -132,12 +132,12 @@ function SemanticSwatch({
           borderRadius: 4,
           backgroundColor: cssVar,
           flexShrink: 0,
-          border: light ? '1px solid rgba(0,0,0,0.1)' : 'none',
+          border: light ? '1px solid var(--color-border-default)' : 'none',
         }}
       />
       <div>
         <div style={{ ...label, fontWeight: 600, fontSize: 12 }}>{swatchLabel}</div>
-        <div style={{ ...label, color: '#999', fontSize: 11 }}>{cssVar}</div>
+        <div style={{ ...label, color: 'var(--color-text-muted)', fontSize: 11 }}>{cssVar}</div>
       </div>
     </div>
   );
@@ -169,6 +169,17 @@ export const BrandPalette: Story = {
    STORY 2: Color Scales
    ====================================================== */
 
+// Feedback colours — defined only in tokens.css at the semantic layer.
+// Kept in sync with src/tokens/tokens.css.
+const feedback = {
+  'success-bg': '#d1fae5',
+  'success-fg': '#065f46',
+  'warning-bg': '#fef3c7',
+  'warning-fg': '#92400e',
+  'error-bg':   '#fee2e2',
+  'error-fg':   '#991b1b',
+} as const;
+
 export const ColorScales: Story = {
   name: 'Color Scales',
   render: () => (
@@ -196,6 +207,28 @@ export const ColorScales: Story = {
               name={`--neutral-${step}`}
               value={neutral[step]}
               border={Number(step) < 100}
+            />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Warm Palette — flat (no scale)">
+        <div style={{ display: 'grid', gap: 8 }}>
+          <SwatchRow name="--pink"        value={warm.pink}       border />
+          <SwatchRow name="--beige"       value={warm.beige}      border />
+          <SwatchRow name="--beige-light" value={warm.beigeLight} border />
+          <SwatchRow name="--white"       value={warm.white}      border />
+        </div>
+      </Section>
+
+      <Section title="Feedback">
+        <div style={{ display: 'grid', gap: 8 }}>
+          {(Object.keys(feedback) as (keyof typeof feedback)[]).map((key) => (
+            <SwatchRow
+              key={key}
+              name={`--color-feedback-${key}`}
+              value={feedback[key]}
+              border={key.endsWith('-bg')}
             />
           ))}
         </div>
@@ -289,7 +322,7 @@ function SizeBar({ name, value }: { name: string; value: string }) {
       />
       <div style={{ ...label, whiteSpace: 'nowrap' }}>
         <span style={{ fontWeight: 600 }}>{name}</span>
-        <span style={{ color: '#888', marginLeft: 8 }}>{value}</span>
+        <span style={{ color: 'var(--color-text-muted)', marginLeft: 8 }}>{value}</span>
       </div>
     </div>
   );
@@ -299,7 +332,7 @@ function ContainerBar({ name, value }: { name: string; value: string }) {
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ ...label, fontWeight: 600, marginBottom: 4 }}>
-        {name} <span style={{ color: '#888', fontWeight: 400 }}>{value}</span>
+        {name} <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>{value}</span>
       </div>
       <div
         style={{
@@ -340,7 +373,7 @@ export const SizingTokens: Story = {
             />
             <div style={label}>
               <span style={{ fontWeight: 600 }}>{`--size-control-${key}`}</span>
-              <span style={{ color: '#888', marginLeft: 8 }}>{controlSize[key]}</span>
+              <span style={{ color: 'var(--color-text-muted)', marginLeft: 8 }}>{controlSize[key]}</span>
             </div>
           </div>
         ))}
@@ -359,8 +392,8 @@ export const SizingTokens: Story = {
                   margin: '0 auto',
                 }}
               />
-              <div style={{ ...label, marginTop: 6, color: '#888' }}>{key}</div>
-              <div style={{ ...label, color: '#bbb' }}>{iconSize[key]}</div>
+              <div style={{ ...label, marginTop: 6, color: 'var(--color-text-muted)' }}>{key}</div>
+              <div style={{ ...label, color: 'var(--color-text-disabled)' }}>{iconSize[key]}</div>
             </div>
           ))}
         </div>

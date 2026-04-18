@@ -1,4 +1,5 @@
 import type { Preview } from '@storybook/react-vite';
+import { withThemeByClassName } from '@storybook/addon-themes';
 import '../src/styles/fonts.css';
 import '../src/tokens/tokens.css';
 
@@ -40,11 +41,16 @@ const preview: Preview = {
     }
   },
 
-  initialGlobals: {
-    backgrounds: {
-      value: 'white'
-    }
-  }
+  decorators: [
+    withThemeByClassName({
+      // 'system' maps to no class so the OS preference
+      // (prefers-color-scheme) wins. 'light'/'dark' set
+      // an explicit class on <html> that overrides it.
+      themes: { system: '', light: 'light', dark: 'dark' },
+      defaultTheme: 'system',
+      parentSelector: 'html',
+    }),
+  ],
 };
 
 export default preview;

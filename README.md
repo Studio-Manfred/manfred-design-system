@@ -14,6 +14,43 @@ Opens at [http://localhost:6006](http://localhost:6006).
 
 ---
 
+## Dark mode
+
+Every component adapts to a dark theme. Activation:
+
+1. **System preference** — if the user's OS is set to dark and no explicit class
+   is on `<html>`, the `prefers-color-scheme: dark` media query switches the
+   semantic tokens.
+2. **Explicit class** — `<html class="dark">` forces dark regardless of OS, and
+   `<html class="light">` forces light even when the OS prefers dark.
+
+```html
+<!-- Follow the OS -->
+<html>
+
+<!-- Force dark -->
+<html class="dark">
+
+<!-- Force light -->
+<html class="light">
+```
+
+Only layer-2 semantic tokens rebind under dark (brand blue shifts from
+`--blue-500` to `--blue-400` for legibility; warm surfaces collapse to neutral;
+feedback colours pair a darker bg with a lighter fg). Primitives are
+unchanged, and the shadcn contract flips automatically via `var()` indirection,
+so `bg-background` / `text-foreground` / `bg-primary` etc. work unchanged.
+
+Importing the stylesheet (`import '@jens-wedin/design-system/styles'`) also
+installs a zero-specificity baseline on `body` that sets `background-color` and
+`color` from the active theme, so icons and controls that rely on
+`currentColor` inherit the right value.
+
+In Storybook, the toolbar has a **Theme** toggle with three options:
+**System**, **Light**, **Dark**.
+
+---
+
 ## v0.2.0 — Breaking changes from 0.1.x
 
 0.2.0 re-implements every component on Tailwind CSS v4 + Radix UI. The CSS Modules layer is

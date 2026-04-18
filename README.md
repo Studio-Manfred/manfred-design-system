@@ -1,6 +1,7 @@
 # Manfred Design System
 
-Brand tokens, typography, and core React components for the Manfred product.
+Brand tokens, typography, and core React components for the Manfred product, built on the
+[shadcn/ui](https://ui.shadcn.com) framework — Tailwind CSS v4 + Radix UI primitives.
 
 ## Getting started
 
@@ -13,36 +14,64 @@ Opens at [http://localhost:6006](http://localhost:6006).
 
 ---
 
+## v0.2.0 — Breaking changes from 0.1.x
+
+0.2.0 re-implements every component on Tailwind CSS v4 + Radix UI. The CSS Modules layer is
+gone. Public APIs for four components moved to stock shadcn shapes:
+
+| v0.1.x                                        | v0.2.0                                                                           |
+|-----------------------------------------------|----------------------------------------------------------------------------------|
+| `<Modal isOpen onClose>…</Modal>`             | `<Dialog open onOpenChange><DialogTrigger/><DialogContent/></Dialog>`            |
+| `<Tooltip content="…">…</Tooltip>`            | `<TooltipProvider><Tooltip><TooltipTrigger/><TooltipContent/></Tooltip>`         |
+| `<ToastContainer toasts onDismiss/>`+`useToast`| `<Toaster />` + `toast("…")` from sonner                                        |
+| `<Radio name value />` (single)               | `<RadioGroup><RadioGroupItem value="a" label="A"/></RadioGroup>`                 |
+
+`Checkbox` now forwards `onCheckedChange(state)` (Radix idiom) instead of the native
+`onChange(event)`.
+
+Consumers must also import the stylesheet:
+
+```ts
+import '@jens-wedin/design-system/styles';
+```
+
+---
+
 ## Project structure
 
 ```
 src/
 ├── tokens/
-│   ├── tokens.css        # CSS custom properties — single source of truth
-│   ├── colors.ts         # Brand colors as TypeScript constants
-│   ├── typography.ts     # Font family, weights, sizes, line heights
-│   ├── spacing.ts        # 4px-grid spacing scale
-│   └── index.ts          # Re-exports all token objects
+│   └── tokens.css        # @import "tailwindcss" + primitives + semantic + shadcn contract + @theme
 ├── styles/
 │   └── fonts.css         # @font-face declarations for Host Grotesk
+├── lib/
+│   └── utils.ts          # cn() helper (clsx + tailwind-merge)
 ├── assets/
-│   └── fonts/            # Host Grotesk TTF files (12 weights)
-├── components/
-│   ├── Typography/       # Text component with brand type scale
-│   ├── Button/           # Interactive button with brand variants
-│   └── Logo/             # Inline SVG logo (wordmark + monogram)
-└── index.ts              # Library barrel — import from here
-
-References/               # Brand Guidelines PDF, font source files, logotype assets
+│   └── fonts/            # Host Grotesk TTF files
+├── components/           # Alert, Badge, Breadcrumb, Button, Checkbox, Dialog, FormField,
+│                         # Icon, Logo, ProgressBar, Radio (RadioGroup), SearchBar, Spinner,
+│                         # TextInput, Toast (Toaster+toast), Tooltip, Typography
+└── index.ts              # Library barrel
 ```
 
 ---
 
 ## Design tokens
 
-All tokens are available as CSS custom properties (via `tokens.css`) and as TypeScript objects (via `src/tokens`).
+Tokens live in `src/tokens/tokens.css` as a three-layer architecture:
 
-### Colors
+1. **Primitives** — raw scales (`--blue-500`, `--neutral-800`).
+2. **Semantic** — brand-aware aliases (`--color-text-primary`,
+   `--color-interactive-brand-bg`).
+3. **shadcn contract** — `--background`, `--foreground`, `--primary`, `--accent`, `--muted`,
+   `--destructive`, `--border`, `--ring`, mapped onto the semantic layer. This is what lets
+   stock shadcn utilities (`bg-primary`, `text-foreground`, `ring-ring`) work.
+
+A Tailwind v4 `@theme inline { … }` block exposes these as utility classes. No
+`tailwind.config.js` is needed.
+
+### Colors (brand)
 
 | Token | Value | Usage |
 |---|---|---|
@@ -55,16 +84,8 @@ All tokens are available as CSS custom properties (via `tokens.css`) and as Type
 
 ### Typography
 
-Font: **Host Grotesk** — a modern geometric sans-serif.
-
-| Role | Weight | Usage |
-|---|---|---|
-| ExtraBold (800) | Headlines | Large display text |
-| Regular (400) | Body | Main content |
-| Light (300) | Large | Pull quotes, single sentences |
-| SemiBold (600) | Label | UI labels, buttons |
-
-Type scale: `xs` (12px) · `sm` (14px) · `md` (16px) · `lg` (18px) · `xl` (20px) · `2xl` (24px) · `3xl` (32px) · `4xl` (40px) · `5xl` (56px)
+Font: **Host Grotesk**. Scale: `xs` (12px) → `5xl` (56px). Weights: 300 / 400 / 500 / 600 /
+700 / 800.
 
 ### Spacing
 
@@ -74,62 +95,95 @@ Type scale: `xs` (12px) · `sm` (14px) · `md` (16px) · `lg` (18px) · `xl` (20
 
 ## Components
 
-### Typography
-
-```tsx
-import { Typography } from '@manfred/design-system';
-
-<Typography variant="headline1">Big statement</Typography>
-<Typography variant="body" color="muted">Secondary text</Typography>
-<Typography variant="label" as="label">Field label</Typography>
-```
-
-**Variants:** `headline1` · `headline2` · `headline3` · `headline4` · `large` · `body` · `bodySmall` · `label` · `caption`
-
-**Colors:** `default` · `inverse` · `brand` · `muted`
-
-**`as` prop** — override the rendered HTML element (defaults are set per variant).
-
----
-
 ### Button
 
 ```tsx
-import { Button } from '@manfred/design-system';
+import { Button } from '@jens-wedin/design-system';
 
 <Button variant="primary">Get started</Button>
 <Button variant="brand" size="lg">Primary CTA</Button>
 <Button variant="outline" isLoading>Saving…</Button>
+<Button asChild><a href="/signup">As link</a></Button>
 ```
 
-**Variants:** `primary` (dark) · `brand` (blue) · `outline` · `ghost`
+Variants: `primary` · `brand` · `outline` · `ghost` · `inverse` · Sizes: `sm` · `md` · `lg`.
 
-**Sizes:** `sm` · `md` · `lg`
+### Dialog
 
-**Props:** `isLoading` · `fullWidth` · all standard `<button>` HTML attributes
+```tsx
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle,
+  DialogDescription, DialogClose, Button } from '@jens-wedin/design-system';
 
----
+<Dialog>
+  <DialogTrigger asChild><Button>Open</Button></DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Are you sure?</DialogTitle>
+      <DialogDescription>This action cannot be undone.</DialogDescription>
+    </DialogHeader>
+    <DialogFooter>
+      <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+      <DialogClose asChild><Button variant="brand">Confirm</Button></DialogClose>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
+```
+
+### Tooltip
+
+```tsx
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@jens-wedin/design-system';
+
+<TooltipProvider delayDuration={200}>
+  <Tooltip>
+    <TooltipTrigger asChild><Button>Hover</Button></TooltipTrigger>
+    <TooltipContent side="top">Helpful text</TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+```
+
+### Toast (sonner)
+
+```tsx
+import { Toaster, toast } from '@jens-wedin/design-system';
+
+// Once in your app root:
+<Toaster position="top-right" />
+
+// Then anywhere:
+toast.success('Saved!');
+toast.error('Failed.', { description: 'Please retry.' });
+```
+
+### RadioGroup
+
+```tsx
+import { RadioGroup, RadioGroupItem } from '@jens-wedin/design-system';
+
+<RadioGroup defaultValue="a">
+  <RadioGroupItem id="a" value="a" label="Option A" />
+  <RadioGroupItem id="b" value="b" label="Option B" />
+</RadioGroup>
+```
 
 ### Logo
 
 ```tsx
-import { Logo } from '@manfred/design-system';
-
 <Logo variant="wordmark" color="blue" height={48} />
 <Logo variant="monogram" color="white" height={32} />
 ```
-
-**Variants:** `wordmark` (full "manfred" logotype) · `monogram` ("m" mark)
-
-**Colors:** `blue` · `black` · `white`
-
-**`height`** — sets the height in px; width scales proportionally.
 
 ---
 
 ## Using tokens in your CSS
 
-Import `tokens.css` in your app entry to access all CSS custom properties:
+Import the stylesheet once — it contains Tailwind + all tokens:
+
+```ts
+import '@jens-wedin/design-system/styles';
+```
+
+Then use either Tailwind utilities or raw custom properties:
 
 ```css
 .my-component {
@@ -139,15 +193,10 @@ Import `tokens.css` in your app entry to access all CSS custom properties:
 }
 ```
 
-Or import the TypeScript objects:
+Or Tailwind:
 
-```ts
-import { colors, spacing, fontWeight } from '@manfred/design-system';
-
-const style = {
-  color: colors.businessBlue,
-  padding: spacing[4],
-};
+```tsx
+<div className="bg-primary text-primary-foreground p-6 rounded-md">…</div>
 ```
 
 ---
@@ -158,6 +207,7 @@ const style = {
 |---|---|
 | `npm run storybook` | Start Storybook dev server at port 6006 |
 | `npm run build-storybook` | Build static Storybook for deployment |
+| `npm run build` | Build the library (`dist/`) |
 
 ---
 
@@ -165,6 +215,6 @@ const style = {
 
 The original brand assets live in `References/` and are not modified:
 
-- `References/Brand Guidelines.pdf` — full brand guidelines document
-- `References/Fonts/Host Grotesk/` — source font files
-- `References/Logotype/` — logo SVG, PDF, and PNG in all variants
+- `References/Brand Guidelines.pdf`
+- `References/Fonts/Host Grotesk/`
+- `References/Logotype/`

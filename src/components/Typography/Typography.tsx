@@ -1,18 +1,35 @@
-import React from 'react';
-import styles from './Typography.module.css';
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
-export type TypographyVariant =
-  | 'headline1'
-  | 'headline2'
-  | 'headline3'
-  | 'headline4'
-  | 'large'
-  | 'body'
-  | 'bodySmall'
-  | 'label'
-  | 'caption';
+const typographyVariants = cva('font-sans m-0', {
+  variants: {
+    variant: {
+      headline1: 'text-[3.5rem] font-extrabold leading-[1.1] tracking-[-0.02em]',
+      headline2: 'text-[2.5rem] font-extrabold leading-[1.1] tracking-[-0.02em]',
+      headline3: 'text-[2rem] font-extrabold leading-[1.3]',
+      headline4: 'text-2xl font-extrabold leading-[1.3]',
+      large: 'text-xl font-light leading-[1.5]',
+      body: 'text-base font-normal leading-[1.7]',
+      bodySmall: 'text-sm font-normal leading-[1.7]',
+      label: 'text-sm font-semibold leading-[1.5]',
+      caption: 'text-xs font-normal leading-[1.5]',
+    },
+    color: {
+      default: 'text-foreground',
+      inverse: 'text-[var(--color-text-inverse)]',
+      brand: 'text-[var(--color-brand-primary)]',
+      muted: 'text-muted-foreground',
+    },
+  },
+  defaultVariants: {
+    variant: 'body',
+    color: 'default',
+  },
+});
 
-export type TypographyColor = 'default' | 'inverse' | 'brand' | 'muted';
+export type TypographyVariant = NonNullable<VariantProps<typeof typographyVariants>['variant']>;
+export type TypographyColor = NonNullable<VariantProps<typeof typographyVariants>['color']>;
 
 type TypographyAs =
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
@@ -48,16 +65,7 @@ export function Typography({
   const Tag = as ?? defaultElement[variant];
 
   return (
-    <Tag
-      className={[
-        styles.root,
-        styles[variant],
-        styles[`color${color.charAt(0).toUpperCase()}${color.slice(1)}`],
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-    >
+    <Tag className={cn(typographyVariants({ variant, color }), className)}>
       {children}
     </Tag>
   );

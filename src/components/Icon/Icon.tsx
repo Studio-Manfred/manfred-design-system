@@ -1,5 +1,6 @@
-import React from 'react';
-import styles from './Icon.module.css';
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 import { iconPaths } from './iconPaths';
 
 export type IconName =
@@ -25,7 +26,22 @@ export type IconName =
   | 'external-link'
   | 'loader';
 
-export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+const iconVariants = cva('inline-block shrink-0', {
+  variants: {
+    size: {
+      xs: 'w-3 h-3',
+      sm: 'w-4 h-4',
+      md: 'w-5 h-5',
+      lg: 'w-6 h-6',
+      xl: 'w-8 h-8',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+export type IconSize = NonNullable<VariantProps<typeof iconVariants>['size']>;
 
 export interface IconProps {
   name: IconName;
@@ -39,7 +55,7 @@ export function Icon({ name, size = 'md', label, className }: IconProps) {
 
   return (
     <svg
-      className={[styles.root, styles[size], className].filter(Boolean).join(' ')}
+      className={cn(iconVariants({ size }), className)}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

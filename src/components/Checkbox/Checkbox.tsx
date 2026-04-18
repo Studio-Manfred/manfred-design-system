@@ -1,59 +1,62 @@
-import React, { useRef, useEffect } from 'react';
-import styles from './Checkbox.module.css';
+import * as React from 'react';
+import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
+import { cn } from '@/lib/utils';
 import { Icon } from '../Icon';
 
-export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+type RadixCheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;
+
+export interface CheckboxProps extends Omit<RadixCheckboxProps, 'children'> {
   label?: React.ReactNode;
   indeterminate?: boolean;
   error?: boolean;
 }
 
-export function Checkbox({
-  label,
-  indeterminate = false,
-  error = false,
-  className,
-  checked,
-  defaultChecked,
-  onChange,
-  disabled,
-  id,
-  ...rest
-}: CheckboxProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+export const Checkbox = React.forwardRef<
+  React.ElementRef<typeof CheckboxPrimitive.Root>,
+  CheckboxProps
+>(({ label, indeterminate, error, className, disabled, checked, id, ...rest }, ref) => {
+  const checkedValue: CheckboxPrimitive.CheckedState | undefined =
+    indeterminate ? 'indeterminate' : checked;
 
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.indeterminate = indeterminate;
-    }
-  }, [indeterminate]);
+  const control = (
+    <CheckboxPrimitive.Root
+      ref={ref}
+      id={id}
+      disabled={disabled}
+      checked={checkedValue}
+      aria-invalid={error || undefined}
+      className={cn(
+        'peer shrink-0 w-[18px] h-[18px] rounded-[var(--radius-sm)] border-[1.5px] bg-background',
+        'border-[var(--color-border-strong)]',
+        'data-[state=checked]:bg-[var(--color-bg-brand)] data-[state=checked]:border-[var(--color-bg-brand)] data-[state=checked]:text-white',
+        'data-[state=indeterminate]:bg-[var(--color-bg-brand)] data-[state=indeterminate]:border-[var(--color-bg-brand)] data-[state=indeterminate]:text-white',
+        'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        'disabled:cursor-not-allowed',
+        error && 'border-[var(--color-feedback-error-fg)]',
+        !label && className,
+      )}
+      {...rest}
+    >
+      <CheckboxPrimitive.Indicator className="flex items-center justify-center text-current">
+        <Icon name={indeterminate ? 'minus' : 'check'} size="xs" />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  );
+
+  if (!label) return control;
 
   return (
     <label
-      className={[styles.root, error ? styles.error : '', disabled ? styles.disabledLabel : '', className]
-        .filter(Boolean)
-        .join(' ')}
+      htmlFor={id}
+      className={cn(
+        'inline-flex items-center gap-2 cursor-pointer select-none',
+        disabled && 'cursor-not-allowed opacity-50',
+        className,
+      )}
     >
-      <input
-        ref={inputRef}
-        type="checkbox"
-        className={styles.nativeInput}
-        checked={checked}
-        defaultChecked={defaultChecked}
-        onChange={onChange}
-        disabled={disabled}
-        id={id}
-        aria-invalid={error ? true : undefined}
-        {...rest}
-      />
-      <span className={styles.control} aria-hidden="true">
-        {indeterminate ? (
-          <Icon name="minus" size="xs" className={styles.checkIcon} />
-        ) : (
-          <Icon name="check" size="xs" className={styles.checkIcon} />
-        )}
-      </span>
-      {label && <span className={styles.labelText}>{label}</span>}
+      {control}
+      <span className="font-sans text-base text-foreground leading-[1.5]">{label}</span>
     </label>
   );
-}
+});
+Checkbox.displayName = 'Checkbox';

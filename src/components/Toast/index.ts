@@ -1,2 +1,2 @@
-export { ToastContainer, useToast } from './Toast';
-export type { ToastItem, ToastContainerProps, ToastPosition } from './Toast';
+export { Toaster, toast } from './Toast';
+export type { ToastProps } from './Toast';

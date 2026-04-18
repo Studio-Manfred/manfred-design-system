@@ -1,50 +1,37 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import React, { useState } from 'react';
-import { Radio } from './Radio';
+import { useState } from 'react';
+import { RadioGroup, RadioGroupItem } from './Radio';
 
-const meta: Meta<typeof Radio> = {
-  title: 'Components/Radio',
-  component: Radio,
+const meta: Meta<typeof RadioGroup> = {
+  title: 'Components/RadioGroup',
+  component: RadioGroup,
   parameters: { layout: 'centered' },
 };
 
 export default meta;
 
-type Story = StoryObj<typeof Radio>;
+type Story = StoryObj<typeof RadioGroup>;
 
 export const Playground: Story = {
-  args: {
-    label: 'Option A',
-    name: 'playground',
-  },
+  render: () => (
+    <RadioGroup defaultValue="a">
+      <RadioGroupItem id="p-a" value="a" label="Option A" />
+      <RadioGroupItem id="p-b" value="b" label="Option B" />
+      <RadioGroupItem id="p-c" value="c" label="Option C" />
+    </RadioGroup>
+  ),
 };
 
-export const RadioGroup: Story = {
+export const Controlled: Story = {
   render: () => {
     const [value, setValue] = useState('a');
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        <Radio
-          label="Option A"
-          name="group"
-          value="a"
-          checked={value === 'a'}
-          onChange={() => setValue('a')}
-        />
-        <Radio
-          label="Option B"
-          name="group"
-          value="b"
-          checked={value === 'b'}
-          onChange={() => setValue('b')}
-        />
-        <Radio
-          label="Option C"
-          name="group"
-          value="c"
-          checked={value === 'c'}
-          onChange={() => setValue('c')}
-        />
+        <RadioGroup value={value} onValueChange={setValue}>
+          <RadioGroupItem id="c-a" value="a" label="Option A" />
+          <RadioGroupItem id="c-b" value="b" label="Option B" />
+          <RadioGroupItem id="c-c" value="c" label="Option C" />
+        </RadioGroup>
         <span
           style={{
             fontSize: '12px',
@@ -62,12 +49,18 @@ export const RadioGroup: Story = {
 
 export const States: Story = {
   render: () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <Radio label="Unchecked" name="states" />
-      <Radio label="Checked" name="states" defaultChecked />
-      <Radio label="Disabled unchecked" disabled name="states-d" />
-      <Radio label="Disabled checked" disabled defaultChecked name="states-d" />
-      <Radio label="Error state" error name="states-e" />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <RadioGroup defaultValue="checked">
+        <RadioGroupItem id="s-un" value="unchecked" label="Unchecked" />
+        <RadioGroupItem id="s-ch" value="checked" label="Checked" />
+      </RadioGroup>
+      <RadioGroup defaultValue="d-checked">
+        <RadioGroupItem id="s-du" value="d-unchecked" label="Disabled unchecked" disabled />
+        <RadioGroupItem id="s-dc" value="d-checked" label="Disabled checked" disabled />
+      </RadioGroup>
+      <RadioGroup>
+        <RadioGroupItem id="s-err" value="err" label="Error state" error />
+      </RadioGroup>
     </div>
   ),
 };

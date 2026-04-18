@@ -1,129 +1,34 @@
-import React, { useState, useRef, useCallback, useId } from 'react';
-import ReactDOM from 'react-dom';
-import styles from './Tooltip.module.css';
+import * as React from 'react';
+import * as TooltipPrimitive from '@radix-ui/react-tooltip';
+import { cn } from '@/lib/utils';
 
-export type TooltipPlacement = 'top' | 'bottom' | 'left' | 'right';
+const TooltipProvider = TooltipPrimitive.Provider;
+const Tooltip = TooltipPrimitive.Root;
+const TooltipTrigger = TooltipPrimitive.Trigger;
 
-export interface TooltipProps {
-  content: React.ReactNode;
-  placement?: TooltipPlacement;
-  delay?: number;
-  children: React.ReactElement<
-    React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement>
-  >;
-}
-
-interface Position {
-  top: number;
-  left: number;
-}
-
-function computePosition(
-  triggerRect: DOMRect,
-  tooltipRect: DOMRect,
-  placement: TooltipPlacement,
-  gap = 8,
-): Position {
-  switch (placement) {
-    case 'top':
-      return {
-        top: triggerRect.top - tooltipRect.height - gap,
-        left: triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2,
-      };
-    case 'bottom':
-      return {
-        top: triggerRect.bottom + gap,
-        left: triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2,
-      };
-    case 'left':
-      return {
-        top: triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2,
-        left: triggerRect.left - tooltipRect.width - gap,
-      };
-    case 'right':
-      return {
-        top: triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2,
-        left: triggerRect.right + gap,
-      };
-  }
-}
-
-export function Tooltip({ content, placement = 'top', delay = 200, children }: TooltipProps) {
-  const [visible, setVisible] = useState(false);
-  const [position, setPosition] = useState<Position>({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLElement>(null);
-  const tooltipRef = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const tooltipId = useId();
-
-  const show = useCallback(() => {
-    timerRef.current = setTimeout(() => {
-      if (triggerRef.current) {
-        const triggerRect = triggerRef.current.getBoundingClientRect();
-        // Use a temp measurement (approximate) before first render
-        const tooltipRect = tooltipRef.current?.getBoundingClientRect() ?? {
-          width: 120,
-          height: 32,
-        } as DOMRect;
-        setPosition(computePosition(triggerRect, tooltipRect, placement));
-        setVisible(true);
-      }
-    }, delay);
-  }, [delay, placement]);
-
-  const hide = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setVisible(false);
-  }, []);
-
-  const trigger = React.cloneElement(children, {
-    ref: triggerRef,
-    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
-      children.props.onMouseEnter?.(e);
-      show();
-    },
-    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
-      children.props.onMouseLeave?.(e);
-      hide();
-    },
-    onFocus: (e: React.FocusEvent<HTMLElement>) => {
-      children.props.onFocus?.(e);
-      show();
-    },
-    onBlur: (e: React.FocusEvent<HTMLElement>) => {
-      children.props.onBlur?.(e);
-      hide();
-    },
-    onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-      children.props.onKeyDown?.(e);
-      if (e.key === 'Escape') hide();
-    },
-    'aria-describedby': tooltipId,
-  });
-
-  if (typeof document === 'undefined') return trigger;
-
-  return (
-    <>
-      {trigger}
-      {ReactDOM.createPortal(
-        <div
-          ref={tooltipRef}
-          id={tooltipId}
-          role="tooltip"
-          className={[
-            styles.tooltip,
-            styles[placement],
-            visible ? styles.visible : styles.hidden,
-          ]
-            .filter(Boolean)
-            .join(' ')}
-          style={{ top: position.top, left: position.left }}
-        >
-          {content}
-        </div>,
-        document.body,
+const TooltipContent = React.forwardRef<
+  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
+>(({ className, sideOffset = 8, ...props }, ref) => (
+  <TooltipPrimitive.Portal>
+    <TooltipPrimitive.Content
+      ref={ref}
+      sideOffset={sideOffset}
+      className={cn(
+        'z-50 overflow-hidden rounded-[var(--radius-sm)] px-3 py-1.5 text-xs font-sans',
+        'bg-[var(--color-bg-inverse)] text-[var(--color-text-inverse)]',
+        'shadow-md',
+        'data-[state=delayed-open]:animate-in data-[state=closed]:animate-out',
+        'data-[state=closed]:fade-out-0 data-[state=delayed-open]:fade-in-0',
+        'data-[state=closed]:zoom-out-95 data-[state=delayed-open]:zoom-in-95',
+        'data-[side=bottom]:slide-in-from-top-1 data-[side=top]:slide-in-from-bottom-1',
+        'data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1',
+        className,
       )}
-    </>
-  );
-}
+      {...props}
+    />
+  </TooltipPrimitive.Portal>
+));
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };

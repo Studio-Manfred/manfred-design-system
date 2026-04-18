@@ -1,35 +1,61 @@
-import React from 'react';
-import styles from './Radio.module.css';
+import * as React from 'react';
+import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
+import { cn } from '@/lib/utils';
 
-export interface RadioProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
+const RadioGroup = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
+>(({ className, ...props }, ref) => (
+  <RadioGroupPrimitive.Root ref={ref} className={cn('flex flex-col gap-2', className)} {...props} />
+));
+RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
+
+export interface RadioGroupItemProps
+  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Item> {
   label?: React.ReactNode;
   error?: boolean;
 }
 
-export function Radio({
-  label,
-  error = false,
-  className,
-  disabled,
-  ...rest
-}: RadioProps) {
+const RadioGroupItem = React.forwardRef<
+  React.ElementRef<typeof RadioGroupPrimitive.Item>,
+  RadioGroupItemProps
+>(({ className, label, error, id, disabled, ...props }, ref) => {
+  const control = (
+    <RadioGroupPrimitive.Item
+      ref={ref}
+      id={id}
+      disabled={disabled}
+      className={cn(
+        'shrink-0 w-[18px] h-[18px] rounded-full border-[1.5px] bg-background',
+        'border-[var(--color-border-strong)]',
+        'data-[state=checked]:border-[var(--color-bg-brand)]',
+        'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+        'disabled:cursor-not-allowed',
+        error && 'border-[var(--color-feedback-error-fg)]',
+        !label && className,
+      )}
+      {...props}
+    >
+      <RadioGroupPrimitive.Indicator className="flex items-center justify-center w-full h-full after:content-[''] after:block after:w-2 after:h-2 after:rounded-full after:bg-[var(--color-bg-brand)]" />
+    </RadioGroupPrimitive.Item>
+  );
+
+  if (!label) return control;
+
   return (
     <label
-      className={[styles.root, error ? styles.error : '', disabled ? styles.disabledLabel : '', className]
-        .filter(Boolean)
-        .join(' ')}
+      htmlFor={id}
+      className={cn(
+        'inline-flex items-center gap-2 cursor-pointer select-none',
+        disabled && 'cursor-not-allowed opacity-50',
+        className,
+      )}
     >
-      {/* aria-invalid is not supported on role="radio" per ARIA spec.
-          Error state is communicated visually and at the group/FormField level
-          via aria-describedby on the containing fieldset or form field. */}
-      <input
-        type="radio"
-        className={styles.nativeInput}
-        disabled={disabled}
-        {...rest}
-      />
-      <span className={styles.control} aria-hidden="true" />
-      {label && <span className={styles.labelText}>{label}</span>}
+      {control}
+      <span className="font-sans text-base text-foreground leading-[1.5]">{label}</span>
     </label>
   );
-}
+});
+RadioGroupItem.displayName = RadioGroupPrimitive.Item.displayName;
+
+export { RadioGroup, RadioGroupItem };

@@ -4,7 +4,18 @@ import { size, controlSize, iconSize, containerSize } from './sizing';
 
 const meta: Meta = {
   title: 'Foundation/Tokens',
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    a11y: {
+      config: {
+        rules: [
+          // These stories display color swatches as content — the swatch itself
+          // is the subject, not production text. Contrast rules don't apply.
+          { id: 'color-contrast', enabled: false },
+        ],
+      },
+    },
+  },
 };
 
 export default meta;

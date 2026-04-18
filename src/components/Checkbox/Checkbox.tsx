@@ -31,7 +31,7 @@ export const Checkbox = React.forwardRef<
         'data-[state=checked]:bg-[var(--color-bg-brand)] data-[state=checked]:border-[var(--color-bg-brand)] data-[state=checked]:text-white',
         'data-[state=indeterminate]:bg-[var(--color-bg-brand)] data-[state=indeterminate]:border-[var(--color-bg-brand)] data-[state=indeterminate]:text-white',
         'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
-        'disabled:cursor-not-allowed',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         error && 'border-[var(--color-feedback-error-fg)]',
         !label && className,
       )}
@@ -50,7 +50,7 @@ export const Checkbox = React.forwardRef<
       htmlFor={id}
       className={cn(
         'inline-flex items-center gap-2 cursor-pointer select-none',
-        disabled && 'cursor-not-allowed opacity-50',
+        disabled && 'cursor-not-allowed',
         className,
       )}
     >

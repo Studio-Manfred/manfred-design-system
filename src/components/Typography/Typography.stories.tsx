@@ -51,6 +51,16 @@ export const AllVariants: Story = {
 };
 
 export const ColorVariants: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        // This story demos colour tokens on tinted backgrounds as a reference;
+        // individual pairings (e.g. brand blue on dark) are intentional showcases,
+        // not production copy. Contrast rules don't apply to swatch demos.
+        rules: [{ id: 'color-contrast', enabled: false }],
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <Typography variant="headline3" color="inverse">Inverse — White on dark</Typography>

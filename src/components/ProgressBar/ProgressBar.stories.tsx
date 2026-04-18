@@ -79,6 +79,7 @@ export const Interactive: Story = {
           value={value}
           onChange={(e) => setValue(Number(e.target.value))}
           style={{ width: '100%' }}
+          aria-label="Adjust progress value"
         />
       </div>
     );

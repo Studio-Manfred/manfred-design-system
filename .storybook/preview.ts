@@ -26,7 +26,17 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: 'todo'
+      test: 'todo',
+      config: {
+        rules: [
+          // Stories render in isolation (no <main>, no <h1>, no landmark wrapping).
+          // These page-level axe rules do not apply to component-in-iframe previews;
+          // consumers are responsible for landmarks in their own app shell.
+          { id: 'region', enabled: false },
+          { id: 'landmark-one-main', enabled: false },
+          { id: 'page-has-heading-one', enabled: false },
+        ],
+      },
     }
   },
 

@@ -30,7 +30,7 @@ const RadioGroupItem = React.forwardRef<
         'border-[var(--color-border-strong)]',
         'data-[state=checked]:border-[var(--color-bg-brand)]',
         'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
-        'disabled:cursor-not-allowed',
+        'disabled:cursor-not-allowed disabled:opacity-50',
         error && 'border-[var(--color-feedback-error-fg)]',
         !label && className,
       )}
@@ -47,7 +47,7 @@ const RadioGroupItem = React.forwardRef<
       htmlFor={id}
       className={cn(
         'inline-flex items-center gap-2 cursor-pointer select-none',
-        disabled && 'cursor-not-allowed opacity-50',
+        disabled && 'cursor-not-allowed',
         className,
       )}
     >

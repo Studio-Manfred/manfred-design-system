@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Checkbox } from './Checkbox';
 
 const meta: Meta<typeof Checkbox> = {
@@ -54,7 +54,7 @@ export const Controlled: Story = {
         <Checkbox
           label={checked ? 'Checked' : 'Unchecked'}
           checked={checked}
-          onChange={(e) => setChecked(e.target.checked)}
+          onCheckedChange={(state) => setChecked(state === true)}
         />
         <span
           style={{

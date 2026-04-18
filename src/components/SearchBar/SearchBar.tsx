@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import styles from './SearchBar.module.css';
+import * as React from 'react';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import { TextInput } from '../TextInput';
 import { Icon } from '../Icon';
 import type { TextInputSize } from '../TextInput';
@@ -17,6 +18,7 @@ export interface SearchBarProps {
   disabled?: boolean;
   fullWidth?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export function SearchBar({
@@ -30,6 +32,7 @@ export function SearchBar({
   disabled = false,
   fullWidth = false,
   className,
+  style,
 }: SearchBarProps) {
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue ?? '');
@@ -56,7 +59,10 @@ export function SearchBar({
   const showClear = (currentValue ?? '').length > 0 && !disabled;
 
   return (
-    <div className={[styles.root, fullWidth ? styles.fullWidth : '', className].filter(Boolean).join(' ')}>
+    <div
+      className={cn('relative inline-flex items-center', fullWidth && 'w-full', className)}
+      style={style}
+    >
       <TextInput
         size={size}
         placeholder={placeholder}
@@ -71,7 +77,7 @@ export function SearchBar({
       {showClear && (
         <button
           type="button"
-          className={styles.clearBtn}
+          className="absolute right-3 flex items-center justify-center p-1 text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={handleClear}
           aria-label="Clear search"
         >

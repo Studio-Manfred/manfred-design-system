@@ -1,7 +1,21 @@
-import React from 'react';
-import styles from './Spinner.module.css';
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
-export type SpinnerSize = 'sm' | 'md' | 'lg';
+const spinnerVariants = cva('inline-flex items-center justify-center text-[var(--color-brand-primary)]', {
+  variants: {
+    size: {
+      sm: 'w-4 h-4',
+      md: 'w-6 h-6',
+      lg: 'w-10 h-10',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
+  },
+});
+
+export type SpinnerSize = NonNullable<VariantProps<typeof spinnerVariants>['size']>;
 
 export interface SpinnerProps {
   size?: SpinnerSize;
@@ -14,11 +28,8 @@ export function Spinner({ size = 'md', label = 'Loading', className }: SpinnerPr
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <span
-      className={[styles.root, styles[size], className].filter(Boolean).join(' ')}
-      role="status"
-    >
-      <svg viewBox="0 0 24 24" fill="none" className={styles.svg} aria-hidden="true">
+    <span className={cn(spinnerVariants({ size }), className)} role="status">
+      <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" aria-hidden="true">
         <circle
           cx="12"
           cy="12"
@@ -36,10 +47,10 @@ export function Spinner({ size = 'md', label = 'Loading', className }: SpinnerPr
           strokeDasharray={circumference}
           strokeDashoffset={circumference * 0.75}
           strokeLinecap="round"
-          className={styles.spin}
+          className="origin-center animate-spin"
         />
       </svg>
-      <span className={styles.srOnly}>{label}</span>
+      <span className="sr-only">{label}</span>
     </span>
   );
 }

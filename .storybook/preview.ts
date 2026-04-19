@@ -33,6 +33,10 @@ const preview: Preview = {
           // Stories render in isolation (no <main>, no <h1>, no landmark wrapping).
           // These page-level axe rules do not apply to component-in-iframe previews;
           // consumers are responsible for landmarks in their own app shell.
+          //
+          // Keep this list in sync with GLOBAL_DISABLED_RULES in
+          // scripts/a11y-runtime-scan.mjs — the CLI scan hardcodes the
+          // same suppressions so its output matches this panel.
           { id: 'region', enabled: false },
           { id: 'landmark-one-main', enabled: false },
           { id: 'page-has-heading-one', enabled: false },

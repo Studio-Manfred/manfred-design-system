@@ -49,6 +49,13 @@ installs a zero-specificity baseline on `body` that sets `background-color` and
 In Storybook, the toolbar has a **Theme** toggle with three options:
 **System**, **Light**, **Dark**.
 
+**Named-colour utilities don't flip.** Utilities like `bg-business-blue`,
+`bg-almost-black`, `bg-human-pink`, `bg-beige`, and `bg-light-beige` point at
+layer-1 brand primitives — they stay their literal value in both themes. Use
+semantic utilities (`bg-background`, `bg-primary`, `bg-muted`, etc.) for
+theme-reactive surfaces; the named ones are for brand-accent moments where
+the colour is the point.
+
 ---
 
 ## v0.2.0 — Breaking changes from 0.1.x

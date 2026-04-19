@@ -18,6 +18,13 @@ function get(p) {
   });
 }
 
+// SUPPRESSION POLICY — kept in sync manually with the Storybook addon-a11y
+// config. If you add or remove a rule here, mirror the change in:
+//   .storybook/preview.ts        (GLOBAL_DISABLED_RULES — a11y.config.rules)
+//   src/tokens/tokens.stories.tsx         (meta-level color-contrast off)
+//   src/components/Typography/Typography.stories.tsx  (ColorVariants story)
+// Otherwise this CLI scan will drift from what the Storybook panel shows.
+
 // Rules disabled globally in .storybook/preview.ts — they don't apply to isolated stories.
 const GLOBAL_DISABLED_RULES = ['region', 'landmark-one-main', 'page-has-heading-one'];
 // Stories where colour-contrast is intentionally off (swatch/token/typography showcases).

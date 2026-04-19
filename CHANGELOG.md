@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-04-19
+
+Follow-up polish from the v0.3.0 code review. No API or visual changes.
+
+### Added
+
+- `Dialog.Opened` story: the `play` function now awaits the portaled
+  dialog content before completing, preventing flaky axe/coverage
+  scans of the opening-animation state on slow CI.
+- README: documented that named-colour utilities (`bg-business-blue`,
+  `bg-almost-black`, etc.) are brand primitives and do not flip under
+  dark — use semantic utilities for theme-reactive surfaces.
+- `Logo.tsx`: inline comment explaining that `colorMap` is
+  intentionally literal; consumers pick a variant per surface.
+
+### Changed
+
+- Cross-reference comments between `.storybook/preview.ts` and
+  `scripts/a11y-runtime-scan.mjs`, so future edits to the axe
+  suppression policy stay in sync between the addon panel and the CLI
+  scan.
+
 ## [0.3.0] - 2026-04-18
 
 Adds dark mode support across the whole component library. Non-breaking:
@@ -100,5 +122,6 @@ migration table.
 
 See `git log` for the history prior to this changelog.
 
+[0.3.1]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.1
 [0.3.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.0
 [0.2.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.2.0

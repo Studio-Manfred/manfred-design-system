@@ -13,6 +13,9 @@ export interface LogoProps {
   'aria-label'?: string;
 }
 
+// Literal brand primitives — intentionally not theme-reactive.
+// Consumers pick the variant per surface: `color="white"` on dark/brand
+// backgrounds, `color="black"` on light surfaces.
 const colorMap: Record<LogoColor, string> = {
   blue:  '#2c28ec',
   black: '#1e1e24',

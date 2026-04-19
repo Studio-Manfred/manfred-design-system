@@ -127,6 +127,9 @@ export const Opened: Story = {
   ),
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: /open dialog/i }));
+    // Wait for the portaled dialog content to mount before the test finishes —
+    // otherwise axe/coverage may scan the opening-animation state on slow CI.
+    await within(document.body).findByRole('dialog');
   },
 };
 

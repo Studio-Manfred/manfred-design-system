@@ -39,7 +39,7 @@ export const AllVariants: Story = {
           alignItems: 'center',
           padding: '32px',
           borderRadius: '12px',
-          backgroundColor: '#2c28ec',
+          background: 'var(--color-brand-logo-blue)',
         }}
       >
         <Button variant="inverse">Inverse</Button>

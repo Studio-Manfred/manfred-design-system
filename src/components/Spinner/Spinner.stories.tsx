@@ -59,8 +59,8 @@ export const OnDarkBackground: Story = {
         alignItems: 'center',
         padding: '32px',
         borderRadius: '12px',
-        backgroundColor: '#2c28ec',
-        color: '#ffffff',
+        background: 'var(--color-brand-logo-blue)',
+        color: 'var(--color-brand-logo-paper)',
       }}
     >
       <Spinner size="sm" />

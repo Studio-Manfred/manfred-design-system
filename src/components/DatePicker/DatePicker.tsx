@@ -5,6 +5,7 @@ import { format as formatDate } from 'date-fns';
 import { sv } from 'date-fns/locale/sv';
 import type { Locale } from 'date-fns';
 import { Icon } from '../Icon';
+import { Button } from '../Button';
 import { inputLikeVariants, type InputLikeSize, type InputLikeStatus } from '@/lib/inputLikeVariants';
 import { cn } from '@/lib/utils';
 
@@ -54,10 +55,6 @@ const defaultFormat = (value: Date, locale: Locale) =>
 
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
   function DatePicker(props, ref) {
-    // Deferred to later tasks in this plan (already in the interface for
-    // spec stability): name (T8), clearable/showTodayButton (T6).
-    // Consumers passing these today will not see them take effect until
-    // the corresponding task lands.
     const {
       value: valueProp,
       defaultValue,
@@ -76,6 +73,8 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       'aria-describedby': ariaDescribedBy,
       minDate,
       maxDate,
+      clearable = true,
+      showTodayButton = true,
       open: openProp,
       onOpenChange,
       className,
@@ -105,6 +104,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     const open = isOpenControlled ? openProp : internalOpen;
     const setOpen = (next: boolean) => {
       if (!isOpenControlled) setInternalOpen(next);
+      if (next) setMonth(currentValue ?? new Date());
       onOpenChange?.(next);
     };
 
@@ -142,6 +142,8 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     // TextInput's local inputVariants job. This constant is the button's
     // equivalent of that wrapper+input padding combo.
     const triggerPadding = size === 'sm' ? 'px-3' : 'px-4';
+
+    const [month, setMonth] = React.useState<Date>(currentValue ?? new Date());
 
     const displayText = currentValue ? formatValue(currentValue, locale) : placeholder;
     const hasValue = Boolean(currentValue);
@@ -205,7 +207,36 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
               locale={locale}
               autoFocus
               disabled={disabledMatcher}
+              month={month}
+              onMonthChange={setMonth}
             />
+            {(showTodayButton || (clearable && hasValue)) && (
+              <div className={cn(
+                'mt-3 flex gap-2 border-t border-[var(--color-border-subtle)] pt-3',
+                showTodayButton ? 'justify-between' : 'justify-end',
+              )}>
+                {showTodayButton ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMonth(new Date())}
+                    type="button"
+                  >
+                    Today
+                  </Button>
+                ) : null}
+                {clearable && hasValue ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSelect(undefined)}
+                    type="button"
+                  >
+                    Clear
+                  </Button>
+                ) : null}
+              </div>
+            )}
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>

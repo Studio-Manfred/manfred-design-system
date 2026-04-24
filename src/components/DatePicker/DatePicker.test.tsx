@@ -110,3 +110,42 @@ describe('DatePicker — constraints', () => {
     warnSpy.mockRestore();
   });
 });
+
+describe('DatePicker — footer actions', () => {
+  it('renders Clear button when clearable and value is set', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker defaultValue={new Date(2026, 3, 15)} clearable />);
+    await user.click(screen.getByRole('combobox'));
+    expect(await screen.findByRole('button', { name: /clear/i })).toBeInTheDocument();
+  });
+
+  it('does not render Clear when no value is set', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker clearable />);
+    await user.click(screen.getByRole('combobox'));
+    await screen.findByRole('dialog');
+    expect(screen.queryByRole('button', { name: /clear/i })).toBeNull();
+  });
+
+  it('Clear button fires onValueChange(undefined) and closes popover', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<DatePicker defaultValue={new Date(2026, 3, 15)} onValueChange={onChange} clearable />);
+    await user.click(screen.getByRole('combobox'));
+    await user.click(await screen.findByRole('button', { name: /clear/i }));
+    expect(onChange).toHaveBeenCalledWith(undefined);
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  it('renders Today button when showTodayButton is true', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker showTodayButton />);
+    await user.click(screen.getByRole('combobox'));
+    // Use getAllByRole to handle the case where the DayPicker also marks
+    // today's date cell with an aria-label containing "Today".
+    const todayButtons = await screen.findAllByRole('button', { name: /today/i });
+    expect(todayButtons.length).toBeGreaterThanOrEqual(1);
+    // The footer button has no aria-label override — it matches by text content.
+    expect(todayButtons.some((btn) => btn.textContent?.trim() === 'Today')).toBe(true);
+  });
+});

@@ -137,6 +137,34 @@ export const RangeInFormField: Story = {
   ),
 };
 
+export const RangePartialState: Story = {
+  args: { mode: 'range' },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole('combobox');
+    await userEvent.click(trigger);
+    // Popover renders in a Portal — query document.body rather than canvasElement.
+    const popover = within(document.body);
+    // rdp day buttons carry a locale-aware aria-label containing a month name.
+    // Multiple days match, so grab the first enabled one.
+    const dayButtons = await popover.findAllByRole('button', {
+      name: /\b\d+\s+(april|maj|mars|februari|januari|juni|juli|augusti|september|oktober|november|december|january|february|march|may|june|july|august|october)\b/i,
+    });
+    const firstEnabled = dayButtons.find((b) => !(b as HTMLButtonElement).disabled);
+    if (!firstEnabled) throw new Error('No enabled day button found in popover');
+    await userEvent.click(firstEnabled);
+    // Popover stays open — first-click-on-empty becomes partial.
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Trigger shows a partial range (contains `…`).
+    expect(trigger).toHaveTextContent(/…/);
+  },
+};
+
 // Play: Tab to trigger, ArrowDown to open, Escape to close.
 export const KeyboardInteraction: Story = {
   render: () => {

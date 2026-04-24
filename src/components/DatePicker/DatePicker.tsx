@@ -4,51 +4,51 @@ import { DayPicker } from 'react-day-picker';
 import { format as formatDate } from 'date-fns';
 import { sv } from 'date-fns/locale/sv';
 import type { Locale } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 import { Icon } from '../Icon';
 import { Button } from '../Button';
 import { inputLikeVariants, type InputLikeSize, type InputLikeStatus } from '@/lib/inputLikeVariants';
 import { cn } from '@/lib/utils';
 
-export interface DatePickerProps {
-  // Value & change
-  value?: Date;
-  defaultValue?: Date;
-  onValueChange?: (value: Date | undefined) => void;
-
-  // Display
+type DatePickerBaseProps = {
   placeholder?: string;
-  formatValue?: (value: Date, locale: Locale) => string;
   locale?: Locale;
-
-  // Constraints
   minDate?: Date;
   maxDate?: Date;
-
-  // Footer actions
   clearable?: boolean;
   showTodayButton?: boolean;
-
-  // TextInput-alike pass-through
   size?: InputLikeSize;
   status?: InputLikeStatus;
   fullWidth?: boolean;
   disabled?: boolean;
-
-  // Form / a11y plumbing
   id?: string;
   name?: string;
   required?: boolean;
   'aria-label'?: string;
   'aria-labelledby'?: string;
   'aria-describedby'?: string;
-
-  // Controlled open state
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-
-  // Escape hatch
   className?: string;
-}
+};
+
+export type DatePickerSingleProps = DatePickerBaseProps & {
+  mode?: 'single';
+  value?: Date;
+  defaultValue?: Date;
+  onValueChange?: (value: Date | undefined) => void;
+  formatValue?: (value: Date, locale: Locale) => string;
+};
+
+export type DatePickerRangeProps = DatePickerBaseProps & {
+  mode: 'range';
+  value?: DateRange;
+  defaultValue?: DateRange;
+  onValueChange?: (value: DateRange | undefined) => void;
+  formatValue?: (value: DateRange, locale: Locale) => string;
+};
+
+export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
 const defaultFormat = (value: Date, locale: Locale) =>
   formatDate(value, 'P', { locale });
@@ -108,6 +108,11 @@ const rdpClassNames = {
 
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
   function DatePicker(props, ref) {
+    // Scaffolding cast: the component body still assumes single-mode semantics.
+    // Task 3 will replace this with the useDatePickerState hook that consumes
+    // the discriminated union properly.
+    const propsIn = props;
+    const propsSingle = propsIn as DatePickerSingleProps;
     const {
       value: valueProp,
       defaultValue,
@@ -132,7 +137,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       onOpenChange,
       className,
       name,
-    } = props;
+    } = propsSingle;
 
     // Warn once in dev when both value and defaultValue are passed.
     // Empty deps array is intentional — we only warn on initial mount.

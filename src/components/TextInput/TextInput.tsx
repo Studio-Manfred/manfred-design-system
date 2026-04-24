@@ -1,42 +1,9 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
+import { inputLikeVariants } from '@/lib/inputLikeVariants';
 import { Icon } from '../Icon';
 import type { IconName } from '../Icon';
-
-const wrapperVariants = cva(
-  [
-    'relative inline-flex items-center bg-background border-[1.5px] border-input rounded-[var(--radius-md)]',
-    'transition-[border-color,box-shadow] duration-150 ease-in-out',
-    'focus-within:border-[var(--color-border-focus)] focus-within:shadow-[var(--shadow-focus)]',
-    'has-[input:disabled]:bg-muted has-[input:disabled]:opacity-60 has-[input:disabled]:cursor-not-allowed',
-  ].join(' '),
-  {
-    variants: {
-      size: {
-        sm: 'h-8',
-        md: 'h-10',
-        lg: 'h-12',
-      },
-      status: {
-        default: '',
-        error:
-          'border-[var(--color-feedback-error-fg)] focus-within:border-[var(--color-feedback-error-fg)] focus-within:shadow-[0_0_0_3px_var(--color-feedback-error-bg)]',
-        success:
-          'border-[var(--color-feedback-success-fg)] focus-within:border-[var(--color-feedback-success-fg)] focus-within:shadow-[0_0_0_3px_var(--color-feedback-success-bg)]',
-      },
-      fullWidth: {
-        true: 'w-full',
-        false: '',
-      },
-    },
-    defaultVariants: {
-      size: 'md',
-      status: 'default',
-      fullWidth: false,
-    },
-  },
-);
 
 const inputVariants = cva(
   [
@@ -67,8 +34,8 @@ const inputVariants = cva(
   },
 );
 
-export type TextInputSize = NonNullable<VariantProps<typeof wrapperVariants>['size']>;
-export type TextInputStatus = NonNullable<VariantProps<typeof wrapperVariants>['status']>;
+export type TextInputSize = NonNullable<VariantProps<typeof inputLikeVariants>['size']>;
+export type TextInputStatus = NonNullable<VariantProps<typeof inputLikeVariants>['status']>;
 
 export interface TextInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   size?: TextInputSize;
@@ -95,7 +62,7 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     const iconSize = size === 'lg' ? 'md' : 'sm';
 
     return (
-      <div className={cn(wrapperVariants({ size, status, fullWidth }), className)}>
+      <div className={cn(inputLikeVariants({ size, status, fullWidth }), className)}>
         {leadingIcon && (
           <span
             className="absolute left-3 flex items-center pointer-events-none text-muted-foreground"

@@ -1,0 +1,18 @@
+{
+  "name": "@studio-manfred/manfred-design-system",
+  "version": "0.0.1-use-github-packages",
+  "description": "This package is hosted on GitHub Packages, not public npm. See docs/CONSUMING.md.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Studio-Manfred/manfred-design-system"
+  },
+  "homepage": "https://github.com/Studio-Manfred/manfred-design-system#install",
+  "scripts": {
+    "preinstall": "node ./error.js"
+  },
+  "files": [
+    "error.js",
+    "README.md"
+  ],
+  "license": "UNLICENSED"
+}

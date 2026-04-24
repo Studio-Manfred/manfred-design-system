@@ -1,0 +1,10 @@
+console.error('');
+console.error('================================================================');
+console.error(' @studio-manfred/manfred-design-system is on GitHub Packages,');
+console.error(' not public npm. Your .npmrc is missing the scope route.');
+console.error('');
+console.error(' Setup (5 steps, ~3 min):');
+console.error('   https://github.com/Studio-Manfred/manfred-design-system/blob/main/docs/CONSUMING.md');
+console.error('================================================================');
+console.error('');
+process.exit(1);

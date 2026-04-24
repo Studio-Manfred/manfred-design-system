@@ -399,8 +399,8 @@ describe('DatePicker range mode', () => {
   it('warns and renders empty when mode="range" receives a Date value', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     render(
+      // @ts-expect-error — intentional shape mismatch to verify runtime warning
       <DatePicker
-        // @ts-expect-error — intentional shape mismatch to verify runtime warning
         mode="range"
         value={new Date('2026-04-01')}
         aria-label="test"

@@ -309,4 +309,25 @@ describe('DatePicker range mode', () => {
     // Popover closes because both endpoints are set.
     expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('clicking the same date that is `from` yields a single-day range and closes', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        onValueChange={onValueChange}
+        defaultValue={{ from: new Date('2026-04-10'), to: undefined }}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    const day10 = await screen.findByRole('button', { name: /\b10\s+april|april\s+10\b/i });
+    await user.click(day10);
+    const calls = onValueChange.mock.calls;
+    const lastCall = calls[calls.length - 1]?.[0];
+    expect(lastCall.from.getDate()).toBe(10);
+    expect(lastCall.to.getDate()).toBe(10);
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+  });
 });

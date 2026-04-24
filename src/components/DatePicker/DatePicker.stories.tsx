@@ -98,6 +98,20 @@ export const RangePlayground: Story = {
   ),
 };
 
+export const RangeWithConstraints: Story = {
+  args: {
+    mode: 'range',
+    minDate: new Date('2026-04-05'),
+    maxDate: new Date('2026-04-25'),
+    defaultValue: { from: new Date('2026-04-10'), to: new Date('2026-04-15') },
+  },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+};
+
 // Play: Tab to trigger, ArrowDown to open, Escape to close.
 export const KeyboardInteraction: Story = {
   render: () => {

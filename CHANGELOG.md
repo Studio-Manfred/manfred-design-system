@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-04-24
+
+Extends `DatePicker` with a **range mode** for selecting a `from` / `to`
+pair in the same popover. Fully backwards-compatible: the existing
+single-date API is unchanged and remains the default.
+
+### Added
+
+- `DatePicker` **range mode** via `mode="range"`. Pick a `from` and
+  `to` date in the same popover; the trigger renders a single
+  arrow-separated value (`2026-04-01 – 2026-04-15`) and shows a
+  partial-range display during selection (`2026-04-01 – …`). When
+  `name` is provided, the component renders two hidden inputs with
+  `_from` / `_to` suffixes so native `<form>` submits get a
+  predictable, timezone-neutral ISO pair.
+- New type exports: `DatePickerSingleProps`, `DatePickerRangeProps`,
+  and `DateRange` (re-exported from `react-day-picker`).
+
+### Changed
+
+- Internal refactor of `DatePicker`: state management extracted into a
+  `useDatePickerState` hook with `buildSingleState` / `buildRangeState`
+  pure builders. **No breaking changes** — existing `<DatePicker>`
+  usage (default `mode="single"`) is fully backwards-compatible.
+
 ## [0.7.0] - 2026-04-24
 
 Adds the `DatePicker` component — a single-date picker with a

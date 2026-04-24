@@ -1,57 +1,53 @@
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { DayPicker } from 'react-day-picker';
-import { format as formatDate } from 'date-fns';
-import { sv } from 'date-fns/locale/sv';
 import type { Locale } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 import { Icon } from '../Icon';
 import { Button } from '../Button';
 import { inputLikeVariants, type InputLikeSize, type InputLikeStatus } from '@/lib/inputLikeVariants';
 import { cn } from '@/lib/utils';
+import { useDatePickerState } from './useDatePickerState';
 
-export interface DatePickerProps {
-  // Value & change
-  value?: Date;
-  defaultValue?: Date;
-  onValueChange?: (value: Date | undefined) => void;
-
-  // Display
+type DatePickerBaseProps = {
   placeholder?: string;
-  formatValue?: (value: Date, locale: Locale) => string;
   locale?: Locale;
-
-  // Constraints
   minDate?: Date;
   maxDate?: Date;
-
-  // Footer actions
   clearable?: boolean;
   showTodayButton?: boolean;
-
-  // TextInput-alike pass-through
   size?: InputLikeSize;
   status?: InputLikeStatus;
   fullWidth?: boolean;
   disabled?: boolean;
-
-  // Form / a11y plumbing
   id?: string;
   name?: string;
   required?: boolean;
   'aria-label'?: string;
   'aria-labelledby'?: string;
   'aria-describedby'?: string;
-
-  // Controlled open state
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-
-  // Escape hatch
   className?: string;
-}
+};
 
-const defaultFormat = (value: Date, locale: Locale) =>
-  formatDate(value, 'P', { locale });
+export type DatePickerSingleProps = DatePickerBaseProps & {
+  mode?: 'single';
+  value?: Date;
+  defaultValue?: Date;
+  onValueChange?: (value: Date | undefined) => void;
+  formatValue?: (value: Date, locale: Locale) => string;
+};
+
+export type DatePickerRangeProps = DatePickerBaseProps & {
+  mode: 'range';
+  value?: DateRange;
+  defaultValue?: DateRange;
+  onValueChange?: (value: DateRange | undefined) => void;
+  formatValue?: (value: DateRange, locale: Locale) => string;
+};
+
+export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
 /**
  * Manfred-token classNames for react-day-picker v9.
@@ -104,17 +100,20 @@ const rdpClassNames = {
   outside: 'text-[var(--color-text-muted)] opacity-60',
   disabled: 'text-[var(--color-text-muted)] opacity-50 cursor-not-allowed',
   hidden: 'invisible',
+  range_start:
+    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'rounded-l-[var(--radius-sm)] rounded-r-none',
+  range_end:
+    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'rounded-r-[var(--radius-sm)] rounded-l-none',
+  range_middle:
+    'bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] rounded-none',
 };
 
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
   function DatePicker(props, ref) {
     const {
-      value: valueProp,
-      defaultValue,
-      onValueChange,
-      placeholder = 'Pick a date',
-      formatValue = defaultFormat,
-      locale = sv,
+      mode = 'single',
       size = 'md',
       status = 'default',
       fullWidth,
@@ -131,44 +130,34 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       open: openProp,
       onOpenChange,
       className,
-      name,
     } = props;
-
-    // Warn once in dev when both value and defaultValue are passed.
-    // Empty deps array is intentional — we only warn on initial mount.
-    React.useEffect(() => {
-      if (valueProp !== undefined && defaultValue !== undefined) {
-        // eslint-disable-next-line no-console
-        console.warn(
-          '[DatePicker] received both `value` and `defaultValue`. `value` wins (controlled); `defaultValue` is ignored.',
-        );
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    // Controlled vs uncontrolled via `'value' in props` — treats
-    // value={undefined} as still controlled (cleared), vs. value-omitted.
-    const isControlled = 'value' in props;
-    const [internalValue, setInternalValue] = React.useState<Date | undefined>(defaultValue);
-    const currentValue = isControlled ? valueProp : internalValue;
 
     const popoverId = React.useId();
 
-    // Same split for open state.
     const isOpenControlled = openProp !== undefined;
     const [internalOpen, setInternalOpen] = React.useState(false);
     const open = isOpenControlled ? openProp : internalOpen;
-    const setOpen = (next: boolean) => {
-      if (!isOpenControlled) setInternalOpen(next);
-      if (next) setMonth(currentValue ?? new Date());
-      onOpenChange?.(next);
-    };
+    const setOpen = React.useCallback(
+      (next: boolean) => {
+        if (!isOpenControlled) setInternalOpen(next);
+        onOpenChange?.(next);
+      },
+      [isOpenControlled, onOpenChange],
+    );
 
-    const handleSelect = (next: Date | undefined) => {
-      if (!isControlled) setInternalValue(next);
-      onValueChange?.(next);
-      setOpen(false);
-    };
+    const state = useDatePickerState(props, { setOpen });
+    const {
+      displayText,
+      isEmpty,
+      hiddenInputs,
+      rdpSelected,
+      handleSelect,
+      shouldCloseOnSelect,
+      clear,
+      captionMonth,
+      setCaptionMonth,
+      locale,
+    } = state;
 
     const rangeInvalid = Boolean(
       minDate && maxDate && minDate.getTime() > maxDate.getTime(),
@@ -199,123 +188,149 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     // equivalent of that wrapper+input padding combo.
     const triggerPadding = size === 'sm' ? 'px-3' : 'px-4';
 
-    const [month, setMonth] = React.useState<Date>(currentValue ?? new Date());
-
-    const displayText = currentValue ? formatValue(currentValue, locale) : placeholder;
-    const hasValue = Boolean(currentValue);
-
     // Compute accessible name: explicit prop wins, otherwise fall back to the
     // current display text so the button always has a discernible name even
     // when no wrapping <label> or aria-labelledby is provided.
     const resolvedAriaLabel = ariaLabel ?? (!ariaLabelledBy ? displayText : undefined);
 
-    const isoValue = currentValue ? formatDate(currentValue, 'yyyy-MM-dd') : '';
+    // rdp's onSelect → hook's handleSelect, then maybe close.
+    const onRdpSelect = (next: Date | DateRange | undefined) => {
+      handleSelect(next);
+      if (shouldCloseOnSelect(next)) setOpen(false);
+    };
+
+    // When the popover opens, jump the caption to the current value's month.
+    React.useEffect(() => {
+      if (!open) return;
+      if (rdpSelected instanceof Date) setCaptionMonth(rdpSelected);
+      else if (
+        rdpSelected &&
+        typeof rdpSelected === 'object' &&
+        'from' in rdpSelected &&
+        rdpSelected.from
+      ) {
+        setCaptionMonth(rdpSelected.from);
+      }
+    }, [open, rdpSelected, setCaptionMonth]);
 
     return (
       <>
-        {name ? <input type="hidden" name={name} value={isoValue} /> : null}
+        {hiddenInputs.map((h) => (
+          <input key={h.name} type="hidden" name={h.name} value={h.value} />
+        ))}
         <Popover.Root open={open} onOpenChange={setOpen}>
-        <Popover.Trigger asChild>
-          <button
-            ref={ref}
-            type="button"
-            id={id}
-            disabled={disabled}
-            role="combobox"
-            aria-controls={popoverId}
-            aria-haspopup="dialog"
-            aria-expanded={open}
-            aria-label={resolvedAriaLabel}
-            aria-labelledby={ariaLabelledBy}
-            aria-describedby={ariaDescribedBy}
-            aria-invalid={status === 'error' || undefined}
-            aria-required={required || undefined}
-            onKeyDown={(e) => {
-              if (disabled) return;
-              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                setOpen(true);
-              }
-            }}
-            className={cn(
-              inputLikeVariants({
-                size,
-                status,
-                fullWidth,
-              }),
-              triggerPadding,
-              'text-left',
-              className,
-            )}
-          >
-            <span
+          <Popover.Trigger asChild>
+            <button
+              ref={ref}
+              type="button"
+              id={id}
+              disabled={disabled}
+              role="combobox"
+              aria-controls={popoverId}
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              aria-label={resolvedAriaLabel}
+              aria-labelledby={ariaLabelledBy}
+              aria-describedby={ariaDescribedBy}
+              aria-invalid={status === 'error' || undefined}
+              aria-required={required || undefined}
+              onKeyDown={(e) => {
+                if (disabled) return;
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  setOpen(true);
+                }
+              }}
               className={cn(
-                'flex-1 truncate',
-                !hasValue && 'text-[var(--color-text-muted)]',
+                inputLikeVariants({
+                  size,
+                  status,
+                  fullWidth,
+                }),
+                triggerPadding,
+                'text-left',
+                className,
               )}
             >
-              {displayText}
-            </span>
-            <span className="ml-2 flex shrink-0 items-center">
-              <Icon name="calendar" size={size === 'lg' ? 'md' : 'sm'} aria-hidden />
-            </span>
-          </button>
-        </Popover.Trigger>
+              <span
+                className={cn(
+                  'flex-1 truncate',
+                  isEmpty && 'text-[var(--color-text-muted)]',
+                )}
+              >
+                {displayText}
+              </span>
+              <span className="ml-2 flex shrink-0 items-center">
+                <Icon name="calendar" size={size === 'lg' ? 'md' : 'sm'} aria-hidden />
+              </span>
+            </button>
+          </Popover.Trigger>
 
-        <Popover.Portal>
-          <Popover.Content
-            id={popoverId}
-            side="bottom"
-            align="start"
-            sideOffset={4}
-            aria-label="Choose a date"
-            className={cn(
-              'z-50 rounded-[var(--radius-md)] border border-[var(--color-border-strong)]',
-              'bg-[var(--color-bg-surface)] shadow-[var(--shadow-overlay)] p-2 pt-4',
-              'data-[state=open]:motion-safe:animate-in data-[state=closed]:motion-safe:animate-out',
-            )}
-          >
-            <DayPicker
-              mode="single"
-              selected={currentValue}
-              onSelect={handleSelect}
-              locale={locale}
-              autoFocus
-              disabled={disabledMatcher}
-              month={month}
-              onMonthChange={setMonth}
-              classNames={rdpClassNames}
-            />
-            {(showTodayButton || (clearable && hasValue)) && (
-              <div className={cn(
-                'mt-2 flex gap-2 border-t border-[var(--color-border-subtle)] pt-2',
-                showTodayButton ? 'justify-between' : 'justify-end',
-              )}>
-                {showTodayButton ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setMonth(new Date())}
-                    type="button"
-                  >
-                    Today
-                  </Button>
-                ) : null}
-                {clearable && hasValue ? (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSelect(undefined)}
-                    type="button"
-                  >
-                    Clear
-                  </Button>
-                ) : null}
-              </div>
-            )}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
+          <Popover.Portal>
+            <Popover.Content
+              id={popoverId}
+              side="bottom"
+              align="start"
+              sideOffset={4}
+              aria-label={mode === 'range' ? 'Choose dates' : 'Choose a date'}
+              className={cn(
+                'z-50 rounded-[var(--radius-md)] border border-[var(--color-border-strong)]',
+                'bg-[var(--color-bg-surface)] shadow-[var(--shadow-overlay)] p-2 pt-4',
+                'data-[state=open]:motion-safe:animate-in data-[state=closed]:motion-safe:animate-out',
+              )}
+            >
+              {mode === 'range' ? (
+                <DayPicker
+                  mode="range"
+                  selected={rdpSelected as DateRange | undefined}
+                  onSelect={(range) => onRdpSelect(range)}
+                  locale={locale}
+                  autoFocus
+                  disabled={disabledMatcher}
+                  month={captionMonth}
+                  onMonthChange={setCaptionMonth}
+                  classNames={rdpClassNames}
+                />
+              ) : (
+                <DayPicker
+                  mode="single"
+                  selected={rdpSelected as Date | undefined}
+                  onSelect={(date) => onRdpSelect(date)}
+                  locale={locale}
+                  autoFocus
+                  disabled={disabledMatcher}
+                  month={captionMonth}
+                  onMonthChange={setCaptionMonth}
+                  classNames={rdpClassNames}
+                />
+              )}
+              {(showTodayButton || (clearable && !isEmpty)) && (
+                <div
+                  className={cn(
+                    'mt-2 flex gap-2 border-t border-[var(--color-border-subtle)] pt-2',
+                    showTodayButton ? 'justify-between' : 'justify-end',
+                  )}
+                >
+                  {showTodayButton ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCaptionMonth(new Date())}
+                      type="button"
+                    >
+                      Today
+                    </Button>
+                  ) : null}
+                  {clearable && !isEmpty ? (
+                    <Button variant="ghost" size="sm" onClick={clear} type="button">
+                      Clear
+                    </Button>
+                  ) : null}
+                </div>
+              )}
+            </Popover.Content>
+          </Popover.Portal>
+        </Popover.Root>
       </>
     );
   },

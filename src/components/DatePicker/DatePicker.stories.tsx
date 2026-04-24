@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { userEvent, within, expect } from 'storybook/test';
 import { useState } from 'react';
-import { DatePicker } from './DatePicker';
+import { DatePicker, type DatePickerRangeProps } from './DatePicker';
 import { FormField } from '../FormField';
 
 const meta: Meta<typeof DatePicker> = {
@@ -81,6 +81,90 @@ export const ErrorState: Story = {
   },
 };
 
+export const RangePlayground: Story = {
+  args: {
+    mode: 'range',
+    size: 'md',
+    status: 'default',
+    fullWidth: false,
+    disabled: false,
+    clearable: true,
+    showTodayButton: true,
+  },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+};
+
+export const RangeWithConstraints: Story = {
+  args: {
+    mode: 'range',
+    minDate: new Date('2026-04-05'),
+    maxDate: new Date('2026-04-25'),
+    defaultValue: { from: new Date('2026-04-10'), to: new Date('2026-04-15') },
+  },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+};
+
+export const RangeInFormField: Story = {
+  render: () => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        alert(
+          JSON.stringify({ from: data.get('stay_from'), to: data.get('stay_to') }),
+        );
+      }}
+      className="flex flex-col gap-3 w-80"
+    >
+      <FormField label="Stay" htmlFor="stay">
+        <DatePicker id="stay" mode="range" name="stay" />
+      </FormField>
+      <button
+        type="submit"
+        className="mt-2 self-start rounded border border-[var(--color-border-strong)] px-3 py-1 text-sm"
+      >
+        Submit
+      </button>
+    </form>
+  ),
+};
+
+export const RangePartialState: Story = {
+  args: { mode: 'range' },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole('combobox');
+    await userEvent.click(trigger);
+    // Popover renders in a Portal — query document.body rather than canvasElement.
+    const popover = within(document.body);
+    // rdp day buttons carry a locale-aware aria-label containing a month name.
+    // Multiple days match, so grab the first enabled one.
+    const dayButtons = await popover.findAllByRole('button', {
+      name: /\b\d+\s+(april|maj|mars|februari|januari|juni|juli|augusti|september|oktober|november|december|january|february|march|may|june|july|august|october)\b/i,
+    });
+    const firstEnabled = dayButtons.find((b) => !(b as HTMLButtonElement).disabled);
+    if (!firstEnabled) throw new Error('No enabled day button found in popover');
+    await userEvent.click(firstEnabled);
+    // Popover stays open — first-click-on-empty becomes partial.
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Trigger shows a partial range (contains `…`).
+    expect(trigger).toHaveTextContent(/…/);
+  },
+};
+
 // Play: Tab to trigger, ArrowDown to open, Escape to close.
 export const KeyboardInteraction: Story = {
   render: () => {
@@ -100,6 +184,32 @@ export const KeyboardInteraction: Story = {
     await within(document.body).findByRole('dialog');
     // Escape closes without selecting.
     await userEvent.keyboard('{Escape}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  },
+};
+
+export const RangeKeyboardInteraction: Story = {
+  args: { mode: 'range' },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole('combobox');
+    trigger.focus();
+    // ArrowDown opens popover and focuses first enabled day.
+    await userEvent.keyboard('{ArrowDown}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Navigate and commit `from`.
+    await userEvent.keyboard('{ArrowRight}{Enter}');
+    // Partial commits keep popover open. If the close actually fires here,
+    // it means rdp's keyboard path hit a same-day single-commit — that's a
+    // different code path. Flag it if we hit that.
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Navigate a few days right, commit `to`.
+    await userEvent.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{Enter}');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   },
 };

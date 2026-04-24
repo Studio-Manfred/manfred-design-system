@@ -68,34 +68,37 @@ const defaultFormat = (value: Date, locale: Locale) =>
  *   nav_button_previous → button_previous, nav_button_next → button_next.
  */
 const rdpClassNames = {
-  root: 'font-sans',
-  months: 'flex flex-col gap-3',
-  month: 'space-y-3',
-  month_caption: 'flex justify-between items-center px-1',
-  caption_label: 'text-base font-semibold text-[var(--color-text-primary)]',
-  nav: 'flex gap-1',
+  root: 'font-sans relative',
+  months: 'flex flex-col gap-2',
+  month: 'space-y-2',
+  month_caption: 'flex justify-center items-center h-8',
+  caption_label: 'text-sm font-semibold text-[var(--color-text-primary)]',
+  nav: 'absolute top-0 inset-x-0 flex items-center justify-between',
   button_previous:
     'inline-flex items-center justify-center size-8 rounded-full ' +
+    'text-[var(--color-text-primary)] [&_polygon]:fill-current ' +
     'hover:bg-[var(--color-bg-subtle)] ' +
     'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
   button_next:
     'inline-flex items-center justify-center size-8 rounded-full ' +
+    'text-[var(--color-text-primary)] [&_polygon]:fill-current ' +
     'hover:bg-[var(--color-bg-subtle)] ' +
     'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
   month_grid: 'w-full border-collapse',
   weekdays: 'flex',
   weekday:
-    'text-[var(--color-text-muted)] w-10 text-[11px] uppercase tracking-wide font-normal',
+    'text-[var(--color-text-muted)] w-9 text-[11px] uppercase tracking-wide font-normal',
   weeks: '',
-  week: 'flex w-full mt-1',
-  day: 'size-10 text-center text-sm p-0 relative',
+  week: 'flex w-full mt-0.5',
+  day: 'group size-9 text-center text-xs p-0 relative',
   day_button:
-    'size-10 inline-flex items-center justify-center rounded-[var(--radius-sm)] ' +
-    'text-sm font-sans text-[var(--color-text-primary)] ' +
-    'hover:bg-[var(--color-bg-subtle)] ' +
+    'size-9 inline-flex items-center justify-center rounded-[var(--radius-sm)] ' +
+    'text-xs font-sans text-[var(--color-text-primary)] ' +
+    'group-aria-selected:text-[var(--color-text-on-brand)] ' +
+    'hover:bg-[var(--color-bg-subtle)] group-aria-selected:hover:bg-transparent ' +
     'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
   selected:
-    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'bg-[var(--color-interactive-brand-bg)] ' +
     'hover:bg-[var(--color-interactive-brand-bg)] rounded-[var(--radius-sm)]',
   today: 'ring-[1.5px] ring-[var(--color-focus-ring)] rounded-[var(--radius-sm)]',
   outside: 'text-[var(--color-text-muted)] opacity-60',
@@ -268,7 +271,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             aria-label="Choose a date"
             className={cn(
               'z-50 rounded-[var(--radius-md)] border border-[var(--color-border-strong)]',
-              'bg-[var(--color-bg-surface)] shadow-[var(--shadow-overlay)] p-3',
+              'bg-[var(--color-bg-surface)] shadow-[var(--shadow-overlay)] p-2 pt-4',
               'data-[state=open]:motion-safe:animate-in data-[state=closed]:motion-safe:animate-out',
             )}
           >
@@ -285,7 +288,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             />
             {(showTodayButton || (clearable && hasValue)) && (
               <div className={cn(
-                'mt-3 flex gap-2 border-t border-[var(--color-border-subtle)] pt-3',
+                'mt-2 flex gap-2 border-t border-[var(--color-border-subtle)] pt-2',
                 showTodayButton ? 'justify-between' : 'justify-end',
               )}>
                 {showTodayButton ? (

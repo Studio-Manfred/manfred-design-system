@@ -75,3 +75,38 @@ describe('DatePicker — popover + selection', () => {
     expect(screen.getByRole('combobox')).toHaveTextContent('2026-04-15');
   });
 });
+
+describe('DatePicker — constraints', () => {
+  it('disables days before minDate', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker defaultValue={new Date(2026, 3, 15)} minDate={new Date(2026, 3, 10)} />);
+    await user.click(screen.getByRole('combobox'));
+    const day5 = await screen.findByRole('button', { name: /\b5\b/ });
+    expect(day5).toBeDisabled();
+  });
+
+  it('disables days after maxDate', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker defaultValue={new Date(2026, 3, 15)} maxDate={new Date(2026, 3, 20)} />);
+    await user.click(screen.getByRole('combobox'));
+    const day25 = await screen.findByRole('button', { name: /\b25\b/ });
+    expect(day25).toBeDisabled();
+  });
+
+  it('warns when minDate > maxDate and treats range as empty', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const user = userEvent.setup();
+    render(
+      <DatePicker
+        defaultValue={new Date(2026, 3, 15)}
+        minDate={new Date(2026, 3, 25)}
+        maxDate={new Date(2026, 3, 10)}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('minDate > maxDate'));
+    const day15 = await screen.findByRole('button', { name: /\b15\b/ });
+    expect(day15).toBeDisabled();
+    warnSpy.mockRestore();
+  });
+});

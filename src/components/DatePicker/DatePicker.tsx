@@ -74,6 +74,8 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       'aria-label': ariaLabel,
       'aria-labelledby': ariaLabelledBy,
       'aria-describedby': ariaDescribedBy,
+      minDate,
+      maxDate,
       open: openProp,
       onOpenChange,
       className,
@@ -111,6 +113,28 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       onValueChange?.(next);
       setOpen(false);
     };
+
+    const rangeInvalid = Boolean(
+      minDate && maxDate && minDate.getTime() > maxDate.getTime(),
+    );
+
+    React.useEffect(() => {
+      if (rangeInvalid) {
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[DatePicker] minDate > maxDate — range is empty and all days are disabled.',
+        );
+      }
+    }, [rangeInvalid]);
+
+    // Build rdp's `disabled` matcher. rdp ORs an array of matchers together.
+    const disabledMatcher = React.useMemo(() => {
+      if (rangeInvalid) return { after: new Date(0) }; // every date is after epoch
+      const matchers: Array<{ before: Date } | { after: Date }> = [];
+      if (minDate) matchers.push({ before: minDate });
+      if (maxDate) matchers.push({ after: maxDate });
+      return matchers.length > 0 ? matchers : undefined;
+    }, [minDate, maxDate, rangeInvalid]);
 
     // Match TextInput's inner <input> padding so the trigger text aligns with
     // TextInput's content at the same size. inputLikeVariants (shared with
@@ -180,6 +204,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
               onSelect={handleSelect}
               locale={locale}
               autoFocus
+              disabled={disabledMatcher}
             />
           </Popover.Content>
         </Popover.Portal>

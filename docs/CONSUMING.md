@@ -29,16 +29,14 @@ the invitation (check your GitHub notifications or email).
 
 ### 3. Store the token in your shell
 
-Add to your shell profile (`~/.zshrc`, `~/.bashrc`, or similar):
 
+```bash
+# in any terminal:
+launchctl setenv GITHUB_TOKEN ghp_your_token_here
 ```
-export GITHUB_TOKEN=ghp_xxx_your_token_here
-```
 
-Reload your shell or run `source ~/.zshrc`.
+Then fully **quit** the IDE + Terminal and relaunch. The token will now be visible to the extension process.
 
-Prefer a password manager over putting the token in a dotfile. Never
-commit `.env` files containing it.
 
 ## Per-project setup
 

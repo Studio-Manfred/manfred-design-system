@@ -180,3 +180,26 @@ describe('DatePicker — trigger ARIA and keyboard', () => {
     expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 });
+
+describe('DatePicker — hidden form input', () => {
+  it('does not render a hidden input when no name is provided', () => {
+    const { container } = render(<DatePicker defaultValue={new Date(2026, 3, 15)} />);
+    expect(container.querySelector('input[type="hidden"]')).toBeNull();
+  });
+
+  it('renders a hidden input with ISO value when name is provided', () => {
+    const { container } = render(
+      <DatePicker name="birthdate" defaultValue={new Date(2026, 3, 15)} />,
+    );
+    const hidden = container.querySelector('input[type="hidden"]');
+    expect(hidden).toBeInTheDocument();
+    expect(hidden).toHaveAttribute('name', 'birthdate');
+    expect(hidden).toHaveAttribute('value', '2026-04-15');
+  });
+
+  it('hidden input value is empty when no date is selected', () => {
+    const { container } = render(<DatePicker name="deadline" />);
+    const hidden = container.querySelector('input[type="hidden"]');
+    expect(hidden).toHaveAttribute('value', '');
+  });
+});

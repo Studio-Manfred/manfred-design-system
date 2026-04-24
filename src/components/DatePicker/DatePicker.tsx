@@ -78,6 +78,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       open: openProp,
       onOpenChange,
       className,
+      name,
     } = props;
 
     // Warn once in dev when both value and defaultValue are passed.
@@ -150,8 +151,12 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     const displayText = currentValue ? formatValue(currentValue, locale) : placeholder;
     const hasValue = Boolean(currentValue);
 
+    const isoValue = currentValue ? formatDate(currentValue, 'yyyy-MM-dd') : '';
+
     return (
-      <Popover.Root open={open} onOpenChange={setOpen}>
+      <>
+        {name ? <input type="hidden" name={name} value={isoValue} /> : null}
+        <Popover.Root open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <button
             ref={ref}
@@ -251,6 +256,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
           </Popover.Content>
         </Popover.Portal>
       </Popover.Root>
+      </>
     );
   },
 );

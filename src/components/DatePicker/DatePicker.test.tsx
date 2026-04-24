@@ -2,6 +2,27 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DatePicker } from './DatePicker';
+import { isDateRange } from './datePickerStateHelpers';
+
+describe('isDateRange', () => {
+  it('returns true for DateRange objects', () => {
+    expect(isDateRange({ from: new Date('2026-04-01'), to: new Date('2026-04-15') })).toBe(true);
+    expect(isDateRange({ from: new Date('2026-04-01') })).toBe(true);
+    expect(isDateRange({ from: undefined, to: undefined })).toBe(true);
+    expect(isDateRange({})).toBe(true);
+  });
+  it('returns false for Date', () => {
+    expect(isDateRange(new Date('2026-04-01'))).toBe(false);
+  });
+  it('returns false for undefined', () => {
+    expect(isDateRange(undefined)).toBe(false);
+  });
+  it('returns false for primitives', () => {
+    expect(isDateRange('2026-04-01')).toBe(false);
+    expect(isDateRange(12345)).toBe(false);
+    expect(isDateRange(null)).toBe(false);
+  });
+});
 
 describe('DatePicker — trigger render', () => {
   it('renders placeholder when no value is set', () => {

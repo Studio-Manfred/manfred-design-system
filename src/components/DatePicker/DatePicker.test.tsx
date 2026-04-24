@@ -286,4 +286,27 @@ describe('DatePicker range mode', () => {
     expect(lastCall?.to).toBeInstanceOf(Date);
     expect(lastCall.to.getDate()).toBe(15);
   });
+
+  it('second click before `from` swaps: new click becomes `from`, old from becomes `to`', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        onValueChange={onValueChange}
+        defaultValue={{ from: new Date('2026-04-15'), to: undefined }}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    const day5 = await screen.findByRole('button', { name: /\b5\s+april|april\s+5\b/i });
+    await user.click(day5);
+    const calls = onValueChange.mock.calls;
+    const lastCall = calls[calls.length - 1]?.[0];
+    // rdp v9 default: clicking before `from` makes new day the from, old from the to.
+    expect(lastCall.from.getDate()).toBe(5);
+    expect(lastCall.to.getDate()).toBe(15);
+    // Popover closes because both endpoints are set.
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
+  });
 });

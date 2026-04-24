@@ -362,4 +362,27 @@ describe('DatePicker range mode', () => {
     expect(container.querySelector('input[name="stay_to"]')).toHaveAttribute('value', '2026-04-15');
     expect(container.querySelector('input[name="stay"]')).toBeNull();
   });
+
+  it('renders arrow-separated complete range in trigger', () => {
+    render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        defaultValue={{ from: new Date('2026-04-01'), to: new Date('2026-04-15') }}
+      />,
+    );
+    // sv locale format via 'P' token → "2026-04-01". Trigger uses en-dash separator.
+    expect(screen.getByRole('combobox')).toHaveTextContent(/2026-04-01 – 2026-04-15/);
+  });
+
+  it('renders partial range with ellipsis when only `from` is set', () => {
+    render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        defaultValue={{ from: new Date('2026-04-01'), to: undefined }}
+      />,
+    );
+    expect(screen.getByRole('combobox')).toHaveTextContent(/2026-04-01 – …/);
+  });
 });

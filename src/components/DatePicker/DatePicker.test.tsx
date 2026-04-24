@@ -330,4 +330,23 @@ describe('DatePicker range mode', () => {
     expect(lastCall.to.getDate()).toBe(10);
     expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'false');
   });
+
+  it('Clear button fires onValueChange(undefined) and empties both hidden inputs', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    const { container } = render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        onValueChange={onValueChange}
+        name="stay"
+        defaultValue={{ from: new Date('2026-04-10'), to: new Date('2026-04-15') }}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    await user.click(screen.getByRole('button', { name: /Clear/i }));
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
+    expect(container.querySelector('input[name="stay_from"]')).toHaveValue('');
+    expect(container.querySelector('input[name="stay_to"]')).toHaveValue('');
+  });
 });

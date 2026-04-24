@@ -68,13 +68,16 @@ export const KeyboardInteraction: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const checkbox = canvas.getByRole('checkbox', { name: 'Subscribe to updates' });
-    // Focus via Tab then toggle on with Space.
-    checkbox.focus();
-    await userEvent.keyboard('{Space}');
-    expect(checkbox).toHaveAttribute('aria-checked', 'true');
-    // Space again — unchecks.
-    await userEvent.keyboard('{Space}');
-    expect(checkbox).toHaveAttribute('aria-checked', 'false');
+    await userEvent.tab();
+    expect(checkbox).toHaveFocus();
+    // Space on a focused role=checkbox button fires the native click; Radix
+    // toggles on click. Raw ' ' is the user-event keymap entry — '{Space}'
+    // isn't a reserved descriptor and gets treated as a literal. findByRole
+    // with { checked } waits for Radix to propagate the state update.
+    await userEvent.keyboard(' ');
+    await canvas.findByRole('checkbox', { name: 'Subscribe to updates', checked: true });
+    await userEvent.keyboard(' ');
+    await canvas.findByRole('checkbox', { name: 'Subscribe to updates', checked: false });
   },
 };
 

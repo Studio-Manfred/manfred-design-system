@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { userEvent, within, expect } from 'storybook/test';
 import { useState } from 'react';
-import { DatePicker } from './DatePicker';
+import { DatePicker, type DatePickerRangeProps } from './DatePicker';
 import { FormField } from '../FormField';
 
 const meta: Meta<typeof DatePicker> = {
@@ -79,6 +79,23 @@ export const ErrorState: Story = {
       </FormField>
     );
   },
+};
+
+export const RangePlayground: Story = {
+  args: {
+    mode: 'range',
+    size: 'md',
+    status: 'default',
+    fullWidth: false,
+    disabled: false,
+    clearable: true,
+    showTodayButton: true,
+  },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
 };
 
 // Play: Tab to trigger, ArrowDown to open, Escape to close.

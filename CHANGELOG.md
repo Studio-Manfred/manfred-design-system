@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-04-24
+
+Adds the `DatePicker` component — a single-date picker with a
+TextInput-styled popover trigger, localized calendar selection,
+`minDate`/`maxDate` constraints, and native form-submit friendliness.
+Two new peer dependencies ship with it.
+
+### Added
+
+- `DatePicker` — single-date picker built on `@radix-ui/react-popover`
+  and `react-day-picker` v9. Renders a TextInput-styled `<button>`
+  trigger (shared `inputLikeVariants` CVA with TextInput) that opens a
+  popover calendar. Features:
+  - `value` / `defaultValue` / `onValueChange` controlled and
+    uncontrolled patterns; `open` / `onOpenChange` mirror the same
+    split.
+  - `locale` prop accepting a `date-fns` `Locale` (default `sv`).
+    `formatValue` callback for custom display formatting (default
+    `format(value, 'P', { locale })`).
+  - `minDate` and `maxDate` constraints disable out-of-range days in
+    both mouse and keyboard navigation.
+  - Optional `Today` (jumps the visible month; does not auto-select)
+    and `Clear` (clears value + closes) footer actions — both default
+    on, both opt-out via `showTodayButton={false}` / `clearable={false}`.
+  - `name` prop renders a hidden `<input type="hidden">` sibling
+    carrying the ISO `yyyy-MM-dd` string, so native `<form>` submits
+    get a predictable, timezone-neutral value regardless of the
+    display locale.
+  - WAI-ARIA Date Picker Dialog pattern: `role="combobox"` trigger
+    with `aria-haspopup="dialog"`, `aria-expanded`, `aria-controls`,
+    fallback accessible name; `ArrowDown` / `ArrowUp` open the
+    popover from a focused trigger; Radix handles focus-into-dialog
+    and Escape-to-close.
+
+### Changed
+
+- Internal: extracted `wrapperVariants` from `TextInput.tsx` into the
+  shared `src/lib/inputLikeVariants.ts`. `TextInput` imports from the
+  new location and continues to export `TextInputSize` /
+  `TextInputStatus` derived from the shared variants. No behavior
+  change for TextInput consumers — all existing unit tests pass
+  verbatim. The new shared CVA is what `DatePicker`'s trigger
+  consumes, guaranteeing visual lockstep between the two components.
+
+### Peer dependencies
+
+- Added `react-day-picker` (`^9.0.0`) and `date-fns` (`^4.1.0`) to
+  `peerDependencies`. Consumers upgrading to 0.7.0 must install both.
+  `react-day-picker` is the canonical shadcn backing for date
+  selection; `date-fns` provides the `Locale` type and formatting.
+  Both are marked external in the library's Rollup build so they
+  stay out of the published bundle.
+
 ## [0.6.0] - 2026-04-24
 
 Audit-cleanup release: introduces the brand-logo semantic tokens,

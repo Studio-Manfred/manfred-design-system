@@ -54,9 +54,9 @@ live examples in Storybook (`npm run storybook` locally; see below).
 
 ### Components
 
-Alert · Badge · Breadcrumb · Button · Checkbox · Dialog · FormField ·
-Icon · Logo · ProgressBar · RadioGroup · SearchBar · Spinner ·
-TextInput · Toaster · Tooltip · Typography.
+Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker · Dialog ·
+FormField · Icon · Logo · ProgressBar · RadioGroup · SearchBar ·
+Spinner · TextInput · Toaster · Tooltip · Typography.
 
 ### Theming
 

@@ -16,7 +16,11 @@ interface UseDatePickerStateOptions {
 export function useDatePickerState(
   props: DatePickerProps,
   { setOpen }: UseDatePickerStateOptions,
-): DatePickerInternalState & { captionMonth: Date; setCaptionMonth: (m: Date) => void } {
+): DatePickerInternalState & {
+  captionMonth: Date;
+  setCaptionMonth: (m: Date) => void;
+  locale: Locale;
+} {
   const mode = props.mode ?? 'single';
   const locale: Locale = props.locale ?? sv;
 
@@ -40,6 +44,8 @@ export function useDatePickerState(
   // Dev warnings (once per mount).
   const warned = React.useRef({ dual: false, modeChange: false, shape: false });
   const initialMode = React.useRef(mode);
+  // Lock mode at mount. Changes produce a warn but don't flip the rendered builder.
+  const effectiveMode = initialMode.current;
 
   React.useEffect(() => {
     if (
@@ -61,7 +67,7 @@ export function useDatePickerState(
       warned.current.modeChange = true;
     }
     if (
-      mode === 'range' &&
+      effectiveMode === 'range' &&
       currentValue !== undefined &&
       !isDateRange(currentValue) &&
       !warned.current.shape
@@ -72,13 +78,10 @@ export function useDatePickerState(
       );
       warned.current.shape = true;
     }
-  }, [mode, props.value, props.defaultValue, currentValue]);
+  }, [mode, effectiveMode, props.value, props.defaultValue, currentValue]);
 
   const placeholder =
-    props.placeholder ?? (mode === 'range' ? 'Pick dates' : 'Pick a date');
-
-  // Lock mode at mount. Changes produce a warn but don't flip the rendered builder.
-  const effectiveMode = initialMode.current;
+    props.placeholder ?? (effectiveMode === 'range' ? 'Pick dates' : 'Pick a date');
 
   // Narrow the union value for each builder; shape-mismatched values render empty.
   if (effectiveMode === 'single') {
@@ -88,12 +91,11 @@ export function useDatePickerState(
       setValue: (next) => setInternalValue(next),
       isControlled,
       setOpen,
-      setCaptionMonth,
       props: props as DatePickerSingleProps,
       locale,
       placeholder,
     });
-    return { ...state, captionMonth, setCaptionMonth };
+    return { ...state, captionMonth, setCaptionMonth, locale };
   }
 
   // effectiveMode === 'range' — range builder lands in Task 4. For now, unreachable.

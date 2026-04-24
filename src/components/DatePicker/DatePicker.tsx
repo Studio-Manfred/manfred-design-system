@@ -1,7 +1,6 @@
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import { DayPicker } from 'react-day-picker';
-import { sv } from 'date-fns/locale/sv';
 import type { Locale } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import { Icon } from '../Icon';
@@ -123,7 +122,6 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       open: openProp,
       onOpenChange,
       className,
-      locale = sv,
     } = props;
 
     const popoverId = React.useId();
@@ -150,6 +148,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
       clear,
       captionMonth,
       setCaptionMonth,
+      locale,
     } = state;
 
     const rangeInvalid = Boolean(

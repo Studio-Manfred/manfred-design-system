@@ -29,14 +29,13 @@ interface BuildSingleStateOptions {
   setValue: (next: Date | undefined) => void;
   isControlled: boolean;
   setOpen: (next: boolean) => void;
-  setCaptionMonth: (m: Date) => void;
   props: DatePickerSingleProps;
   locale: Locale;
   placeholder: string;
 }
 
 export function buildSingleState(opts: BuildSingleStateOptions): DatePickerInternalState {
-  const { value, setValue, isControlled, setOpen, setCaptionMonth, props, locale, placeholder } = opts;
+  const { value, setValue, isControlled, setOpen, props, locale, placeholder } = opts;
   const formatValue = props.formatValue ?? defaultSingleFormat;
 
   const displayText = value ? formatValue(value, locale) : placeholder;
@@ -48,10 +47,10 @@ export function buildSingleState(opts: BuildSingleStateOptions): DatePickerInter
 
   const handleSelect = (next: Date | DateRange | undefined) => {
     // rdp in mode="single" gives us Date | undefined. Narrow and pass through.
+    // The open-effect in DatePicker re-derives caption on open, so no inline set here.
     const narrowed = next as Date | undefined;
     if (!isControlled) setValue(narrowed);
     props.onValueChange?.(narrowed);
-    if (narrowed) setCaptionMonth(narrowed);
   };
 
   const shouldCloseOnSelect = (next: Date | DateRange | undefined) => {

@@ -22,6 +22,10 @@ describe('isDateRange', () => {
     expect(isDateRange(12345)).toBe(false);
     expect(isDateRange(null)).toBe(false);
   });
+  it('returns false for arrays', () => {
+    expect(isDateRange([])).toBe(false);
+    expect(isDateRange([new Date('2026-04-01')])).toBe(false);
+  });
 });
 
 describe('DatePicker — trigger render', () => {

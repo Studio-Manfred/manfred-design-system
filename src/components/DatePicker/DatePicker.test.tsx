@@ -385,4 +385,14 @@ describe('DatePicker range mode', () => {
     );
     expect(screen.getByRole('combobox')).toHaveTextContent(/2026-04-01 – …/);
   });
+
+  it('warns once when `mode` prop changes between renders', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { rerender } = render(<DatePicker mode="single" aria-label="test" />);
+    rerender(<DatePicker mode="range" aria-label="test" />);
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('`mode` is mount-time'),
+    );
+    warn.mockRestore();
+  });
 });

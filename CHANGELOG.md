@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- CI: bumped `actions/checkout` v4 → v6 and `actions/setup-node` v4 → v6
+  to move off the deprecated Node 20 action runtime. Build Node bumped
+  from 20 → 22 (Node 20 leaves active LTS on 2026-04-30). No change to
+  the published package; runs on the next release.
+
 ## [0.5.0] - 2026-04-24
 
 **Breaking: package scope and repository owner changed.** The repo moved

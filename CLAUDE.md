@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`@jens-wedin/manfred-design-system` — the Manfred React component library. Published to GitHub Packages (`@jens-wedin` scope) on release via `.github/workflows/publish.yml`. Consumers import components from the barrel and the stylesheet from the `./styles` export.
+`@studio-manfred/manfred-design-system` — the Manfred React component library. Published to GitHub Packages (`@studio-manfred` scope, `Studio-Manfred/manfred-design-system` repo) on release via `.github/workflows/publish.yml`. Consumers import components from the barrel and the stylesheet from the `./styles` export.
 
 ## Commands
 

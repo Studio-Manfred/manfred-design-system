@@ -6,7 +6,18 @@ import { SearchBar } from './SearchBar';
 const meta: Meta<typeof SearchBar> = {
   title: 'Components/SearchBar',
   component: SearchBar,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    // Global preview disables 'region' because isolated stories aren't pages.
+    // Re-enable here so axe reports landmark violations on this interactive component.
+    a11y: {
+      config: {
+        rules: [
+          { id: 'region', enabled: true },
+        ],
+      },
+    },
+  },
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },

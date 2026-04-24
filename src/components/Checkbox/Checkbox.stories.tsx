@@ -5,7 +5,18 @@ import { Checkbox } from './Checkbox';
 const meta: Meta<typeof Checkbox> = {
   title: 'Components/Checkbox',
   component: Checkbox,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    // Global preview disables 'region' because isolated stories aren't pages.
+    // Re-enable here so axe reports landmark violations on this interactive component.
+    a11y: {
+      config: {
+        rules: [
+          { id: 'region', enabled: true },
+        ],
+      },
+    },
+  },
 };
 
 export default meta;

@@ -15,7 +15,18 @@ import { Button } from '../Button';
 const meta: Meta<typeof Dialog> = {
   title: 'Components/Dialog',
   component: Dialog,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    // Global preview disables 'region' because isolated stories aren't pages.
+    // Re-enable here so axe reports landmark violations on this interactive component.
+    a11y: {
+      config: {
+        rules: [
+          { id: 'region', enabled: true },
+        ],
+      },
+    },
+  },
 };
 
 export default meta;

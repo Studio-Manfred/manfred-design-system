@@ -4,7 +4,18 @@ import { TextInput } from './TextInput';
 const meta: Meta<typeof TextInput> = {
   title: 'Components/TextInput',
   component: TextInput,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    // Global preview disables 'region' because isolated stories aren't pages.
+    // Re-enable here so axe reports landmark violations on this interactive component.
+    a11y: {
+      config: {
+        rules: [
+          { id: 'region', enabled: true },
+        ],
+      },
+    },
+  },
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
     status: { control: 'select', options: ['default', 'error', 'success'] },

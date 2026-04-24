@@ -16,3 +16,5 @@ coverage/
 # Local env
 .env
 .env.local
+
+.superpowers/

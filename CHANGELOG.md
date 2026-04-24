@@ -7,12 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-04-24
+
+Audit-cleanup release: introduces the brand-logo semantic tokens,
+restores the three-layer token contract across all feature files, adds
+keyboard-path play functions to the interactive components, and silences
+known axe false positives so the Storybook a11y panel stays actionable.
+No public component API changed.
+
+### Added
+
+- Brand-logo semantic tokens at the semantic layer (in `./styles`):
+  `--color-brand-logo-blue`, `--color-brand-logo-ink`,
+  `--color-brand-logo-paper`. Intentionally **not** theme-reactive —
+  the logo renders at full-brand fidelity regardless of OS colour
+  scheme. Consumers can now reference these directly instead of
+  hardcoding the brand hexes.
+- A single `--pattern-stripes-overlay` token for the striped
+  `ProgressBar` variant, grouped with `--color-bg-overlay` and
+  `--shadow-focus` under the new “Effects, overlays & patterns”
+  section in `tokens.css`.
+- `KeyboardInteraction` stories for `Dialog`, `TextInput`, `Tooltip`,
+  and `Checkbox` exercising keyboard and focus paths via
+  `storybook/test` (`userEvent` / `within` / `expect`). These run in
+  the `storybook` Vitest project and in Storybook’s own test UI.
+
 ### Changed
 
-- CI: bumped `actions/checkout` v4 → v6 and `actions/setup-node` v4 → v6
-  to move off the deprecated Node 20 action runtime. Build Node bumped
-  from 20 → 22 (Node 20 leaves active LTS on 2026-04-30). No change to
-  the published package; runs on the next release.
+- `Logo` now consumes the new brand-logo tokens instead of the
+  hardcoded hex `colorMap`. No public API change.
+- Story files (`Spinner`, `Button`, `Logo`) replace inline hex
+  backgrounds with semantic tokens — `--color-brand-logo-*` for brand
+  demos and `--color-bg-warm` / `--color-bg-warm-muted` for the warm
+  surfaces in the Logo background showcase.
+- `ProgressBar` references `var(--pattern-stripes-overlay)` via
+  Tailwind’s `bg-[image:var(...)]` utility instead of an inline
+  `repeating-linear-gradient(...)`.
+- Storybook: interactive stories (`Dialog`, `SearchBar`, `TextInput`,
+  `Tooltip`, `Checkbox`) re-enable the `region` axe rule locally to
+  restore a11y signal that the preview-level global disables
+  otherwise hide.
+- `vitest.config.ts` path alias unified with `vite.config.ts` — both
+  now use `fileURLToPath(new URL('src', import.meta.url))` so the
+  `@/*` alias resolves identically in build and test.
+- axe false positives silenced in the Storybook a11y panel and the
+  runtime scan:
+  - `bypass` added to the global disable list (page-level rule,
+    same category as the existing `region` /
+    `landmark-one-main` / `page-has-heading-one` disables).
+  - `aria-valid-attr-value` and `aria-hidden-focus` disabled on the
+    `Dialog` meta with inline comments — both are Radix portal /
+    focus-guard artefacts, not real defects.
+- CI: bumped `actions/checkout` v4 → v6 and `actions/setup-node`
+  v4 → v6 to move off the deprecated Node 20 action runtime. Build
+  Node bumped 20 → 22 (Node 20 leaves active LTS on 2026-04-30).
+  No change to the published package; runs on this release.
+
+### Fixed
+
+- `Checkbox` `KeyboardInteraction` play function now uses
+  `userEvent.tab()` for focus and raw `' '` for the Space keypress.
+  `'{Space}'` is not a reserved user-event key descriptor and was
+  being dispatched as a literal string, so `aria-checked` never
+  flipped under the `storybook` (Playwright) test project.
 
 ## [0.5.0] - 2026-04-24
 

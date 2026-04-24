@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, URL } from 'node:url';
 
 import { defineConfig } from 'vitest/config';
 
@@ -13,7 +13,7 @@ const dirname =
 export default defineConfig({
   resolve: {
     alias: {
-      '@': path.join(dirname, 'src'),
+      '@': fileURLToPath(new URL('src', import.meta.url)),
     },
   },
   test: {

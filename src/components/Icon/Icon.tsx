@@ -24,7 +24,8 @@ export type IconName =
   | 'arrow-right'
   | 'bell'
   | 'external-link'
-  | 'loader';
+  | 'loader'
+  | 'calendar';
 
 const iconVariants = cva('inline-block shrink-0', {
   variants: {

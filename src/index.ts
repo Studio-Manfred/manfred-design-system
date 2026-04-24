@@ -27,6 +27,9 @@ export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb';
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
 
+export { DatePicker } from './components/DatePicker';
+export type { DatePickerProps } from './components/DatePicker';
+
 export { FormField } from './components/FormField';
 export type { FormFieldProps, FormFieldStatus } from './components/FormField';
 

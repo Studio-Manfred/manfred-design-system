@@ -53,6 +53,56 @@ export interface DatePickerProps {
 const defaultFormat = (value: Date, locale: Locale) =>
   formatDate(value, 'P', { locale });
 
+/**
+ * Manfred-token classNames for react-day-picker v9.
+ *
+ * Every entry references a semantic token — no hex, no primitive-layer
+ * skips. If you need a color that doesn't exist yet, add it to the
+ * semantic layer in tokens.css first (never hardcode here).
+ *
+ * Key names follow the rdp v9 UI enum (UI.d.ts). v8 names are deprecated:
+ *   caption → month_caption, table → month_grid, head_row → weekdays,
+ *   head_cell → weekday, row → week, cell → day, day → day_button,
+ *   day_selected → selected, day_today → today, day_outside → outside,
+ *   day_disabled → disabled, day_hidden → hidden,
+ *   nav_button_previous → button_previous, nav_button_next → button_next.
+ */
+const rdpClassNames = {
+  root: 'font-sans',
+  months: 'flex flex-col gap-3',
+  month: 'space-y-3',
+  month_caption: 'flex justify-between items-center px-1',
+  caption_label: 'text-base font-semibold text-[var(--color-text-primary)]',
+  nav: 'flex gap-1',
+  button_previous:
+    'inline-flex items-center justify-center size-8 rounded-full ' +
+    'hover:bg-[var(--color-bg-subtle)] ' +
+    'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+  button_next:
+    'inline-flex items-center justify-center size-8 rounded-full ' +
+    'hover:bg-[var(--color-bg-subtle)] ' +
+    'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+  month_grid: 'w-full border-collapse',
+  weekdays: 'flex',
+  weekday:
+    'text-[var(--color-text-muted)] w-10 text-[11px] uppercase tracking-wide font-normal',
+  weeks: '',
+  week: 'flex w-full mt-1',
+  day: 'size-10 text-center text-sm p-0 relative',
+  day_button:
+    'size-10 inline-flex items-center justify-center rounded-[var(--radius-sm)] ' +
+    'text-sm font-sans text-[var(--color-text-primary)] ' +
+    'hover:bg-[var(--color-bg-subtle)] ' +
+    'focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]',
+  selected:
+    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'hover:bg-[var(--color-interactive-brand-bg)] rounded-[var(--radius-sm)]',
+  today: 'ring-[1.5px] ring-[var(--color-focus-ring)] rounded-[var(--radius-sm)]',
+  outside: 'text-[var(--color-text-muted)] opacity-60',
+  disabled: 'text-[var(--color-text-muted)] opacity-50 cursor-not-allowed',
+  hidden: 'invisible',
+};
+
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
   function DatePicker(props, ref) {
     const {
@@ -225,6 +275,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
               disabled={disabledMatcher}
               month={month}
               onMonthChange={setMonth}
+              classNames={rdpClassNames}
             />
             {(showTodayButton || (clearable && hasValue)) && (
               <div className={cn(

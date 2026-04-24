@@ -149,3 +149,34 @@ describe('DatePicker — footer actions', () => {
     expect(todayButtons.some((btn) => btn.textContent?.trim() === 'Today')).toBe(true);
   });
 });
+
+describe('DatePicker — trigger ARIA and keyboard', () => {
+  it('trigger has aria-controls pointing at the popover content id', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker />);
+    const trigger = screen.getByRole('combobox');
+    await user.click(trigger);
+    const dialog = await screen.findByRole('dialog');
+    const controls = trigger.getAttribute('aria-controls');
+    expect(controls).toBeTruthy();
+    expect(dialog.id || dialog.getAttribute('id')).toBe(controls);
+  });
+
+  it('ArrowDown on the trigger opens the popover', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker />);
+    const trigger = screen.getByRole('combobox');
+    trigger.focus();
+    await user.keyboard('{ArrowDown}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('ArrowUp on the trigger opens the popover', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker />);
+    const trigger = screen.getByRole('combobox');
+    trigger.focus();
+    await user.keyboard('{ArrowUp}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+});

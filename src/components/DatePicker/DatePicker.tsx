@@ -98,6 +98,8 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     const [internalValue, setInternalValue] = React.useState<Date | undefined>(defaultValue);
     const currentValue = isControlled ? valueProp : internalValue;
 
+    const popoverId = React.useId();
+
     // Same split for open state.
     const isOpenControlled = openProp !== undefined;
     const [internalOpen, setInternalOpen] = React.useState(false);
@@ -157,12 +159,20 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             id={id}
             disabled={disabled}
             role="combobox"
+            aria-controls={popoverId}
             aria-haspopup="dialog"
             aria-label={ariaLabel}
             aria-labelledby={ariaLabelledBy}
             aria-describedby={ariaDescribedBy}
             aria-invalid={status === 'error' || undefined}
             aria-required={required || undefined}
+            onKeyDown={(e) => {
+              if (disabled) return;
+              if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                setOpen(true);
+              }
+            }}
             className={cn(
               inputLikeVariants({
                 size,
@@ -190,6 +200,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
 
         <Popover.Portal>
           <Popover.Content
+            id={popoverId}
             side="bottom"
             align="start"
             sideOffset={4}

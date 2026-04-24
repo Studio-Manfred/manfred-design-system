@@ -1,11 +1,11 @@
-# Consuming `@jens-wedin/manfred-design-system`
+# Consuming `@studio-manfred/manfred-design-system`
 
 Internal guide for teammates who want to use the Manfred Design System
 in a different project.
 
 The package is published to **GitHub Packages** (not public npm) with
 `access: restricted`. Only collaborators on
-[`jens-wedin/manfred-design-system`](https://github.com/jens-wedin/manfred-design-system)
+[`Studio-Manfred/manfred-design-system`](https://github.com/Studio-Manfred/manfred-design-system)
 can install it. If you don't have access, ask the maintainer to add
 you.
 
@@ -13,7 +13,7 @@ you.
 
 ### 1. Accept the collaborator invite
 
-Go to https://github.com/jens-wedin/manfred-design-system and accept
+Go to https://github.com/Studio-Manfred/manfred-design-system and accept
 the invitation (check your GitHub notifications or email).
 
 ### 2. Create a classic Personal Access Token
@@ -48,7 +48,7 @@ In the root of the project that will import the design system, create
 (or append to) `.npmrc`:
 
 ```
-@jens-wedin:registry=https://npm.pkg.github.com
+@studio-manfred:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
@@ -61,7 +61,7 @@ routing. (Do **not** hardcode the token in the file.)
 ### 5. Install
 
 ```
-npm install @jens-wedin/manfred-design-system
+npm install @studio-manfred/manfred-design-system
 ```
 
 ## Use it
@@ -70,8 +70,8 @@ Import the stylesheet once at your app entry (for example,
 `src/main.tsx` or `app/layout.tsx`), then import components anywhere:
 
 ```tsx
-import '@jens-wedin/manfred-design-system/styles';
-import { Button, Dialog, DialogTrigger, DialogContent } from '@jens-wedin/manfred-design-system';
+import '@studio-manfred/manfred-design-system/styles';
+import { Button, Dialog, DialogTrigger, DialogContent } from '@studio-manfred/manfred-design-system';
 
 export function Example() {
   return (
@@ -105,7 +105,7 @@ step:
   with:
     node-version: '20'
     registry-url: 'https://npm.pkg.github.com'
-    scope: '@jens-wedin'
+    scope: '@studio-manfred'
 
 - run: npm ci
   env:
@@ -113,7 +113,7 @@ step:
 ```
 
 If your consuming repo lives in a **different** organization than
-`jens-wedin`, you'll need a PAT (set as a repo secret, e.g.
+`Studio-Manfred`, you'll need a PAT (set as a repo secret, e.g.
 `DESIGN_SYSTEM_TOKEN`) instead of the default `GITHUB_TOKEN`.
 
 ## Troubleshooting
@@ -129,5 +129,5 @@ package inherits the repo's access control.
 **`npm ERR! 403 Forbidden`** — token exists but lacks
 `read:packages`. Generate a new classic token with that scope.
 
-**Stale install** — `npm uninstall @jens-wedin/manfred-design-system` then
+**Stale install** — `npm uninstall @studio-manfred/manfred-design-system` then
 reinstall after changing `.npmrc` or token.

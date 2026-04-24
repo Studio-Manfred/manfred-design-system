@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-04-24
+
+**Breaking: package scope and repository owner changed.** The repo moved
+to the `Studio-Manfred` GitHub organisation. GitHub Packages requires
+the npm scope to match the owner, so the package scope moves from
+`@jens-wedin` to `@studio-manfred`. The code, API, and component surface
+are unchanged — only the install identifier, scope, and repo URL move.
+
+### Changed
+
+- **Package renamed**: `@jens-wedin/manfred-design-system` →
+  `@studio-manfred/manfred-design-system`. Consumers must update their
+  `dependencies`, import paths, `.npmrc`, and any CI `setup-node` scope
+  to `@studio-manfred`.
+- **Repo moved**: `jens-wedin/manfred-design-system` →
+  `Studio-Manfred/manfred-design-system`. GitHub auto-redirects the old
+  URL, but collaborators should run
+  `git remote set-url origin https://github.com/Studio-Manfred/manfred-design-system.git`.
+- `publish.yml` `setup-node` scope updated to `@studio-manfred`.
+- `package.json` `repository.url` and `homepage` updated to the new
+  org URL.
+- `README.md` and `docs/CONSUMING.md` install instructions, `.npmrc`
+  examples, CI snippet, and troubleshooting all reference the new
+  scope and org.
+
+### Migration
+
+Consumers need to update their `package.json`:
+
+```diff
+-    "@jens-wedin/manfred-design-system": "^0.4.0"
++    "@studio-manfred/manfred-design-system": "^0.5.0"
+```
+
+Imports:
+
+```diff
+-import { Button } from '@jens-wedin/manfred-design-system';
++import { Button } from '@studio-manfred/manfred-design-system';
+-import '@jens-wedin/manfred-design-system/styles';
++import '@studio-manfred/manfred-design-system/styles';
+```
+
+`.npmrc`:
+
+```diff
+-@jens-wedin:registry=https://npm.pkg.github.com
++@studio-manfred:registry=https://npm.pkg.github.com
+ //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+Then `npm install`.
+
+The old package (`@jens-wedin/manfred-design-system`) remains published
+up to 0.4.0 but will not receive further updates.
+
 ## [0.4.0] - 2026-04-24
 
 **Breaking: package and repository renamed.** The code, API, and component
@@ -198,9 +254,10 @@ migration table.
 
 See `git log` for the history prior to this changelog.
 
-[0.4.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.4.0
-[0.3.3]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.3
-[0.3.2]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.2
-[0.3.1]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.1
-[0.3.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.0
-[0.2.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.2.0
+[0.5.0]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.5.0
+[0.4.0]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.4.0
+[0.3.3]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.3.3
+[0.3.2]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.3.2
+[0.3.1]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.3.1
+[0.3.0]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.3.0
+[0.2.0]: https://github.com/Studio-Manfred/manfred-design-system/releases/tag/v0.2.0

@@ -100,6 +100,14 @@ const rdpClassNames = {
   outside: 'text-[var(--color-text-muted)] opacity-60',
   disabled: 'text-[var(--color-text-muted)] opacity-50 cursor-not-allowed',
   hidden: 'invisible',
+  range_start:
+    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'rounded-l-[var(--radius-sm)] rounded-r-none',
+  range_end:
+    'bg-[var(--color-interactive-brand-bg)] text-[var(--color-text-on-brand)] ' +
+    'rounded-r-[var(--radius-sm)] rounded-l-none',
+  range_middle:
+    'bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] rounded-none',
 };
 
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(

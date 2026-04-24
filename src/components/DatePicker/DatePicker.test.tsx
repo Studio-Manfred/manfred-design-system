@@ -228,3 +228,10 @@ describe('DatePicker — hidden form input', () => {
     expect(hidden).toHaveAttribute('value', '');
   });
 });
+
+describe('DatePicker range mode', () => {
+  it('renders the range placeholder when no value is set', () => {
+    render(<DatePicker mode="range" aria-label="test" />);
+    expect(screen.getByRole('combobox')).toHaveTextContent(/Pick dates/);
+  });
+});

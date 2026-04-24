@@ -2,9 +2,10 @@ import * as React from 'react';
 import { sv } from 'date-fns/locale/sv';
 import type { Locale } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
-import type { DatePickerProps, DatePickerSingleProps } from './DatePicker';
+import type { DatePickerProps, DatePickerRangeProps, DatePickerSingleProps } from './DatePicker';
 import {
   type DatePickerInternalState,
+  buildRangeState,
   buildSingleState,
   isDateRange,
 } from './datePickerStateHelpers';
@@ -98,9 +99,15 @@ export function useDatePickerState(
     return { ...state, captionMonth, setCaptionMonth, locale };
   }
 
-  // effectiveMode === 'range' — range builder lands in Task 4. For now, unreachable.
-  // This throw is replaced in Task 4 with a buildRangeState call.
-  throw new Error(
-    '[DatePicker] range mode not yet implemented. Scheduled for Task 4.',
-  );
+  const rangeValue = isDateRange(currentValue) ? currentValue : undefined;
+  const state = buildRangeState({
+    value: rangeValue,
+    setValue: (next) => setInternalValue(next),
+    isControlled,
+    setOpen,
+    props: props as DatePickerRangeProps,
+    locale,
+    placeholder,
+  });
+  return { ...state, captionMonth, setCaptionMonth, locale };
 }

@@ -26,7 +26,8 @@ const fillVariants = cva('h-full w-full flex-1 transition-transform duration-[25
       error: 'bg-[var(--color-feedback-error-fg)]',
     },
     animated: {
-      true: "bg-[image:repeating-linear-gradient(-45deg,transparent,transparent_8px,rgba(255,255,255,0.2)_8px,rgba(255,255,255,0.2)_16px)] bg-[length:200%_100%] animate-[stripes_1.2s_linear_infinite]",
+      // image: hint routes the gradient to background-image; omitting it emits background-color and browsers drop it silently.
+      true: "bg-[image:var(--pattern-stripes-overlay)] bg-[length:200%_100%] animate-[stripes_1.2s_linear_infinite]",
       false: '',
     },
   },

@@ -162,8 +162,19 @@
   --color-border-brand:   var(--blue-500);
   --color-border-focus:   var(--blue-400);
 
+  /* Effects, overlays & patterns */
   --color-focus-ring: var(--blue-400);
   --shadow-focus:     0 0 0 3px var(--blue-400);
+  /* Semi-transparent white so the stripe overlay reads over any progress-bar
+     fill color — brand, success, warning, error — in both light and dark modes.
+     No dark-mode override needed: a translucent white overlay is surface-agnostic. */
+  --pattern-stripes-overlay: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(255, 255, 255, 0.2) 8px,
+    rgba(255, 255, 255, 0.2) 16px
+  );
 
   --color-interactive-primary-bg:        var(--neutral-800);
   --color-interactive-primary-bg-hover:  var(--neutral-700);

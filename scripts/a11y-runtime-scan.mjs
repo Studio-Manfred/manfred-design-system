@@ -26,7 +26,7 @@ function get(p) {
 // Otherwise this CLI scan will drift from what the Storybook panel shows.
 
 // Rules disabled globally in .storybook/preview.ts — they don't apply to isolated stories.
-const GLOBAL_DISABLED_RULES = ['region', 'landmark-one-main', 'page-has-heading-one'];
+const GLOBAL_DISABLED_RULES = ['region', 'landmark-one-main', 'page-has-heading-one', 'bypass'];
 // Stories where colour-contrast is intentionally off (swatch/token/typography showcases).
 const CONTRAST_EXEMPT_STORIES = new Set([
   'foundation-tokens--brand-palette',

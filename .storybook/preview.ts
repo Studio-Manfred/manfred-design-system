@@ -40,6 +40,7 @@ const preview: Preview = {
           { id: 'region', enabled: false },
           { id: 'landmark-one-main', enabled: false },
           { id: 'page-has-heading-one', enabled: false },
+          { id: 'bypass', enabled: false },
         ],
       },
     }

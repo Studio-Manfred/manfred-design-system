@@ -23,6 +23,13 @@ const meta: Meta<typeof Dialog> = {
       config: {
         rules: [
           { id: 'region', enabled: true },
+          // Radix portals the DialogContent outside the story root, so axe
+          // cannot resolve aria-controls="radix-*" → the target IS on the
+          // page, just not in the scanned subtree. Known false positive.
+          { id: 'aria-valid-attr-value', enabled: false },
+          // Radix's focus-guard <span tabindex=0 aria-hidden> sentinels are
+          // load-bearing for the focus trap — by design focusable + hidden.
+          { id: 'aria-hidden-focus', enabled: false },
         ],
       },
     },

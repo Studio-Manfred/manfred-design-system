@@ -187,3 +187,29 @@ export const KeyboardInteraction: Story = {
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
   },
 };
+
+export const RangeKeyboardInteraction: Story = {
+  args: { mode: 'range' },
+  render: (args) => (
+    <div className="w-80">
+      <DatePicker {...(args as DatePickerRangeProps)} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole('combobox');
+    trigger.focus();
+    // ArrowDown opens popover and focuses first enabled day.
+    await userEvent.keyboard('{ArrowDown}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Navigate and commit `from`.
+    await userEvent.keyboard('{ArrowRight}{Enter}');
+    // Partial commits keep popover open. If the close actually fires here,
+    // it means rdp's keyboard path hit a same-day single-commit — that's a
+    // different code path. Flag it if we hit that.
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // Navigate a few days right, commit `to`.
+    await userEvent.keyboard('{ArrowRight}{ArrowRight}{ArrowRight}{Enter}');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  },
+};

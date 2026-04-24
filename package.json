@@ -1,6 +1,6 @@
 {
   "name": "@jens-wedin/design-system",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "type": "module",
   "main": "./dist/index.cjs",

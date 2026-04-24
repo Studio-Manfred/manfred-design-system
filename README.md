@@ -24,6 +24,9 @@ authenticate npm to the GitHub registry first:
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
+For the full teammate onboarding (PAT scope, shell setup, CI examples,
+troubleshooting), see [docs/CONSUMING.md](docs/CONSUMING.md).
+
 ## Use
 
 Import the stylesheet once at your app root, then use components

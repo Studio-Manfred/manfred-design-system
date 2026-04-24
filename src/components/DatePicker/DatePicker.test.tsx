@@ -349,4 +349,17 @@ describe('DatePicker range mode', () => {
     expect(container.querySelector('input[name="stay_from"]')).toHaveValue('');
     expect(container.querySelector('input[name="stay_to"]')).toHaveValue('');
   });
+
+  it('range mode renders name_from and name_to hidden inputs with ISO values', () => {
+    const { container } = render(
+      <DatePicker
+        mode="range"
+        name="stay"
+        defaultValue={{ from: new Date('2026-04-01'), to: new Date('2026-04-15') }}
+      />,
+    );
+    expect(container.querySelector('input[name="stay_from"]')).toHaveAttribute('value', '2026-04-01');
+    expect(container.querySelector('input[name="stay_to"]')).toHaveAttribute('value', '2026-04-15');
+    expect(container.querySelector('input[name="stay"]')).toBeNull();
+  });
 });

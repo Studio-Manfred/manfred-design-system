@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-04-19
+
+Documentation-only release. No code or API changes.
+
+### Changed
+
+- README restructured around install + use: opens with what the
+  library is, how to authenticate to GitHub Packages and install,
+  how to import the stylesheet, and a single end-to-end usage
+  example. Component reference, token architecture, and v0.1.x →
+  v0.2.0 migration details now live in Storybook and the
+  changelog.
+
+### Added
+
+- Project guide (`CLAUDE.md`) checked into the repo so contributors
+  pick up the conventions (commands, token architecture, test
+  setup, a11y policy, publishing flow).
+- Session resume point (`MEMORY.md`) at the repo root.
+- Historical accessibility audit reports (`A11Y-AUDIT.md`,
+  `A11Y-COLOR-AUDIT.md`) from the v0.1.2 era are now tracked.
+
 ## [0.3.1] - 2026-04-19
 
 Follow-up polish from the v0.3.0 code review. No API or visual changes.
@@ -122,6 +144,7 @@ migration table.
 
 See `git log` for the history prior to this changelog.
 
+[0.3.2]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.2
 [0.3.1]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.1
 [0.3.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.0
 [0.2.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.2.0

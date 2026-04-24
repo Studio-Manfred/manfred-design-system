@@ -201,6 +201,11 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     const displayText = currentValue ? formatValue(currentValue, locale) : placeholder;
     const hasValue = Boolean(currentValue);
 
+    // Compute accessible name: explicit prop wins, otherwise fall back to the
+    // current display text so the button always has a discernible name even
+    // when no wrapping <label> or aria-labelledby is provided.
+    const resolvedAriaLabel = ariaLabel ?? (!ariaLabelledBy ? displayText : undefined);
+
     const isoValue = currentValue ? formatDate(currentValue, 'yyyy-MM-dd') : '';
 
     return (
@@ -216,7 +221,8 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             role="combobox"
             aria-controls={popoverId}
             aria-haspopup="dialog"
-            aria-label={ariaLabel}
+            aria-expanded={open}
+            aria-label={resolvedAriaLabel}
             aria-labelledby={ariaLabelledBy}
             aria-describedby={ariaDescribedBy}
             aria-invalid={status === 'error' || undefined}

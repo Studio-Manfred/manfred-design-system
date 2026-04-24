@@ -9,14 +9,13 @@ Published as `@studio-manfred/manfred-design-system` on GitHub Packages.
 
 ## Install
 
-```bash
-npm install @studio-manfred/manfred-design-system
-```
+> **⚠️ Authentication required.** This package lives on **GitHub Packages**,
+> not public npm. You must configure `.npmrc` *and* a `read:packages`
+> Personal Access Token before `npm install` will work. Full 5-step
+> onboarding (PAT scope, shell setup, CI examples, troubleshooting) in
+> [docs/CONSUMING.md](docs/CONSUMING.md).
 
-Peer deps: `react >= 18`, `react-dom >= 18`.
-
-Because the package is scoped to `@studio-manfred` on GitHub Packages,
-authenticate npm to the GitHub registry first:
+Minimum setup, in the consuming project's root:
 
 ```
 # .npmrc
@@ -24,8 +23,13 @@ authenticate npm to the GitHub registry first:
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
-For the full teammate onboarding (PAT scope, shell setup, CI examples,
-troubleshooting), see [docs/CONSUMING.md](docs/CONSUMING.md).
+Then:
+
+```bash
+npm install @studio-manfred/manfred-design-system
+```
+
+Peer deps: `react >= 18`, `react-dom >= 18`.
 
 ## Use
 

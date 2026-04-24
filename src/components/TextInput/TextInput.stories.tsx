@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { TextInput } from './TextInput';
 
 const meta: Meta<typeof TextInput> = {
@@ -71,4 +72,16 @@ export const FullWidth: Story = {
       <TextInput placeholder="Full width input" fullWidth />
     </div>
   ),
+};
+
+// Play: focus the input, type a value, assert the input reflects the typed text.
+export const KeyboardInteraction: Story = {
+  render: () => <TextInput aria-label="Name" placeholder="Enter your name…" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('textbox', { name: 'Name' });
+    await userEvent.click(input);
+    await userEvent.type(input, 'Manfred');
+    expect((input as HTMLInputElement).value).toBe('Manfred');
+  },
 };

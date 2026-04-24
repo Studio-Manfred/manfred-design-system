@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { useState } from 'react';
 import { Checkbox } from './Checkbox';
 
@@ -59,6 +60,22 @@ export const ErrorState: Story = {
   render: () => (
     <Checkbox label="You must accept the terms to continue" error />
   ),
+};
+
+// Play: Tab to checkbox, Space to check, assert aria-checked, Space again to uncheck.
+export const KeyboardInteraction: Story = {
+  render: () => <Checkbox label="Subscribe to updates" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const checkbox = canvas.getByRole('checkbox', { name: 'Subscribe to updates' });
+    // Focus via Tab then toggle on with Space.
+    checkbox.focus();
+    await userEvent.keyboard('{Space}');
+    expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    // Space again — unchecks.
+    await userEvent.keyboard('{Space}');
+    expect(checkbox).toHaveAttribute('aria-checked', 'false');
+  },
 };
 
 export const Controlled: Story = {

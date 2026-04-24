@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { userEvent, within } from 'storybook/test';
+import { userEvent, within, expect } from 'storybook/test';
 import {
   Dialog,
   DialogTrigger,
@@ -141,6 +141,48 @@ export const Opened: Story = {
     // Wait for the portaled dialog content to mount before the test finishes —
     // otherwise axe/coverage may scan the opening-animation state on slow CI.
     await within(document.body).findByRole('dialog');
+  },
+};
+
+// Play: open dialog via click, tab through interactive elements, close with Escape.
+export const KeyboardInteraction: Story = {
+  render: () => (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button>Open dialog</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Keyboard test</DialogTitle>
+          <DialogDescription>
+            Tab through the buttons and press Escape to close.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button variant="brand">Confirm</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  ),
+  play: async ({ canvasElement }) => {
+    // Open the dialog by clicking the trigger button.
+    await userEvent.click(within(canvasElement).getByRole('button', { name: /open dialog/i }));
+    // Wait for the portaled dialog to mount in document.body.
+    const dialog = await within(document.body).findByRole('dialog');
+    expect(dialog).toBeVisible();
+    // Tab count (3) mirrors the dialog's focusable elements: close, Cancel, Confirm. Update if the dialog render changes.
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab();
+    // Press Escape — Radix closes the dialog.
+    await userEvent.keyboard('{Escape}');
+    // Assert the dialog is no longer in the DOM.
+    expect(within(document.body).queryByRole('dialog')).toBeNull();
   },
 };
 

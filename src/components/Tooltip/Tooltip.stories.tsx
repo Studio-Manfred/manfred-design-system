@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './Tooltip';
 import { Button } from '../Button';
 
@@ -93,6 +94,34 @@ export const WithDelay: Story = {
       </TooltipProvider>
     </div>
   ),
+};
+
+// Play: keyboard-focus the trigger (Tab), assert tooltip appears, blur to dismiss.
+export const KeyboardInteraction: Story = {
+  render: () => (
+    // Per-story delayDuration=0 shadows the meta decorator's 200ms default — tooltip must appear immediately for the assertion.
+    <TooltipProvider delayDuration={0}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button>Focus me</Button>
+        </TooltipTrigger>
+        <TooltipContent side="top">Keyboard tooltip</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await canvas.findByRole('button', { name: 'Focus me' });
+    // Radix Tooltip responds to focus events; tab() in headless runtime does not always propagate focusin reliably — using direct focus() for determinism.
+    const trigger = canvas.getByRole('button', { name: 'Focus me' });
+    trigger.focus();
+    // Wait for the portaled tooltip content to appear.
+    const tooltip = await within(document.body).findByRole('tooltip', { name: 'Keyboard tooltip' });
+    expect(tooltip).toBeVisible();
+    // Press Escape — Radix closes the tooltip.
+    await userEvent.keyboard('{Escape}');
+    expect(within(document.body).queryByRole('tooltip')).toBeNull();
+  },
 };
 
 export const OnInlineText: Story = {

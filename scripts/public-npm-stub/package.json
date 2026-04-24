@@ -1,10 +1,10 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.0.1-use-github-packages",
+  "version": "0.0.1",
   "description": "This package is hosted on GitHub Packages, not public npm. See docs/CONSUMING.md.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Studio-Manfred/manfred-design-system"
+    "url": "git+https://github.com/Studio-Manfred/manfred-design-system.git"
   },
   "homepage": "https://github.com/Studio-Manfred/manfred-design-system#install",
   "scripts": {

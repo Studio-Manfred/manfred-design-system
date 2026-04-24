@@ -26,9 +26,9 @@ cd scripts/public-npm-stub
 npm publish --access public
 ```
 
-Republish only if the redirect message changes. Bump
-`version` in `package.json` (e.g. `0.0.2-use-github-packages`) — npm
-does not allow overwriting a published version.
+Republish only if the redirect message changes. Bump `version` in
+`package.json` (e.g. `0.0.1` → `0.0.2`) — npm does not allow
+overwriting a published version.
 
 ## Do NOT
 

@@ -186,7 +186,14 @@
   --color-interactive-inverse-bg-active: var(--blue-100);
   --color-interactive-inverse-fg:        var(--blue-500);
 
-  --color-brand-primary:   var(--blue-500);
+  /* Brand identity — fixed brand colors, not theme-reactive.
+     The logo renders at full-brand fidelity regardless of OS color scheme;
+     do NOT add these to the .dark block. */
+  --color-brand-primary:    var(--blue-500);
+  --color-brand-logo-blue:  var(--blue-500);
+  --color-brand-logo-ink:   var(--neutral-800);
+  --color-brand-logo-paper: var(--white);
+
   --color-surface-default: var(--color-bg-default);
   --color-surface-warm:    var(--color-bg-warm);
   --color-surface-beige:   var(--color-bg-warm-muted);

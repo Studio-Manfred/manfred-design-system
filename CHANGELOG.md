@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-04-24
+
+**Breaking: package and repository renamed.** The code, API, and component
+surface are unchanged — only the install identifier and repo URL move.
+
+### Changed
+
+- **Package renamed**: `@jens-wedin/design-system` →
+  `@jens-wedin/manfred-design-system`. The `@jens-wedin` scope stays, so
+  `.npmrc` and auth setup don't need to change — only the package name
+  in `dependencies` (and any import paths) needs updating on consumers.
+- **Repo renamed**: `jens-wedin/manfred-design_system` →
+  `jens-wedin/manfred-design-system` (underscore replaced with hyphen to
+  match the new package name and fit the rest of the GitHub ecosystem's
+  conventions). GitHub auto-redirects the old URL, so existing clones
+  keep working, but `git remote set-url origin …` is recommended.
+- Added `repository` and `homepage` fields to `package.json`.
+
+### Migration
+
+Consumers need to update two lines in their own `package.json`:
+
+```diff
+-    "@jens-wedin/design-system": "^0.3.3"
++    "@jens-wedin/manfred-design-system": "^0.4.0"
+```
+
+And any imports:
+
+```diff
+-import { Button } from '@jens-wedin/design-system';
++import { Button } from '@jens-wedin/manfred-design-system';
+-import '@jens-wedin/design-system/styles';
++import '@jens-wedin/manfred-design-system/styles';
+```
+
+Then `npm install`.
+
+The old package (`@jens-wedin/design-system`) remains published up to
+0.3.3 but will not receive further updates.
+
 ## [0.3.3] - 2026-04-24
 
 Documentation-only release. No code or API changes.
@@ -139,7 +180,7 @@ migration table.
 - **Breaking:** `Checkbox` now forwards `onCheckedChange(state)` (Radix idiom)
   instead of the native `onChange(event)`.
 - **Breaking:** Consumers must import the stylesheet explicitly:
-  `import '@jens-wedin/design-system/styles'`.
+  `import '@jens-wedin/manfred-design-system/styles'`.
 
 ### Added
 
@@ -157,8 +198,9 @@ migration table.
 
 See `git log` for the history prior to this changelog.
 
-[0.3.3]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.3
-[0.3.2]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.2
-[0.3.1]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.1
-[0.3.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.3.0
-[0.2.0]: https://github.com/jens-wedin/manfred-design_system/releases/tag/v0.2.0
+[0.4.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.4.0
+[0.3.3]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.3
+[0.3.2]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.2
+[0.3.1]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.1
+[0.3.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.3.0
+[0.2.0]: https://github.com/jens-wedin/manfred-design-system/releases/tag/v0.2.0

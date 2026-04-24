@@ -1,11 +1,11 @@
-# Consuming `@jens-wedin/design-system`
+# Consuming `@jens-wedin/manfred-design-system`
 
 Internal guide for teammates who want to use the Manfred Design System
 in a different project.
 
 The package is published to **GitHub Packages** (not public npm) with
 `access: restricted`. Only collaborators on
-[`jens-wedin/manfred-design_system`](https://github.com/jens-wedin/manfred-design_system)
+[`jens-wedin/manfred-design-system`](https://github.com/jens-wedin/manfred-design-system)
 can install it. If you don't have access, ask the maintainer to add
 you.
 
@@ -13,7 +13,7 @@ you.
 
 ### 1. Accept the collaborator invite
 
-Go to https://github.com/jens-wedin/manfred-design_system and accept
+Go to https://github.com/jens-wedin/manfred-design-system and accept
 the invitation (check your GitHub notifications or email).
 
 ### 2. Create a classic Personal Access Token
@@ -61,7 +61,7 @@ routing. (Do **not** hardcode the token in the file.)
 ### 5. Install
 
 ```
-npm install @jens-wedin/design-system
+npm install @jens-wedin/manfred-design-system
 ```
 
 ## Use it
@@ -70,8 +70,8 @@ Import the stylesheet once at your app entry (for example,
 `src/main.tsx` or `app/layout.tsx`), then import components anywhere:
 
 ```tsx
-import '@jens-wedin/design-system/styles';
-import { Button, Dialog, DialogTrigger, DialogContent } from '@jens-wedin/design-system';
+import '@jens-wedin/manfred-design-system/styles';
+import { Button, Dialog, DialogTrigger, DialogContent } from '@jens-wedin/manfred-design-system';
 
 export function Example() {
   return (
@@ -129,5 +129,5 @@ package inherits the repo's access control.
 **`npm ERR! 403 Forbidden`** — token exists but lacks
 `read:packages`. Generate a new classic token with that scope.
 
-**Stale install** — `npm uninstall @jens-wedin/design-system` then
+**Stale install** — `npm uninstall @jens-wedin/manfred-design-system` then
 reinstall after changing `.npmrc` or token.

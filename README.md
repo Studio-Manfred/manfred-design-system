@@ -5,12 +5,12 @@ typography, and 17 accessible components built on
 [shadcn/ui](https://ui.shadcn.com), Tailwind CSS v4, and Radix UI
 primitives.
 
-Published as `@jens-wedin/design-system` on GitHub Packages.
+Published as `@jens-wedin/manfred-design-system` on GitHub Packages.
 
 ## Install
 
 ```bash
-npm install @jens-wedin/design-system
+npm install @jens-wedin/manfred-design-system
 ```
 
 Peer deps: `react >= 18`, `react-dom >= 18`.
@@ -33,8 +33,8 @@ Import the stylesheet once at your app root, then use components
 anywhere:
 
 ```tsx
-import '@jens-wedin/design-system/styles';
-import { Button, Dialog, DialogTrigger, DialogContent } from '@jens-wedin/design-system';
+import '@jens-wedin/manfred-design-system/styles';
+import { Button, Dialog, DialogTrigger, DialogContent } from '@jens-wedin/manfred-design-system';
 
 export function Example() {
   return (

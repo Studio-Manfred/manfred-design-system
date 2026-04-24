@@ -16,7 +16,7 @@ Memory).
 
 ## Package
 
-- `@jens-wedin/design-system` — 17 components on shadcn/ui + Tailwind
+- `@jens-wedin/manfred-design-system` — 17 components on shadcn/ui + Tailwind
   v4 + Radix UI primitives
 - Peer deps: React 18+, React-DOM 18+
 - Public exports: `.` (barrel) + `./styles` (single CSS bundle)

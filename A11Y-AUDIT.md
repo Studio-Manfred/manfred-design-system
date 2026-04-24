@@ -1,6 +1,6 @@
 # Accessibility Audit Report
 
-**Project:** Manfred Design System (`@jens-wedin/design-system` v0.1.2)
+**Project:** Manfred Design System (`@jens-wedin/manfred-design-system` v0.1.2)
 **Date:** 2026-04-04
 **Standard:** WCAG 2.2 Level AA
 **Scan modes:** Static (eslint-plugin-jsx-a11y) + Runtime (axe-core 4.10.2) + Manual code review

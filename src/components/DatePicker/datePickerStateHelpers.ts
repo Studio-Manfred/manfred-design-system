@@ -112,11 +112,44 @@ export function buildRangeState(opts: BuildRangeStateOptions): DatePickerInterna
     });
   }
 
-  // Behavior lands task-by-task. For now: no-op select, no close, clear only.
-  const handleSelect = (_next: Date | DateRange | undefined) => {
-    // Implemented in Task 5 (partial/complete/swap/single-day).
+  const handleSelect = (next: Date | DateRange | undefined) => {
+    // rdp in mode="range" passes a DateRange or undefined, never a raw Date.
+    let narrowed: DateRange | undefined = next && isDateRange(next) ? next : undefined;
+    // rdp v9 `addToRange` auto-completes first click on an empty range to
+    // `{from: X, to: X}` (single-day). We want partial `{from: X, to: undefined}`
+    // so the popover stays open for the user's second click. Intercept only
+    // when the previous value was empty — leaves Task 8's same-day click on
+    // a partial range (which is a legitimate single-day commit) untouched.
+    const wasEmpty = !value?.from && !value?.to;
+    if (
+      wasEmpty &&
+      narrowed?.from &&
+      narrowed?.to &&
+      narrowed.from.getTime() === narrowed.to.getTime()
+    ) {
+      narrowed = { from: narrowed.from, to: undefined };
+    }
+    if (!isControlled) setValue(narrowed);
+    props.onValueChange?.(narrowed);
   };
-  const shouldCloseOnSelect = (_next: Date | DateRange | undefined) => false;
+
+  const shouldCloseOnSelect = (next: Date | DateRange | undefined) => {
+    // Close only when both endpoints are set (complete range).
+    if (!next || !isDateRange(next)) return false;
+    // Mirror handleSelect's first-click-on-empty intercept: rdp v9 emits
+    // `{from: X, to: X}` on first click from empty, but we rewrite that to
+    // a partial range. The popover must stay open for the second click.
+    const wasEmpty = !value?.from && !value?.to;
+    if (
+      wasEmpty &&
+      next.from &&
+      next.to &&
+      next.from.getTime() === next.to.getTime()
+    ) {
+      return false;
+    }
+    return Boolean(next.from && next.to);
+  };
   const clear = () => {
     if (!isControlled) setValue(undefined);
     props.onValueChange?.(undefined);

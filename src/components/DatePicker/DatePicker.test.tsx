@@ -234,4 +234,32 @@ describe('DatePicker range mode', () => {
     render(<DatePicker mode="range" aria-label="test" />);
     expect(screen.getByRole('combobox')).toHaveTextContent(/Pick dates/);
   });
+
+  it('first click sets `from`, popover stays open, onValueChange fires with partial range', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        mode="range"
+        aria-label="test"
+        onValueChange={onValueChange}
+        // Start with an empty range so rdp v9 treats the first click as a fresh `from`.
+        // (A partial-range seed is interpreted as an in-progress range by rdp and gets
+        //  completed on next click, which is a separate scenario — covered in later tasks.)
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    // Popover open. Click day 5 — rdp v9 default: new click becomes the new `from`.
+    // Use a locale-friendly pattern that anchors on the day number in the aria-label
+    // ("söndag 5 april 2026" in sv, "Sunday, April 5, 2026" in en) to avoid matching 15/25.
+    const day5 = await screen.findByRole('button', { name: /\b5\s+april|april\s+5\b/i });
+    await user.click(day5);
+    // Popover stays open
+    expect(screen.getByRole('combobox')).toHaveAttribute('aria-expanded', 'true');
+    // onValueChange fired with `from` only
+    const calls = onValueChange.mock.calls;
+    const lastCall = calls[calls.length - 1]?.[0];
+    expect(lastCall?.from).toBeInstanceOf(Date);
+    expect(lastCall?.to).toBeUndefined();
+  });
 });

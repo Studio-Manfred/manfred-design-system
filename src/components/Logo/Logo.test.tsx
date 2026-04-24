@@ -25,12 +25,12 @@ describe('Logo', () => {
   });
 
   it.each([
-    ['blue', '#2c28ec'],
-    ['black', '#1e1e24'],
-    ['white', '#ffffff'],
+    ['blue', 'var(--color-brand-logo-blue)'],
+    ['black', 'var(--color-brand-logo-ink)'],
+    ['white', 'var(--color-brand-logo-paper)'],
   ] as const)('renders %s fill', (color, expected) => {
     const { container } = render(<Logo color={color} />);
     const fill = container.querySelector('path')?.getAttribute('fill');
-    expect(fill?.toLowerCase()).toBe(expected);
+    expect(fill).toBe(expected);
   });
 });

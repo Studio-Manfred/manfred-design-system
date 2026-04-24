@@ -13,13 +13,14 @@ export interface LogoProps {
   'aria-label'?: string;
 }
 
-// Literal brand primitives — intentionally not theme-reactive.
+// Brand semantic tokens — intentionally not theme-reactive.
+// The tokens resolve to fixed brand values regardless of light/dark mode.
 // Consumers pick the variant per surface: `color="white"` on dark/brand
 // backgrounds, `color="black"` on light surfaces.
 const colorMap: Record<LogoColor, string> = {
-  blue:  '#2c28ec',
-  black: '#1e1e24',
-  white: '#ffffff',
+  blue:  'var(--color-brand-logo-blue)',
+  black: 'var(--color-brand-logo-ink)',
+  white: 'var(--color-brand-logo-paper)',
 };
 
 function WordmarkSvg({ fill }: { fill: string }) {

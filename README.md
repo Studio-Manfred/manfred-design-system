@@ -58,6 +58,12 @@ Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker · Dialog ·
 FormField · Icon · Logo · ProgressBar · RadioGroup · SearchBar ·
 Spinner · TextInput · Toaster · Tooltip · Typography.
 
+`DatePicker` supports single-date (`mode="single"`, default) and
+date-range (`mode="range"`) selection. TextInput-styled trigger,
+popover calendar, `minDate` / `maxDate` constraints, localizable via a
+`date-fns` locale. Range mode serializes to two hidden inputs
+(`name_from`, `name_to`) when `name` is provided.
+
 ### Theming
 
 Light theme is the default. Dark activates from the OS

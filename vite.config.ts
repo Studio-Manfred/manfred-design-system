@@ -29,14 +29,16 @@ export default defineConfig({
     },
     rollupOptions: {
       external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        /^@radix-ui\//,
-        'sonner',
         'class-variance-authority',
         'clsx',
+        'date-fns',
+        'react',
+        'react-day-picker',
+        'react-dom',
+        'react/jsx-runtime',
+        'sonner',
         'tailwind-merge',
+        /^@radix-ui\//,
       ],
       output: {
         globals: {

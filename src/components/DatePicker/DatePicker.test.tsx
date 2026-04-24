@@ -395,4 +395,22 @@ describe('DatePicker range mode', () => {
     );
     warn.mockRestore();
   });
+
+  it('warns and renders empty when mode="range" receives a Date value', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(
+      <DatePicker
+        // @ts-expect-error — intentional shape mismatch to verify runtime warning
+        mode="range"
+        value={new Date('2026-04-01')}
+        aria-label="test"
+      />,
+    );
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('requires `value` / `defaultValue` of shape'),
+    );
+    // Renders as empty (placeholder)
+    expect(screen.getByRole('combobox')).toHaveTextContent(/Pick dates/);
+    warn.mockRestore();
+  });
 });

@@ -112,6 +112,31 @@ export const RangeWithConstraints: Story = {
   ),
 };
 
+export const RangeInFormField: Story = {
+  render: () => (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        alert(
+          JSON.stringify({ from: data.get('stay_from'), to: data.get('stay_to') }),
+        );
+      }}
+      className="flex flex-col gap-3 w-80"
+    >
+      <FormField label="Stay" htmlFor="stay">
+        <DatePicker id="stay" mode="range" name="stay" />
+      </FormField>
+      <button
+        type="submit"
+        className="mt-2 self-start rounded border border-[var(--color-border-strong)] px-3 py-1 text-sm"
+      >
+        Submit
+      </button>
+    </form>
+  ),
+};
+
 // Play: Tab to trigger, ArrowDown to open, Escape to close.
 export const KeyboardInteraction: Story = {
   render: () => {

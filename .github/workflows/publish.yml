@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
-          scope: '@jens-wedin'
+          scope: '@studio-manfred'
 
       - name: Install dependencies
         run: npm ci

@@ -167,3 +167,25 @@ export const FullWidth: Story = {
     </div>
   ),
 };
+
+// New v0.10 — `trailing` slot. Most common consumer is a Kbd shortcut hint;
+// any decorative or interactive element works. Clear button (when input
+// has a value) renders to the LEFT of trailing — closest to the text.
+export const WithTrailing: Story = {
+  render: () => (
+    <div style={{ width: '280px' }}>
+      <SearchBar
+        fullWidth
+        placeholder="Search…"
+        trailing={
+          <kbd
+            aria-hidden="true"
+            className="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 font-mono text-[0.6875rem] bg-secondary text-muted-foreground border border-border rounded-[var(--radius-sm)]"
+          >
+            ⌘K
+          </kbd>
+        }
+      />
+    </div>
+  ),
+};

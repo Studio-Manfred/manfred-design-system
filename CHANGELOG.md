@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.1] - 2026-04-25
+
+Three small follow-ups from the v0.9.0 release sweep. All additive
+or maintenance — no breaking changes.
+
+### Added
+
+- `SearchBar` `trailing?: ReactNode` prop. Composes content (typical:
+  a `<Kbd>` shortcut hint) into the input's right edge. When the
+  input has a value, the Clear button renders to the **left** of
+  trailing — closest to the input text. The trailing element is
+  rendered as-is; consumers control its a11y semantics. Updated the
+  `Kbd` `NextToSearchBar` story to use the new prop instead of an
+  absolute-positioned overlay. (STU-20)
+
+### Changed
+
+- Repo `.npmrc`: scope route updated from the legacy `@jens-wedin`
+  to `@studio-manfred`. Stale leftover from before the v0.5.0 scope
+  rename. (STU-21)
+
+### Security
+
+- Bumped transitive `postcss` to 8.5.10 via `npm audit fix` (lockfile
+  only). Clears [GHSA-qx2v-qp2m-jg93](https://github.com/advisories/GHSA-qx2v-qp2m-jg93)
+  (XSS via unescaped `</style>` in CSS Stringify). `postcss` is a
+  build-only devDep of `vite`; never shipped to consumers. (STU-22)
+
 ## [0.9.0] - 2026-04-25
 
 Seven new components closing the gaps surfaced by the Mitt Intranat

@@ -69,3 +69,31 @@ export { Toaster, toast } from './components/Toast';
 export type { ToastProps } from './components/Toast';
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './components/Tooltip';
+
+export {
+  ChartContainer,
+  BarChart,
+  LineChart,
+  DonutChart,
+  ChartTooltip,
+  ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
+  chartSeriesColor,
+  usePrefersReducedMotion,
+  useChartContainer,
+} from './components/Chart';
+export type {
+  ChartContainerProps,
+  ChartSeriesDef,
+  ChartContainerContextValue,
+  BarChartProps,
+  LineChartProps,
+  DonutChartProps,
+  ChartTooltipProps,
+  ChartTooltipContentProps,
+  ChartTooltipPayloadEntry,
+  ChartLegendProps,
+  ChartLegendContentProps,
+  ChartLegendItem,
+} from './components/Chart';

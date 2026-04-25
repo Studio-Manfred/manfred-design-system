@@ -36,6 +36,9 @@ export type { FormFieldProps, FormFieldStatus } from './components/FormField';
 export { Icon } from './components/Icon';
 export type { IconProps, IconName, IconSize } from './components/Icon';
 
+export { Kbd } from './components/Kbd';
+export type { KbdProps, KbdSize } from './components/Kbd';
+
 export {
   Dialog,
   DialogTrigger,

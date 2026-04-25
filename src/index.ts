@@ -36,6 +36,9 @@ export type { FormFieldProps, FormFieldStatus } from './components/FormField';
 export { Icon } from './components/Icon';
 export type { IconProps, IconName, IconSize } from './components/Icon';
 
+export { NavBar, NavItem } from './components/NavBar';
+export type { NavBarProps, NavItemProps } from './components/NavBar';
+
 export {
   Dialog,
   DialogTrigger,

@@ -36,6 +36,7 @@ export default defineConfig({
         'react-day-picker',
         'react-dom',
         'react/jsx-runtime',
+        'recharts',
         'sonner',
         'tailwind-merge',
         /^@radix-ui\//,

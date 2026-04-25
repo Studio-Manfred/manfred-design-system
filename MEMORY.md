@@ -4,7 +4,47 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
-## Current state — 2026-04-19
+## Current state — 2026-04-25 (overnight unattended)
+
+Six new component branches ready for review. None pushed.
+
+| ticket | branch | priority |
+|---|---|---|
+| STU-14 Select | `jens-wedin/stu-14-add-select-component` | Urgent |
+| STU-19 Kbd | `jens-wedin/stu-19-add-kbd-component` | Medium |
+| STU-13 Avatar | `jens-wedin/stu-13-add-avatar-component` | High |
+| STU-16 Card | `jens-wedin/stu-16-add-card-surface-component` | High |
+| STU-15 Tabs | `jens-wedin/stu-15-add-tabs-segmentedcontrol-component` | High |
+| STU-18 NavBar | `jens-wedin/stu-18-add-navbar-navitem-components` | High |
+
+All six: unit tests pass, `tsc --noEmit -p tsconfig.build.json` clean,
+runtime axe 0 violations in both light + dark, exports added to
+`src/index.ts`, dashboard-sketch story present. Linear status moved to
+**In Review** with summary comments.
+
+**STU-17 Chart primitives** intentionally left untouched (sibling
+under epic STU-12). Reason: requires new `--chart-*` tokens in
+`tokens.css` plus Recharts integration — systemic change deserving
+user judgment. Tackle in a fresh session.
+
+Suggested push order: STU-14 first (urgent + adds
+`@radix-ui/react-select` dep), STU-15 next (adds
+`@radix-ui/react-tabs`), then the four dep-free branches in any order.
+
+**Follow-up niggles surfaced (not in scope, worth tracking):**
+- `SearchBar` has no `trailing` slot — Kbd story works around it; consider
+  adding `trailing?: ReactNode` for native composition.
+- `.npmrc` still routes the old `@jens-wedin` scope to GitHub Packages —
+  harmless one-line cleanup to `@studio-manfred:registry=...`.
+- Storybook's Vite story-index does NOT auto-recover when branch
+  switching removes a `*.stories.tsx`; symptom is a vite-error-overlay
+  injected into every page that trips axe's
+  `scrollable-region-focusable`. Always kill + restart Storybook between
+  branch switches.
+
+---
+
+## Previous state — 2026-04-19
 
 - **Release:** `v0.3.1` (published via `.github/workflows/publish.yml`
   to GitHub Packages when a release/tag is pushed)

@@ -237,6 +237,23 @@
   --color-feedback-info-bg:    var(--blue-50);
   --color-feedback-info-fg:    var(--blue-700);
 
+  /*
+   * Categorical chart palette. chart-1..5 are tuned for 3:1 minimum
+   * contrast against the surface background (WCAG 1.4.11) and avoid
+   * red/green pairings for CVD safety. chart-2 + chart-3 alias the
+   * existing feedback success/warning fg so dark-mode rebinding flows
+   * automatically; chart-1 / chart-4 / chart-5 are explicit so brand
+   * blues and neutrals can flip independently. axis + grid alias text
+   * and surface tokens already in the file.
+   */
+  --color-chart-1:    var(--blue-500);
+  --color-chart-2:    var(--color-feedback-success-fg);
+  --color-chart-3:    var(--color-feedback-warning-fg);
+  --color-chart-4:    var(--neutral-400);
+  --color-chart-5:    var(--blue-700);
+  --color-chart-axis: var(--color-text-muted);
+  --color-chart-grid: var(--color-bg-muted);
+
   /* ==========================================
      LAYER 3: SHADCN CONTRACT
      Map Manfred semantic tokens onto the names
@@ -275,6 +292,14 @@
 
   --brand:                 var(--color-interactive-brand-bg);
   --brand-foreground:      var(--color-interactive-brand-fg);
+
+  --chart-1:    var(--color-chart-1);
+  --chart-2:    var(--color-chart-2);
+  --chart-3:    var(--color-chart-3);
+  --chart-4:    var(--color-chart-4);
+  --chart-5:    var(--color-chart-5);
+  --chart-axis: var(--color-chart-axis);
+  --chart-grid: var(--color-chart-grid);
 }
 
 /* ==========================================
@@ -364,6 +389,10 @@
     --color-feedback-error-fg:   #fca5a5;
     --color-feedback-info-bg:    var(--blue-800);
     --color-feedback-info-fg:    var(--blue-200);
+
+    --color-chart-1: var(--blue-400);
+    --color-chart-4: var(--neutral-300);
+    --color-chart-5: var(--blue-300);
   }
 }
 
@@ -423,6 +452,10 @@
   --color-feedback-error-fg:   #fca5a5;
   --color-feedback-info-bg:    var(--blue-800);
   --color-feedback-info-fg:    var(--blue-200);
+
+  --color-chart-1: var(--blue-400);
+  --color-chart-4: var(--neutral-300);
+  --color-chart-5: var(--blue-300);
 }
 
 /* ==========================================
@@ -464,6 +497,14 @@
 
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-axis: var(--chart-axis);
+  --color-chart-grid: var(--chart-grid);
 
   --color-business-blue: var(--blue-500);
   --color-almost-black: var(--neutral-800);

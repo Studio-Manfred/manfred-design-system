@@ -36,6 +36,9 @@ export type { FormFieldProps, FormFieldStatus } from './components/FormField';
 export { Icon } from './components/Icon';
 export type { IconProps, IconName, IconSize } from './components/Icon';
 
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/Tabs';
+export type { TabsProps, TabsVariant, TabsSize } from './components/Tabs';
+
 export {
   Dialog,
   DialogTrigger,

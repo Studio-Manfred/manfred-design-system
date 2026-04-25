@@ -24,6 +24,16 @@ export type { BadgeProps, BadgeVariant, BadgeSize } from './components/Badge';
 export { Breadcrumb } from './components/Breadcrumb';
 export type { BreadcrumbProps, BreadcrumbItem } from './components/Breadcrumb';
 
+export {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from './components/Card';
+export type { CardProps, CardPadding, CardElement } from './components/Card';
+
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
 

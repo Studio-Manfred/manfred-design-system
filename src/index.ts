@@ -50,6 +50,20 @@ export {
 } from './components/Dialog';
 export type { DialogContentProps } from './components/Dialog';
 
+export {
+  Select,
+  SelectGroup,
+  SelectValue,
+  SelectTrigger,
+  SelectContent,
+  SelectLabel,
+  SelectItem,
+  SelectSeparator,
+  SelectScrollUpButton,
+  SelectScrollDownButton,
+} from './components/Select';
+export type { SelectProps, SelectTriggerProps, SelectItemProps } from './components/Select';
+
 export { ProgressBar } from './components/ProgressBar';
 export type { ProgressBarProps, ProgressBarVariant, ProgressBarSize } from './components/ProgressBar';
 

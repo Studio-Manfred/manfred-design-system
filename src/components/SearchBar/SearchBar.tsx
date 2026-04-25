@@ -19,6 +19,17 @@ export interface SearchBarProps {
   fullWidth?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  /**
+   * Optional trailing-edge content (e.g. a `<Kbd>` shortcut hint).
+   * Sits inside the input's right edge. When the input has a value,
+   * the Clear button renders to its left (closer to the text); when
+   * empty, the trailing content has the right edge to itself.
+   *
+   * The element is rendered as-is — manage its own a11y semantics.
+   * Decorative elements like `<Kbd>` ship with `aria-hidden="true"`
+   * by default; interactive elements should provide their own label.
+   */
+  trailing?: React.ReactNode;
 }
 
 export function SearchBar({
@@ -33,6 +44,7 @@ export function SearchBar({
   fullWidth = false,
   className,
   style,
+  trailing,
 }: SearchBarProps) {
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue ?? '');
@@ -74,15 +86,20 @@ export function SearchBar({
         fullWidth={fullWidth}
         aria-label="Search"
       />
-      {showClear && (
-        <button
-          type="button"
-          className="absolute right-3 flex items-center justify-center p-1 text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          onClick={handleClear}
-          aria-label="Clear search"
-        >
-          <Icon name="x" size="sm" />
-        </button>
+      {(showClear || trailing) && (
+        <div className="absolute right-3 flex items-center gap-2">
+          {showClear && (
+            <button
+              type="button"
+              className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground transition-colors rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={handleClear}
+              aria-label="Clear search"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+          )}
+          {trailing}
+        </div>
       )}
     </div>
   );

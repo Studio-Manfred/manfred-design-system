@@ -39,13 +39,12 @@ export const Sizes: Story = {
 export const NextToSearchBar: Story = {
   name: 'Inside SearchBar (dashboard sketch)',
   render: () => (
-    // SearchBar doesn't expose a trailing slot, so the Kbd is absolutely
-    // positioned over the trailing edge — matches the Mitt Intranat sketch.
-    <div className="relative w-80">
-      <SearchBar placeholder="Search…" fullWidth />
-      <span className="absolute right-3 top-1/2 -translate-y-1/2">
-        <Kbd keys={['⌘', 'K']} />
-      </span>
+    <div className="w-80">
+      <SearchBar
+        placeholder="Search…"
+        fullWidth
+        trailing={<Kbd keys={['⌘', 'K']} />}
+      />
     </div>
   ),
 };

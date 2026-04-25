@@ -88,4 +88,46 @@ describe('SearchBar', () => {
     // controlled value unchanged without parent update
     expect(screen.getByRole('textbox')).toHaveValue('xyz');
   });
+
+  it('renders trailing content when no value is present', () => {
+    render(
+      <SearchBar trailing={<span data-testid="kbd-stub">⌘K</span>} />,
+    );
+    expect(screen.getByTestId('kbd-stub')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+  });
+
+  it('renders both Clear and trailing when input has a value, in that order', () => {
+    render(
+      <SearchBar
+        defaultValue="hi"
+        trailing={<span data-testid="kbd-stub">⌘K</span>}
+      />,
+    );
+    const clear = screen.getByRole('button', { name: 'Clear search' });
+    const trailing = screen.getByTestId('kbd-stub');
+    expect(clear).toBeInTheDocument();
+    expect(trailing).toBeInTheDocument();
+    // Clear comes first in DOM order (closer to the input text);
+    // trailing follows.
+    expect(
+      clear.compareDocumentPosition(trailing) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it('trailing content is rendered as-is — consumer controls a11y', () => {
+    render(
+      <SearchBar
+        trailing={
+          <button type="button" aria-label="Open command palette">
+            cmd
+          </button>
+        }
+      />,
+    );
+    // Interactive trailing surfaces its own accessible name.
+    expect(
+      screen.getByRole('button', { name: 'Open command palette' }),
+    ).toBeInTheDocument();
+  });
 });

@@ -18,6 +18,9 @@ export type { LogoProps, LogoVariant, LogoColor } from './components/Logo';
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertVariant } from './components/Alert';
 
+export { Avatar } from './components/Avatar';
+export type { AvatarProps, AvatarSize, AvatarVariant } from './components/Avatar';
+
 export { Badge } from './components/Badge';
 export type { BadgeProps, BadgeVariant, BadgeSize } from './components/Badge';
 

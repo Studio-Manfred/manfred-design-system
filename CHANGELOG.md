@@ -7,6 +7,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-04-25
+
+Seven new components closing the gaps surfaced by the Mitt Intranat
+dashboard build. Adds the first `--chart-*` token slice. Three new
+peer dependencies. Fully additive — no breaking changes.
+
+### Added
+
+- **`Avatar`** — circular identity indicator with image src or
+  derived-initials fallback. `role="img"` + required `alt` so screen
+  readers announce the user; child `<img>` is `aria-hidden`. Initials
+  derive from `name` (or alt), capped at 2 chars; explicit `initials`
+  prop overrides. `onError` flips back to initials. Sizes `sm` / `md`
+  (default) / `lg`. `brand` variant for inverted brand-blue surface.
+- **`Card`** — bordered surface with shadcn-style composition slots:
+  `Card` + `CardHeader` + `CardTitle` + `CardDescription` +
+  `CardContent` + `CardFooter`. Token-only styling (`bg-card`,
+  `text-card-foreground`, `border-border`). Padding `sm` / `md`
+  (default) / `lg`. `as` closed-enum (`div` | `article` | `section` |
+  `aside`) for landmarks; `CardTitle` has its own `as` for heading
+  level. Optional `interactive` prop adds hover/focus styling.
+- **`Chart` primitives** — `ChartContainer`, `BarChart`, `DonutChart`,
+  `LineChart`, `ChartLegend`, `ChartTooltip`. Thin wrappers around
+  Recharts with DS-themed defaults. Built-in a11y: `role="img"` on the
+  wrapper with auto-derived `aria-label` summary, visually-hidden
+  `<table>` data fallback for screen-reader and keyboard users.
+  Honours `prefers-reduced-motion` (disables Recharts animations).
+- **`Kbd`** — keyboard-shortcut hint chips. `keys` array renders one
+  `<kbd>` per key with a `+` separator (configurable). Decorative by
+  default (`aria-hidden="true"`); opt-in announce via
+  `aria-hidden={false}` for help-page contexts. Sizes `sm` (default)
+  / `md`.
+- **`NavBar` + `NavItem`** — app-shell primary navigation. `NavBar`
+  wraps a `<nav>` landmark with default `aria-label="Primary"`.
+  `NavItem` renders `<a>` by default or any element via the
+  polymorphic `as` prop (designed for React Router / Next Link /
+  TanStack Router which all spread arbitrary props). Active state
+  applies `text-foreground` + 2px underline indicator and auto-sets
+  `aria-current="page"`.
+- **`Select`** — token-styled dropdown built on
+  `@radix-ui/react-select`. Trigger reuses `inputLikeVariants` for
+  visual parity with TextInput (sizes `sm` / `md` (default) / `lg`).
+  Composition: `Select` + `SelectTrigger` + `SelectValue` +
+  `SelectContent` + `SelectItem` + `SelectGroup` + `SelectLabel` +
+  `SelectSeparator`. Full WAI-ARIA Listbox pattern (arrow keys, Home /
+  End, type-ahead, Escape). `FormField` integration via `id`,
+  `aria-invalid`, `aria-describedby` forwarding. Optional
+  `leadingIcon` prop. `status="error"` propagates error visuals.
+- **`Tabs` / `SegmentedControl`** — built on `@radix-ui/react-tabs`
+  (full WAI-ARIA Tabs pattern: roving tabindex, arrow / Home / End,
+  `aria-selected`, `aria-controls`). Two visual variants:
+  `segmented` (pill switcher with inverted active state) and
+  `underline` (2px bottom-border indicator). Sizes `sm` / `md`
+  (default). Variant + size live on the root `Tabs` and propagate via
+  context to `TabsList` / `TabsTrigger`.
+- **Categorical chart palette tokens** — `--chart-1` … `--chart-5`,
+  `--chart-axis`, `--chart-grid` at all four token layers (semantic,
+  shadcn contract, dark `@media`, dark `:root.dark`, `@theme inline`).
+  chart-2 + chart-3 alias the existing feedback success/warning fg
+  vars (auto-flip in dark); chart-1 / chart-4 / chart-5 have explicit
+  dark overrides. Tuned for 3:1 minimum contrast against background
+  (WCAG 1.4.11) and CVD-safe (no red/green pairings).
+- New peer dependencies (`peerDependencies` in `package.json`):
+  `@radix-ui/react-select` (^2.x), `@radix-ui/react-tabs` (^1.x),
+  `recharts` (^3.x). Externalised in `vite.config.ts`; consumers must
+  install these in their own tree.
+
+### Notes
+
+- Runtime axe scan (`scripts/a11y-runtime-scan.mjs`): **0 violations
+  across 106 stories in both light and dark modes** at release time.
+- 60+ new unit tests; full unit suite: 255 tests across 26 files,
+  all green.
+
 ## [0.8.0] - 2026-04-24
 
 Extends `DatePicker` with a **range mode** for selecting a `from` / `to`

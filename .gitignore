@@ -18,3 +18,7 @@ coverage/
 .env.local
 
 .superpowers/
+
+# Local hooks (context-mode etc.)
+.github/hooks/
+.claude/worktrees/

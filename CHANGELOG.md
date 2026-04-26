@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-04-26
+
+`Examples/` epic (STU-49). Storybook-only release — **no public API
+changes**. The published library tarball at `dist/` is byte-equivalent
+to v0.10.0; this release only adds internal showcase stories and
+developer tooling.
+
+### Added (Storybook only — not exported)
+
+- **`Examples/Dashboard`** — KPI grid + charts + recent-activity list
+  in `PageShell` composition. Four story states: `HappyPath`, `Empty`,
+  `Loading`, `Error`. Studio-Manfred-flavoured fixtures (Mitt
+  Intranat-style copy, Swedish names). (STU-50)
+- **`Examples/Settings`** — sidebar nav + form panels (account,
+  notifications, theme, sessions, action bar) demonstrating
+  FormField + TextInput + Select + Checkbox + RadioGroup composition
+  inside `PageShell`. Four story states. (STU-51)
+- **`Examples/Landing`** — `PageBackground` + non-sticky marketing
+  header + hero + features Grid + CTA banner + footer. Heading
+  hierarchy h1 → h2 → h3 verified clean by axe. Four story states.
+  (STU-52)
+- **`Examples/Login`** — small centred auth Card on `PageBackground`,
+  using `as="main"` on the background to keep one landmark without
+  nesting. Four story states. (STU-53)
+- `src/examples/_shared/content.ts` — shared brand / mock-user / nav
+  fixtures reused across all four demos.
+
+### Tooling
+
+- `@storybook/addon-mcp` devDependency + `.mcp.json` registration —
+  exposes the design system as an MCP server through Storybook on
+  `localhost:6006/mcp`.
+- `scripts/a11y-runtime-scan.mjs` — `landmark-one-main` rule re-enabled
+  for `examples-*` story IDs (mirroring the v0.10.0 carve-out for
+  `layout-pageshell--*`). Whole-page demos now enforce the single-main
+  contract instead of being globally suppressed alongside isolated
+  component previews.
+
+### Notes for consumers
+
+- `src/examples/` is **not exported** from `src/index.ts`. The fixtures
+  and demo stories live inside `src/` so Storybook + the runtime axe
+  scan pick them up, but they are not part of the public API.
+- The published `dist/` is unchanged. `npm install
+  @studio-manfred/manfred-design-system` resolves to the same components
+  as v0.10.0.
+
 ## [0.10.0] - 2026-04-26
 
 Layout primitives epic (STU-43). Five new components address the

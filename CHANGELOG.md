@@ -7,6 +7,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-04-26
+
+Layout primitives epic (STU-43). Five new components address the
+"DS has zero page-layout primitives" gap surfaced while building the
+first consumer app on v0.9.1. All additive — no breaking changes.
+
+### Added
+
+- **`Stack` / `VStack` / `HStack`** — sibling spacing primitive.
+  Flex container with token-driven gap (`1`/`2`/`3`/`4`/`6`/`8`/`12`),
+  `direction` (`vertical`/`horizontal`), `align`, `justify`, optional
+  `wrap` and `fullWidth`. Polymorphic `as` (closed enum: `div` |
+  `section` | `nav` | `ul` | `ol` | `li`). `VStack` / `HStack` are
+  thin re-exports with the direction baked in. (STU-44)
+- **`Container`** — centred max-width wrapper. `size` of `sm` /
+  `md` / `lg` (default) / `xl` / `full` mapping to `--size-container-*`
+  tokens. `padded` (default `true`) applies responsive horizontal
+  padding (`px-4 sm:px-6 lg:px-8`). `as`: `div` | `main` | `section`
+  | `article`. (STU-45)
+- **`Grid`** — CSS-grid wrapper with token-driven gap and responsive
+  column counts. `cols` accepts a number `1`–`12` or a responsive
+  object `{ base?, sm?, md?, lg?, xl? }`. Same `gap` scale as
+  `Stack`. `as`: `div` | `ul` | `section`. `align` / `justify`
+  pass through to `align-items` / `justify-items`. (STU-45)
+- **`PageShell` + `PageHeader` + `PageBody` + `PageFooter`** —
+  shadcn-style page composition. `PageShell` is `min-h-screen
+  flex flex-col`. `PageHeader` renders `<header>` with sticky-top
+  by default. `PageBody` is locked to `<main>` (one landmark per
+  page is the contract) and ships built-in horizontal padding via
+  `padded` (default `true`). `PageFooter` renders `<footer>` and
+  pins to viewport bottom for short content. A skip-link to the
+  main content is included by default; visible on keyboard focus
+  only. (STU-46)
+- **`PageBackground`** — token-driven full-page background switcher.
+  `variant`: `default` | `warm` | `warm-muted` | `accent` |
+  `inverse`. Renders a `min-h-screen` wrapper with the chosen
+  surface token applied; SSR-safe. Variants flip correctly under
+  `<html class="dark">` because the underlying tokens already
+  rebind. (STU-47)
+
+### Tooling
+
+- `scripts/a11y-runtime-scan.mjs` — re-enables `landmark-one-main`
+  per-story for `layout-pageshell--*` stories, so the whole-page
+  contract gets verified by the runtime axe scan instead of being
+  globally suppressed alongside isolated component previews.
+
 ## [0.9.1] - 2026-04-25
 
 Three small follow-ups from the v0.9.0 release sweep. All additive

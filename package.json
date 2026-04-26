@@ -1,6 +1,6 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.9.1",
+  "version": "0.10.0",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "repository": {
     "type": "git",

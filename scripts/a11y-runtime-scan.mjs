@@ -35,11 +35,13 @@ const CONTRAST_EXEMPT_STORIES = new Set([
   'foundation-tokens--sizing-tokens',
   'foundation-typography--color-variants',
 ]);
-// Stories that ARE pages (PageShell composes a full app shell): re-enable
-// the page-level landmark + region rules that the global suppression hides.
+// Stories that ARE pages (PageShell composes a full app shell, Examples/*
+// demos compose full screens): re-enable the page-level landmark rule that
+// the global suppression hides.
 // Mirror: per-story `parameters.a11y.config.rules` overrides in
-// src/components/PageShell/PageShell.stories.tsx.
-const PAGE_STORY_PREFIXES = ['layout-pageshell--'];
+// src/components/PageShell/PageShell.stories.tsx and
+// src/examples/*/*.stories.tsx.
+const PAGE_STORY_PREFIXES = ['layout-pageshell--', 'examples-'];
 function isPageStory(id) {
   return PAGE_STORY_PREFIXES.some((p) => id.startsWith(p));
 }

@@ -74,6 +74,13 @@ export type { TabsProps, TabsVariant, TabsSize } from './components/Tabs';
 export { NavBar, NavItem } from './components/NavBar';
 export type { NavBarProps, NavItemProps } from './components/NavBar';
 
+export { PageBackground, pageBackgroundVariants } from './components/PageBackground';
+export type {
+  PageBackgroundProps,
+  PageBackgroundVariant,
+  PageBackgroundElement,
+} from './components/PageBackground';
+
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 

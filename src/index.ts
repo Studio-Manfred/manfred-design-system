@@ -40,6 +40,13 @@ export type { CardProps, CardPadding, CardElement } from './components/Card';
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
 
+export { Container } from './components/Container';
+export type {
+  ContainerProps,
+  ContainerSize,
+  ContainerElement,
+} from './components/Container';
+
 export { DatePicker } from './components/DatePicker';
 export type { DatePickerProps } from './components/DatePicker';
 

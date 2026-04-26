@@ -35,6 +35,20 @@ const CONTRAST_EXEMPT_STORIES = new Set([
   'foundation-tokens--sizing-tokens',
   'foundation-typography--color-variants',
 ]);
+// Stories that ARE pages (PageShell composes a full app shell): re-enable
+// the page-level landmark + region rules that the global suppression hides.
+// Mirror: per-story `parameters.a11y.config.rules` overrides in
+// src/components/PageShell/PageShell.stories.tsx.
+const PAGE_STORY_PREFIXES = ['layout-pageshell--'];
+function isPageStory(id) {
+  return PAGE_STORY_PREFIXES.some((p) => id.startsWith(p));
+}
+// Note: `region` is intentionally NOT re-enabled. The skip-link sits outside
+// every landmark by design (it's the very first focusable element, and its
+// target is <main> — putting it inside <main> defeats the point), so axe's
+// region rule fires a false positive on it. landmark-one-main is the rule
+// PageShell exists to enforce, and that's what we re-enable here.
+const PAGE_STORY_REENABLED_RULES = ['landmark-one-main'];
 
 async function scanStory(page, story) {
   const url = `http://localhost:6006/iframe.html?id=${story.id}&viewMode=story`;
@@ -42,7 +56,12 @@ async function scanStory(page, story) {
     await page.goto(url, { waitUntil: 'networkidle', timeout: 20000 });
     await page.waitForTimeout(600);
     await page.addScriptTag({ url: 'https://cdnjs.cloudflare.com/ajax/libs/axe-core/4.10.2/axe.min.js' });
-    const disabledRules = [...GLOBAL_DISABLED_RULES];
+    let disabledRules = [...GLOBAL_DISABLED_RULES];
+    if (isPageStory(story.id)) {
+      // Page-level stories opt back IN to the landmark/region rules that
+      // are globally suppressed for component previews.
+      disabledRules = disabledRules.filter((r) => !PAGE_STORY_REENABLED_RULES.includes(r));
+    }
     if (CONTRAST_EXEMPT_STORIES.has(story.id)) disabledRules.push('color-contrast');
     const results = await page.evaluate(async (disabled) => {
       return await window.axe.run(document, {

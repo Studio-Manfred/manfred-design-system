@@ -98,6 +98,18 @@ export type { SearchBarProps, SearchBarSize } from './components/SearchBar';
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 
+export { Stack, VStack, HStack } from './components/Stack';
+export type {
+  StackProps,
+  VStackProps,
+  HStackProps,
+  StackDirection,
+  StackGap,
+  StackAlign,
+  StackJustify,
+  StackElement,
+} from './components/Stack';
+
 export { TextInput } from './components/TextInput';
 export type { TextInputProps, TextInputSize, TextInputStatus } from './components/TextInput';
 

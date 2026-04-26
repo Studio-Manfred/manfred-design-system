@@ -37,6 +37,24 @@ node scripts/a11y-runtime-scan.mjs --dark   # dark (sets colorScheme on the Play
 
 Full JSON output is written to `/tmp/a11y-runtime.json`. Stories listed in `CONTRAST_EXEMPT_STORIES` inside the script are token/typography showcases where `color-contrast` is intentionally disabled — update that set when adding new showcase stories.
 
+## Storybook MCP
+
+This repo registers a Storybook MCP server at `http://localhost:6006/mcp` (see [.mcp.json](.mcp.json) and the `@storybook/addon-mcp` registration in [.storybook/main.ts](.storybook/main.ts)). When working on UI components in this repo, **use the `manfred-design-system` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action.** This requires Storybook to be running on :6006.
+
+### Mandatory workflow
+
+- **CRITICAL: Never hallucinate component properties.** Before using ANY property on a DS component (including common-sounding ones like `shadow`, `elevation`, `tone`, etc.), you MUST verify the property is actually documented for that component via the MCP.
+- Query `list-all-documentation` to get the full component inventory.
+- Query `get-documentation` for the target component to see its real props and example stories.
+- Use only properties that are explicitly documented or shown in example stories. Do NOT assume props from naming conventions or patterns from other libraries — story names sometimes don't reflect prop names accurately.
+- If a property isn't documented, do not invent one. Ask the user.
+- When creating or updating stories, use `get-storybook-story-instructions` to fetch the latest conventions before writing the story.
+- After creating or modifying stories, run `run-story-tests` to verify.
+
+### When the MCP is unavailable
+
+If Storybook is not running (`localhost:6006` not reachable), start it with `npm run storybook &` before invoking MCP tools. Do not fall back to grepping component source as a substitute — read the source directly via the Read tool when the MCP is genuinely unreachable, and surface that to the user.
+
 ## Architecture
 
 ### Three-layer design tokens (`src/tokens/tokens.css`)

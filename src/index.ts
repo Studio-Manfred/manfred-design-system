@@ -81,6 +81,20 @@ export type {
   PageBackgroundElement,
 } from './components/PageBackground';
 
+export {
+  PageShell,
+  PageHeader,
+  PageBody,
+  PageFooter,
+  PAGE_SHELL_DEFAULT_MAIN_ID,
+} from './components/PageShell';
+export type {
+  PageShellProps,
+  PageHeaderProps,
+  PageBodyProps,
+  PageFooterProps,
+} from './components/PageShell';
+
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 

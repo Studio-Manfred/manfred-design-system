@@ -6,7 +6,7 @@
     "type": "git",
     "url": "https://github.com/Studio-Manfred/manfred-design-system.git"
   },
-  "homepage": "https://github.com/Studio-Manfred/manfred-design-system#readme",
+  "homepage": "https://studio-manfred.github.io/manfred-design-system/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

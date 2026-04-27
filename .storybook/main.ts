@@ -14,6 +14,12 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ['../src/assets'],
+  viteFinal: async (config, { configType }) => {
+    if (configType === 'PRODUCTION') {
+      config.base = process.env.STORYBOOK_BASE_HREF ?? '/manfred-design-system/';
+    }
+    return config;
+  },
 };
 
 export default config;

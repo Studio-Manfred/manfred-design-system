@@ -7,6 +7,8 @@ primitives.
 
 Published as `@studio-manfred/manfred-design-system` on GitHub Packages.
 
+**🔗 Live Storybook:** https://studio-manfred.github.io/manfred-design-system/ — every component, every state, no install needed.
+
 ## Install
 
 > **⚠️ Authentication required.** This package lives on **GitHub Packages**,
@@ -54,7 +56,8 @@ export function Example() {
 
 The stylesheet bundles Tailwind v4 utilities, design tokens, and the
 themed baseline — nothing else to wire up. Browse every component with
-live examples in Storybook (`npm run storybook` locally; see below).
+live examples at the [public Storybook](https://studio-manfred.github.io/manfred-design-system/),
+or run it locally with `npm run storybook` (see below).
 
 ### Components
 

@@ -22,3 +22,7 @@ coverage/
 # Local hooks (context-mode etc.)
 .github/hooks/
 .claude/worktrees/
+.claude/scheduled_tasks.lock
+
+# Local sandbox / prototype exploration (STU-54 — kept out of git)
+prototype/

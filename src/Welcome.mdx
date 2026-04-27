@@ -1,0 +1,185 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { Logo } from './components/Logo';
+import { Typography } from './components/Typography';
+import { Button } from './components/Button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './components/Card';
+import { Badge } from './components/Badge';
+import { Stack, HStack, VStack } from './components/Stack';
+import { Container } from './components/Container';
+import { Grid } from './components/Grid';
+import { Icon } from './components/Icon';
+
+<Meta title="Welcome" />
+
+<div style={{ padding: '48px 24px', maxWidth: '960px', margin: '0 auto' }}>
+
+<VStack gap={8}>
+
+<HStack gap={4} align="center" wrap>
+  <Logo variant="wordmark" color="blue" height={56} />
+  <Badge variant="secondary" size="sm">v0.10.1</Badge>
+</HStack>
+
+<VStack gap={3}>
+  <Typography variant="headline2" as="h1">
+    Studio Manfred Design System
+  </Typography>
+  <Typography variant="large" color="muted">
+    The React component library powering Studio Manfred apps. Tokens, typography, layout primitives, and {30}+ components — all built on Tailwind v4 and shadcn idioms, with light and dark mode out of the box.
+  </Typography>
+</VStack>
+
+<HStack gap={3} wrap>
+  <Button variant="brand" size="lg" asChild>
+    <a href="?path=/docs/foundation-tokens--brand-palette">Browse the tokens</a>
+  </Button>
+  <Button variant="outline" size="lg" asChild>
+    <a href="?path=/story/examples-dashboard--happy-path">See it in action</a>
+  </Button>
+</HStack>
+
+</VStack>
+
+---
+
+## What's in here
+
+<Grid cols={{ base: 1, md: 2 }} gap={4}>
+
+<Card>
+  <CardHeader>
+    <HStack gap={2} align="center">
+      <Icon name="check-circle" size="md" />
+      <CardTitle as="h2">Foundation</CardTitle>
+    </HStack>
+    <CardDescription>
+      Three-layer tokens (primitives → semantic → shadcn contract), a 9-step typography scale, the Manfred logo in wordmark and monogram, and the icon set.
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Typography variant="bodySmall" color="muted">
+      <a href="?path=/docs/foundation-tokens--brand-palette">Tokens</a>
+      {' · '}
+      <a href="?path=/docs/foundation-typography--all-variants">Typography</a>
+      {' · '}
+      <a href="?path=/docs/foundation-logo--all-variants">Logo</a>
+    </Typography>
+  </CardContent>
+</Card>
+
+<Card>
+  <CardHeader>
+    <HStack gap={2} align="center">
+      <Icon name="check-circle" size="md" />
+      <CardTitle as="h2">Layout</CardTitle>
+    </HStack>
+    <CardDescription>
+      Page-level building blocks: Stack / VStack / HStack for sibling rhythm, Container and Grid for max-widths and tile rows, PageShell for app shells, PageBackground for surface variants.
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Typography variant="bodySmall" color="muted">
+      <a href="?path=/docs/layout-stack--default">Stack</a>
+      {' · '}
+      <a href="?path=/docs/layout-container--default">Container</a>
+      {' · '}
+      <a href="?path=/docs/layout-grid--default">Grid</a>
+      {' · '}
+      <a href="?path=/docs/layout-pageshell--dashboard">PageShell</a>
+    </Typography>
+  </CardContent>
+</Card>
+
+<Card>
+  <CardHeader>
+    <HStack gap={2} align="center">
+      <Icon name="check-circle" size="md" />
+      <CardTitle as="h2">Components</CardTitle>
+    </HStack>
+    <CardDescription>
+      30+ interactive components — Button, Card, Dialog, Select, Tabs, DatePicker, Toast, Tooltip, Charts, and more. Built on Radix primitives and CVA variants, with sensible defaults.
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Typography variant="bodySmall" color="muted">
+      <a href="?path=/docs/components-button--primary">Button</a>
+      {' · '}
+      <a href="?path=/docs/components-card--default">Card</a>
+      {' · '}
+      <a href="?path=/docs/components-dialog--default">Dialog</a>
+      {' · '}
+      <a href="?path=/docs/components-chart--bar-default">Charts</a>
+    </Typography>
+  </CardContent>
+</Card>
+
+<Card>
+  <CardHeader>
+    <HStack gap={2} align="center">
+      <Icon name="check-circle" size="md" />
+      <CardTitle as="h2">Examples</CardTitle>
+    </HStack>
+    <CardDescription>
+      Full-page demos showing how the components compose into real layouts. Dashboard, Settings, Landing, Login — each with happy / empty / loading / error states.
+    </CardDescription>
+  </CardHeader>
+  <CardContent>
+    <Typography variant="bodySmall" color="muted">
+      <a href="?path=/story/examples-dashboard--happy-path">Dashboard</a>
+      {' · '}
+      <a href="?path=/story/examples-settings--happy-path">Settings</a>
+      {' · '}
+      <a href="?path=/story/examples-landing--happy-path">Landing</a>
+      {' · '}
+      <a href="?path=/story/examples-login--happy-path">Login</a>
+    </Typography>
+  </CardContent>
+</Card>
+
+</Grid>
+
+---
+
+## Getting started
+
+The package is hosted on **GitHub Packages**, not public npm. Add a scoped `.npmrc` first:
+
+```bash
+# .npmrc (in your consuming project root)
+@studio-manfred:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+Then install and import:
+
+```bash
+npm install @studio-manfred/manfred-design-system
+```
+
+```tsx
+import '@studio-manfred/manfred-design-system/styles';
+import { Button } from '@studio-manfred/manfred-design-system';
+
+export function App() {
+  return <Button variant="brand">Hello, Manfred</Button>;
+}
+```
+
+Full onboarding (PAT setup, CI examples, troubleshooting): see the [Consuming guide](https://github.com/Studio-Manfred/manfred-design-system/blob/main/docs/CONSUMING.md).
+
+---
+
+## Light, dark, and system
+
+Use the **theme switcher** in the Storybook toolbar (top right) to flip between `system` (follows OS), `light`, and `dark`. Every story is verified clean by the runtime axe scan in both modes — color contrast, focus indicators, and label semantics are part of the contract.
+
+---
+
+## Working with the system
+
+- **Tokens are the source of truth.** Components reference `var(--color-...)` directly. Don't hardcode hex.
+- **Composition over configuration.** `Card` is `Card + CardHeader + CardContent + CardFooter` — pick what you need.
+- **Layout primitives, then components.** Reach for `Stack` / `Grid` / `Container` before raw Tailwind utilities.
+- **Accessibility is non-negotiable.** Every interactive component supports keyboard, screen reader, and reduced-motion. The runtime axe scan blocks anything that regresses.
+
+</div>

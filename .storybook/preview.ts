@@ -5,6 +5,17 @@ import '../src/tokens/tokens.css';
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        order: [
+          'Welcome',
+          'Foundation', ['Tokens', 'Typography', 'Logo'],
+          'Layout', ['Stack', 'Container', 'Grid', 'PageShell', 'PageBackground'],
+          'Components',
+          'Examples',
+        ],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

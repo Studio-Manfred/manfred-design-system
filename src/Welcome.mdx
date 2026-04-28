@@ -1,7 +1,6 @@
 import { Meta } from '@storybook/addon-docs/blocks';
 import { Logo } from './components/Logo';
 import { Typography } from './components/Typography';
-import { Button } from './components/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './components/Card';
 import { Badge } from './components/Badge';
 import { Stack, HStack, VStack } from './components/Stack';
@@ -21,22 +20,13 @@ import { Icon } from './components/Icon';
 </HStack>
 
 <VStack gap={3}>
-  <Typography variant="headline2" as="h1">
+  <Typography variant="headline1" as="h1">
     Studio Manfred Design System
   </Typography>
   <Typography variant="large" color="muted">
     The React component library powering Studio Manfred apps. Tokens, typography, layout primitives, and {30}+ components — all built on Tailwind v4 and shadcn idioms, with light and dark mode out of the box.
   </Typography>
 </VStack>
-
-<HStack gap={3} wrap>
-  <Button variant="brand" size="lg" asChild>
-    <a href="?path=/docs/foundation-tokens--brand-palette">Browse the tokens</a>
-  </Button>
-  <Button variant="outline" size="lg" asChild>
-    <a href="?path=/story/examples-dashboard--happy-path">See it in action</a>
-  </Button>
-</HStack>
 
 </VStack>
 
@@ -58,11 +48,11 @@ import { Icon } from './components/Icon';
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
-      <a href="?path=/docs/foundation-tokens--brand-palette">Tokens</a>
+      <a href="?path=/story/foundation-tokens--brand-palette" target="_top">Tokens</a>
       {' · '}
-      <a href="?path=/docs/foundation-typography--all-variants">Typography</a>
+      <a href="?path=/story/foundation-typography--all-variants" target="_top">Typography</a>
       {' · '}
-      <a href="?path=/docs/foundation-logo--all-variants">Logo</a>
+      <a href="?path=/story/foundation-logo--all-variants" target="_top">Logo</a>
     </Typography>
   </CardContent>
 </Card>
@@ -79,13 +69,13 @@ import { Icon } from './components/Icon';
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
-      <a href="?path=/docs/layout-stack--default">Stack</a>
+      <a href="?path=/story/layout-stack--default" target="_top">Stack</a>
       {' · '}
-      <a href="?path=/docs/layout-container--default">Container</a>
+      <a href="?path=/story/layout-container--default" target="_top">Container</a>
       {' · '}
-      <a href="?path=/docs/layout-grid--default">Grid</a>
+      <a href="?path=/story/layout-grid--default" target="_top">Grid</a>
       {' · '}
-      <a href="?path=/docs/layout-pageshell--dashboard">PageShell</a>
+      <a href="?path=/story/layout-pageshell--dashboard-example" target="_top">PageShell</a>
     </Typography>
   </CardContent>
 </Card>
@@ -102,13 +92,13 @@ import { Icon } from './components/Icon';
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
-      <a href="?path=/docs/components-button--primary">Button</a>
+      <a href="?path=/story/components-button--all-variants" target="_top">Button</a>
       {' · '}
-      <a href="?path=/docs/components-card--default">Card</a>
+      <a href="?path=/story/components-card--default" target="_top">Card</a>
       {' · '}
-      <a href="?path=/docs/components-dialog--default">Dialog</a>
+      <a href="?path=/story/components-dialog--playground" target="_top">Dialog</a>
       {' · '}
-      <a href="?path=/docs/components-chart--bar-default">Charts</a>
+      <a href="?path=/story/components-chart--bar-monthly" target="_top">Charts</a>
     </Typography>
   </CardContent>
 </Card>
@@ -125,13 +115,13 @@ import { Icon } from './components/Icon';
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
-      <a href="?path=/story/examples-dashboard--happy-path">Dashboard</a>
+      <a href="?path=/story/examples-dashboard--happy-path" target="_top">Dashboard</a>
       {' · '}
-      <a href="?path=/story/examples-settings--happy-path">Settings</a>
+      <a href="?path=/story/examples-settings--happy-path" target="_top">Settings</a>
       {' · '}
-      <a href="?path=/story/examples-landing--happy-path">Landing</a>
+      <a href="?path=/story/examples-landing--happy-path" target="_top">Landing</a>
       {' · '}
-      <a href="?path=/story/examples-login--happy-path">Login</a>
+      <a href="?path=/story/examples-login--happy-path" target="_top">Login</a>
     </Typography>
   </CardContent>
 </Card>

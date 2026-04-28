@@ -10,7 +10,8 @@ import { Icon } from './components/Icon';
 
 <Meta title="Welcome" />
 
-<div style={{ padding: '48px 24px', maxWidth: '960px', margin: '0 auto' }}>
+<div className="bg-background text-foreground min-h-screen" style={{ padding: '48px 24px' }}>
+<div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
 <VStack gap={8}>
 
@@ -24,11 +25,10 @@ import { Icon } from './components/Icon';
   <Typography variant="large" color="muted">The React component library powering Studio Manfred apps. Tokens, typography, layout primitives, and 30+ components — all built on Tailwind v4 and shadcn idioms, with light and dark mode out of the box.</Typography>
 </VStack>
 
-</VStack>
+<hr style={{ border: 0, borderTop: '1px solid var(--color-border-subtle, var(--border))', margin: 0 }} />
 
----
-
-## What's in here
+<VStack gap={4}>
+<Typography variant="headline3" as="h2">What's in here</Typography>
 
 <Grid cols={{ base: 1, md: 2 }} gap={4}>
 
@@ -36,11 +36,9 @@ import { Icon } from './components/Icon';
   <CardHeader>
     <HStack gap={2} align="center">
       <Icon name="check-circle" size="md" />
-      <CardTitle as="h2">Foundation</CardTitle>
+      <CardTitle as="h3">Foundation</CardTitle>
     </HStack>
-    <CardDescription>
-      Three-layer tokens (primitives → semantic → shadcn contract), a 9-step typography scale, the Manfred logo in wordmark and monogram, and the icon set.
-    </CardDescription>
+    <CardDescription>Three-layer tokens (primitives → semantic → shadcn contract), a 9-step typography scale, the Manfred logo in wordmark and monogram, and the icon set.</CardDescription>
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
@@ -57,11 +55,9 @@ import { Icon } from './components/Icon';
   <CardHeader>
     <HStack gap={2} align="center">
       <Icon name="check-circle" size="md" />
-      <CardTitle as="h2">Layout</CardTitle>
+      <CardTitle as="h3">Layout</CardTitle>
     </HStack>
-    <CardDescription>
-      Page-level building blocks: Stack / VStack / HStack for sibling rhythm, Container and Grid for max-widths and tile rows, PageShell for app shells, PageBackground for surface variants.
-    </CardDescription>
+    <CardDescription>Page-level building blocks: Stack / VStack / HStack for sibling rhythm, Container and Grid for max-widths and tile rows, PageShell for app shells, PageBackground for surface variants.</CardDescription>
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
@@ -80,11 +76,9 @@ import { Icon } from './components/Icon';
   <CardHeader>
     <HStack gap={2} align="center">
       <Icon name="check-circle" size="md" />
-      <CardTitle as="h2">Components</CardTitle>
+      <CardTitle as="h3">Components</CardTitle>
     </HStack>
-    <CardDescription>
-      30+ interactive components — Button, Card, Dialog, Select, Tabs, DatePicker, Toast, Tooltip, Charts, and more. Built on Radix primitives and CVA variants, with sensible defaults.
-    </CardDescription>
+    <CardDescription>30+ interactive components — Button, Card, Dialog, Select, Tabs, DatePicker, Toast, Tooltip, Charts, and more. Built on Radix primitives and CVA variants, with sensible defaults.</CardDescription>
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
@@ -103,11 +97,9 @@ import { Icon } from './components/Icon';
   <CardHeader>
     <HStack gap={2} align="center">
       <Icon name="check-circle" size="md" />
-      <CardTitle as="h2">Examples</CardTitle>
+      <CardTitle as="h3">Examples</CardTitle>
     </HStack>
-    <CardDescription>
-      Full-page demos showing how the components compose into real layouts. Dashboard, Settings, Landing, Login — each with happy / empty / loading / error states.
-    </CardDescription>
+    <CardDescription>Full-page demos showing how the components compose into real layouts. Dashboard, Settings, Landing, Login — each with happy / empty / loading / error states.</CardDescription>
   </CardHeader>
   <CardContent>
     <Typography variant="bodySmall" color="muted">
@@ -123,12 +115,13 @@ import { Icon } from './components/Icon';
 </Card>
 
 </Grid>
+</VStack>
 
----
+<hr style={{ border: 0, borderTop: '1px solid var(--color-border-subtle, var(--border))', margin: 0 }} />
 
-## Getting started
-
-The package is hosted on **GitHub Packages**, not public npm. Add a scoped `.npmrc` first:
+<VStack gap={4}>
+<Typography variant="headline3" as="h2">Getting started</Typography>
+<Typography variant="body">The package is hosted on <strong>GitHub Packages</strong>, not public npm. Add a scoped <code>.npmrc</code> first:</Typography>
 
 ```bash
 # .npmrc (in your consuming project root)
@@ -136,7 +129,7 @@ The package is hosted on **GitHub Packages**, not public npm. Add a scoped `.npm
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
 ```
 
-Then install and import:
+<Typography variant="body">Then install and import:</Typography>
 
 ```bash
 npm install @studio-manfred/manfred-design-system
@@ -151,21 +144,29 @@ export function App() {
 }
 ```
 
-Full onboarding (PAT setup, CI examples, troubleshooting): see the [Consuming guide](https://github.com/Studio-Manfred/manfred-design-system/blob/main/docs/CONSUMING.md).
+<Typography variant="body">Full onboarding (PAT setup, CI examples, troubleshooting): see the <a href="https://github.com/Studio-Manfred/manfred-design-system/blob/main/docs/CONSUMING.md" target="_top">Consuming guide</a>.</Typography>
+</VStack>
 
----
+<hr style={{ border: 0, borderTop: '1px solid var(--color-border-subtle, var(--border))', margin: 0 }} />
 
-## Light, dark, and system
+<VStack gap={4}>
+<Typography variant="headline3" as="h2">Light, dark, and system</Typography>
+<Typography variant="body">Use the <strong>theme switcher</strong> in the Storybook toolbar (top right) to flip between <code>system</code> (follows OS), <code>light</code>, and <code>dark</code>. Every story is verified clean by the runtime axe scan in both modes — color contrast, focus indicators, and label semantics are part of the contract.</Typography>
+</VStack>
 
-Use the **theme switcher** in the Storybook toolbar (top right) to flip between `system` (follows OS), `light`, and `dark`. Every story is verified clean by the runtime axe scan in both modes — color contrast, focus indicators, and label semantics are part of the contract.
+<hr style={{ border: 0, borderTop: '1px solid var(--color-border-subtle, var(--border))', margin: 0 }} />
 
----
+<VStack gap={4}>
+<Typography variant="headline3" as="h2">Working with the system</Typography>
+<VStack as="ul" gap={2} style={{ paddingLeft: '1.25rem', margin: 0, listStyle: 'disc' }}>
+  <Typography as="li" variant="body"><strong>Tokens are the source of truth.</strong> Components reference <code>var(--color-...)</code> directly. Don't hardcode hex.</Typography>
+  <Typography as="li" variant="body"><strong>Composition over configuration.</strong> <code>Card</code> is <code>Card + CardHeader + CardContent + CardFooter</code> — pick what you need.</Typography>
+  <Typography as="li" variant="body"><strong>Layout primitives, then components.</strong> Reach for <code>Stack</code> / <code>Grid</code> / <code>Container</code> before raw Tailwind utilities.</Typography>
+  <Typography as="li" variant="body"><strong>Accessibility is non-negotiable.</strong> Every interactive component supports keyboard, screen reader, and reduced-motion. The runtime axe scan blocks anything that regresses.</Typography>
+</VStack>
+</VStack>
 
-## Working with the system
+</VStack>
 
-- **Tokens are the source of truth.** Components reference `var(--color-...)` directly. Don't hardcode hex.
-- **Composition over configuration.** `Card` is `Card + CardHeader + CardContent + CardFooter` — pick what you need.
-- **Layout primitives, then components.** Reach for `Stack` / `Grid` / `Container` before raw Tailwind utilities.
-- **Accessibility is non-negotiable.** Every interactive component supports keyboard, screen reader, and reduced-motion. The runtime axe scan blocks anything that regresses.
-
+</div>
 </div>

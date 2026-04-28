@@ -9,6 +9,7 @@ import { Icon } from './components/Icon';
 
 const meta: Meta = {
   title: 'Welcome',
+  tags: ['!autodocs'],
   parameters: { layout: 'fullscreen' },
 };
 export default meta;
@@ -42,7 +43,7 @@ const NavLink = ({ href, children }: { href: string; children: React.ReactNode }
   <a
     href={href}
     target="_top"
-    className="text-[var(--color-interactive-brand-bg)] underline underline-offset-2 hover:opacity-80"
+    className="text-foreground underline underline-offset-2 hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] rounded-sm"
   >
     {children}
   </a>

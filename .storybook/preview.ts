@@ -4,7 +4,11 @@ import '../src/styles/fonts.css';
 import '../src/tokens/tokens.css';
 
 const preview: Preview = {
+  tags: ['autodocs'],
   parameters: {
+    docs: {
+      source: { type: 'auto', excludeDecorators: true },
+    },
     options: {
       storySort: {
         order: [

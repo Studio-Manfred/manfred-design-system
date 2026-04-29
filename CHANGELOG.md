@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-04-29
+
+Storybook-only release — **no public API changes**. The published
+`dist/` is byte-equivalent to v0.10.1; this release adds developer-
+experience improvements to the Storybook itself plus one new demo.
+
+### Added
+
+- **Storybook Welcome page** — a dedicated landing page so designers
+  and consumers no longer drop into `Components/Alert` when opening
+  the deployed Storybook. Hero with Logo + version Badge, four
+  section nav Cards (Foundation / Layout / Components / Examples),
+  and a getting-started snippet pointing at the Consuming guide.
+  Lives at `src/Welcome.stories.tsx`; sidebar order locked via
+  `options.storySort` in `.storybook/preview.ts`.
+- **Storybook autodocs + "Show code" toggle** — `tags: ['autodocs']`
+  enabled globally so every component story file gets a Docs entry
+  with a Story block + Source block per export. Click the
+  "Show code" toggle under any rendered story to reveal the JSX.
+  Welcome page opted out via `tags: ['!autodocs']`. Index now has
+  ~35 docs entries on top of stories. (STU-55)
+- **`Examples/AdvancedForm`** — a "Create project" form that
+  exercises every form component the DS ships (FormField, TextInput,
+  Select, Checkbox, RadioGroup, DatePicker) together with cross-
+  field state (start/due dates), inline validation, and an action
+  bar. Four story states: HappyPath / Empty / Loading / Error.
+
+### Tooling
+
+- **GitHub Pages auto-deploy** — `.github/workflows/deploy-storybook.yml`
+  builds and deploys Storybook to GitHub Pages on every push to
+  main. Public Storybook is now at
+  https://studio-manfred.github.io/manfred-design-system/.
+- **Storybook MCP server** — `@storybook/addon-mcp` registered in
+  `.storybook/main.ts` and `.mcp.json` committed. Exposes the
+  design system's component documentation as MCP tools so AI agents
+  can query real props instead of hallucinating from naming
+  conventions. Documented in CLAUDE.md.
+- Production base path for Storybook set via `viteFinal` in
+  `.storybook/main.ts` so GitHub Pages serves correctly under the
+  repo subpath.
+
+### Documentation
+
+- README links to the public Storybook URL.
+- `package.json` `homepage` points at the public Storybook URL.
+- CLAUDE.md documents the Storybook MCP workflow (always query
+  `list-all-documentation` / `get-documentation` before naming any
+  DS component prop; never hallucinate from naming conventions).
+
+### Notes for consumers
+
+- `src/Welcome.stories.tsx`, `src/examples/`, and `.mcp.json` are
+  not exported from `src/index.ts`. They live inside `src/` so
+  Storybook + the runtime axe scan pick them up, but they are not
+  part of the public API.
+- `npm install @studio-manfred/manfred-design-system` resolves to
+  the same components as v0.10.1.
+
 ## [0.10.1] - 2026-04-26
 
 `Examples/` epic (STU-49). Storybook-only release — **no public API

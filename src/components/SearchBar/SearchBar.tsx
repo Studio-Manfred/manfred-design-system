@@ -7,17 +7,39 @@ import type { TextInputSize } from '../TextInput';
 
 export type SearchBarSize = TextInputSize;
 
+/**
+ * Props for the {@link SearchBar} component.
+ *
+ * Composes {@link TextInput} with a leading search icon, a clear-on-type
+ * affordance, optional Enter-to-submit behaviour, and an opt-in
+ * `trailing` slot for shortcut hints. Works in both controlled and
+ * uncontrolled modes.
+ */
 export interface SearchBarProps {
+  /** Size scale, inherited from `TextInput` (`sm` / `md` / `lg`). Defaults to `md`. */
   size?: SearchBarSize;
+  /** Placeholder rendered while the input is empty. Defaults to `Search…`. */
   placeholder?: string;
+  /**
+   * Controlled value. When provided, `onChange` must be wired to keep
+   * the value in sync. Omit for uncontrolled use.
+   */
   value?: string;
+  /** Initial value for uncontrolled mode. Ignored when `value` is set. */
   defaultValue?: string;
+  /** Called on every keystroke with the next string value. */
   onChange?: (value: string) => void;
+  /** Called when the user presses Enter, with the current value. */
   onSearch?: (value: string) => void;
+  /** Called when the user clicks the clear button. */
   onClear?: () => void;
+  /** Disable interaction and hide the clear button. */
   disabled?: boolean;
+  /** Stretch the input to fill the available container width. */
   fullWidth?: boolean;
+  /** Extra classes merged onto the wrapping `<div>`. */
   className?: string;
+  /** Inline style passthrough for the wrapping `<div>`. */
   style?: React.CSSProperties;
   /**
    * Optional trailing-edge content (e.g. a `<Kbd>` shortcut hint).
@@ -32,6 +54,38 @@ export interface SearchBarProps {
   trailing?: React.ReactNode;
 }
 
+/**
+ * Single-line search input with leading icon, Enter-to-submit, and a
+ * built-in clear affordance.
+ *
+ * Composes {@link TextInput} with a `search` leading icon and adds an
+ * inline clear button that appears once the field has content. Supports
+ * controlled and uncontrolled use, an optional `trailing` slot for
+ * shortcut hints, and the standard size scale (`sm` / `md` / `lg`).
+ *
+ * Accessibility:
+ * - The input carries `aria-label="Search"` so it announces correctly
+ *   even without a visible label.
+ * - The clear button is labelled `Clear search` and uses the same focus
+ *   ring token (`--ring`) as the rest of the system.
+ * - `trailing` content is rendered as-is — pass `aria-hidden` for
+ *   decorative shortcut hints; interactive trailing items must label
+ *   themselves.
+ *
+ * @example Uncontrolled with Enter-to-search
+ * ```tsx
+ * <SearchBar onSearch={(q) => router.push(`/search?q=${q}`)} />
+ * ```
+ *
+ * @example Controlled with shortcut hint
+ * ```tsx
+ * <SearchBar
+ *   value={query}
+ *   onChange={setQuery}
+ *   trailing={<Kbd>⌘K</Kbd>}
+ * />
+ * ```
+ */
 export function SearchBar({
   size = 'md',
   placeholder = 'Search…',

@@ -35,11 +35,25 @@ type TypographyAs =
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   | 'p' | 'span' | 'div' | 'label';
 
+/** Props for the {@link Typography} component. */
 export interface TypographyProps {
+  /**
+   * Required visual variant. Each variant pairs a size, weight, and
+   * line-height from the type system; pick by role rather than by
+   * appearance (e.g. use `label` for form labels, not `bodySmall`).
+   */
   variant: TypographyVariant;
+  /**
+   * Override the rendered HTML element. By default each variant maps
+   * to a sensible tag (`headline1` → `h1`, `body` → `p`, …). Use this
+   * when the document outline disagrees with the visual hierarchy.
+   */
   as?: TypographyAs;
+  /** Colour role. Defaults to `default` (`--foreground`). */
   color?: TypographyColor;
+  /** The text or inline content. Required. */
   children: React.ReactNode;
+  /** Extra classes merged onto the rendered tag. */
   className?: string;
 }
 
@@ -55,6 +69,31 @@ const defaultElement: Record<TypographyVariant, TypographyAs> = {
   caption:   'span',
 };
 
+/**
+ * Type-system primitive — every block of text in the design system
+ * flows through here.
+ *
+ * Nine variants (`headline1`–`headline4`, `large`, `body`, `bodySmall`,
+ * `label`, `caption`) and four colour roles bound to design tokens.
+ * The component picks the right HTML tag per variant; override with
+ * `as` when the visual hierarchy and document outline diverge.
+ *
+ * Accessibility: choose `as` so the heading levels stay sequential
+ * (no jumping from `h2` to `h4`). For purely decorative captions on
+ * inline content, prefer `as="span"` to avoid creating extra paragraph
+ * landmarks.
+ *
+ * @example Page title with the type system
+ * ```tsx
+ * <Typography variant="headline1">Studio Manfred</Typography>
+ * <Typography variant="large" color="muted">Design + engineering studio.</Typography>
+ * ```
+ *
+ * @example Form-field label rendered as a `<label>`
+ * ```tsx
+ * <Typography variant="label" as="label">Email address</Typography>
+ * ```
+ */
 export function Typography({
   variant,
   as,

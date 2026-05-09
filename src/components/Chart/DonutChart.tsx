@@ -9,6 +9,7 @@ import {
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 
+/** Props for the {@link DonutChart} component. */
 export interface DonutChartProps {
   /**
    * Donut data. Each row is a segment. The categoryKey field labels the slice;
@@ -21,21 +22,47 @@ export interface DonutChartProps {
    * the first is plotted.)
    */
   series: ChartSeriesDef[];
+  /** Field on each row used as the slice label. */
   categoryKey: string;
+  /** Fixed canvas height in px. Width fills the parent. Defaults to 240. */
   height?: number;
+  /** Accessible name for the chart. Auto-generated when omitted. */
   ariaLabel?: string;
+  /** Long description linked via `aria-describedby`. */
   ariaDescription?: string;
+  /** Show the legend. Defaults to true. */
   showLegend?: boolean;
+  /** Show the tooltip. Defaults to true. */
   showTooltip?: boolean;
+  /** Force-render the sr-only fallback table visibly (a11y demo only). */
   showFallbackTable?: boolean;
+  /** Force reduced motion (test/story override). */
   forceReducedMotion?: boolean;
-  /** innerRadius as a fraction (0-1) of the chart radius. */
+  /** innerRadius as a fraction (0-1) of the chart radius. Defaults to 0.6. */
   innerRadiusRatio?: number;
-  /** outerRadius as a fraction (0-1) of the chart radius. */
+  /** outerRadius as a fraction (0-1) of the chart radius. Defaults to 0.9. */
   outerRadiusRatio?: number;
+  /** Extra classes merged onto the wrapping `ChartContainer`. */
   className?: string;
 }
 
+/**
+ * Donut (ring) chart wrapping Recharts' `PieChart` + `Pie`.
+ *
+ * One slice per row, coloured through the `--chart-1` … `--chart-5`
+ * tokens via {@link chartSeriesColor}. Throws if `series` is empty
+ * (the first entry's `key` selects the numeric value field). Wraps in
+ * {@link ChartContainer} for consistent a11y + reduced-motion handling.
+ *
+ * @example Channel mix donut
+ * ```tsx
+ * <DonutChart
+ *   data={mix}
+ *   series={[{ key: 'share', name: 'Share' }]}
+ *   categoryKey="channel"
+ * />
+ * ```
+ */
 export const DonutChart = React.forwardRef<HTMLDivElement, DonutChartProps>((props, ref) => {
   const {
     data,

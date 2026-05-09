@@ -10,24 +10,73 @@ import { Icon } from '../Icon';
 import type { IconName } from '../Icon';
 
 /**
- * Select — token-styled, accessible Radix Select with a Trigger that mirrors
- * TextInput visuals via `inputLikeVariants`. The Trigger element itself acts
- * as the wrapper that receives the input-like classes.
+ * Compound, token-styled select built on `@radix-ui/react-select`.
+ *
+ * `Select` is the controlled root; `SelectTrigger` mirrors `TextInput`
+ * visuals via `inputLikeVariants` so the closed state lines up with
+ * other form controls. Open the panel via `SelectContent`, group with
+ * `SelectGroup` + `SelectLabel`, and render options via `SelectItem`.
+ *
+ * Accessibility: keyboard interaction, type-ahead, focus-trap, and
+ * announcements are handled by Radix; the visual layer only adds the
+ * shared focus ring (`--ring`) and `aria-invalid` propagation.
+ *
+ * @example Single select with a placeholder
+ * ```tsx
+ * <Select onValueChange={setRole}>
+ *   <SelectTrigger><SelectValue placeholder="Pick a role" /></SelectTrigger>
+ *   <SelectContent>
+ *     <SelectItem value="owner">Owner</SelectItem>
+ *     <SelectItem value="editor">Editor</SelectItem>
+ *   </SelectContent>
+ * </Select>
+ * ```
+ *
+ * @example Grouped options with a leading icon
+ * ```tsx
+ * <Select>
+ *   <SelectTrigger leadingIcon="user"><SelectValue placeholder="Assignee" /></SelectTrigger>
+ *   <SelectContent>
+ *     <SelectGroup>
+ *       <SelectLabel>Team</SelectLabel>
+ *       <SelectItem value="ana">Ana</SelectItem>
+ *       <SelectItem value="ben">Ben</SelectItem>
+ *     </SelectGroup>
+ *   </SelectContent>
+ * </Select>
+ * ```
  */
 
+/** Root of the select. Re-export of Radix `Select.Root`. Wire `value`/`onValueChange` here. */
 const Select = SelectPrimitive.Root;
+/** Logical group of items inside the panel. Pair with {@link SelectLabel} for screen readers. */
 const SelectGroup = SelectPrimitive.Group;
+/** Renders the currently selected item's text inside the trigger. Accepts `placeholder`. */
 const SelectValue = SelectPrimitive.Value;
 
 export type SelectProps = React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root>;
 
+/**
+ * Props for {@link SelectTrigger}. Extends Radix `Select.Trigger` with the
+ * shared input-like styling controls used by `TextInput`.
+ */
 export interface SelectTriggerProps
   extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+  /** Size scale shared with other input-like controls. Defaults to `md`. */
   size?: InputLikeSize;
+  /** Validation status; `error` flips `aria-invalid` and the danger border. */
   status?: InputLikeStatus;
+  /** Stretch the trigger to fill the available container width. */
   fullWidth?: boolean;
+  /** Optional leading icon name from the Manfred icon set, rendered inside the trigger. */
   leadingIcon?: IconName;
 }
+
+/**
+ * Token-styled trigger button for {@link Select}. Mirrors `TextInput`
+ * via `inputLikeVariants` so disabled, focus, and error states match
+ * across the form system.
+ */
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
@@ -89,6 +138,10 @@ const SelectTrigger = React.forwardRef<
 );
 SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
+/**
+ * Auto-scroll affordance shown at the top of the open list when items
+ * overflow upward. Re-export of Radix `Select.ScrollUpButton`.
+ */
 const SelectScrollUpButton = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
@@ -106,6 +159,10 @@ const SelectScrollUpButton = React.forwardRef<
 ));
 SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName;
 
+/**
+ * Auto-scroll affordance shown at the bottom of the open list when
+ * items overflow downward. Re-export of Radix `Select.ScrollDownButton`.
+ */
 const SelectScrollDownButton = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
@@ -123,6 +180,11 @@ const SelectScrollDownButton = React.forwardRef<
 ));
 SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayName;
 
+/**
+ * Floating panel that holds the option list. Portalled by Radix and
+ * styled with the popover tokens; defaults to `position="popper"` so
+ * it anchors to the trigger.
+ */
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
@@ -161,6 +223,10 @@ const SelectContent = React.forwardRef<
 ));
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 
+/**
+ * Non-selectable header for a {@link SelectGroup}. Rendered as a small
+ * muted caption above the group's items.
+ */
 const SelectLabel = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Label>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
@@ -178,6 +244,11 @@ SelectLabel.displayName = SelectPrimitive.Label.displayName;
 
 export type SelectItemProps = React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>;
 
+/**
+ * Selectable option inside the panel. Uses `value` as the submitted
+ * value and renders `children` as the label. Shows a check icon when
+ * selected and supports `disabled`.
+ */
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   SelectItemProps
@@ -202,6 +273,10 @@ const SelectItem = React.forwardRef<
 ));
 SelectItem.displayName = SelectPrimitive.Item.displayName;
 
+/**
+ * Hairline divider between groups inside the panel. Use sparingly —
+ * usually a {@link SelectLabel} carries the section break instead.
+ */
 const SelectSeparator = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Separator>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>

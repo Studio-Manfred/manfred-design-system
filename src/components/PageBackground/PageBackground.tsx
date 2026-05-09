@@ -54,14 +54,36 @@ export type PageBackgroundVariant = NonNullable<
  */
 export type PageBackgroundElement = 'div' | 'section' | 'main';
 
+/**
+ * Props for the {@link PageBackground} component. Adds the `variant`
+ * choice on top of standard HTML attributes.
+ */
 export interface PageBackgroundProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     VariantProps<typeof pageBackgroundVariants> {
-  /** Element to render. Defaults to `div`. */
+  /** Element to render. Defaults to `div`. Use `main` for a single-landmark page. */
   as?: PageBackgroundElement;
+  /** Page content, typically a `Container` + sections. */
   children?: React.ReactNode;
 }
 
+/**
+ * Page-tone wrapper that paints a token-driven surface across the
+ * full viewport (`min-h-screen`).
+ *
+ * Five variants — `default` (shadcn contract), `warm`, `warm-muted`,
+ * `accent` (brand pink / dark neutral), and `inverse`. Variant
+ * surfaces flip automatically with the theme via the semantic token
+ * indirection; no JS-driven theme switching needed. Compose with
+ * {@link Container} and {@link PageShell} for inner page layout.
+ *
+ * @example Marketing page on the warm surface
+ * ```tsx
+ * <PageBackground variant="warm" as="main">
+ *   <Container>…</Container>
+ * </PageBackground>
+ * ```
+ */
 export const PageBackground = React.forwardRef<HTMLElement, PageBackgroundProps>(
   function PageBackground(
     { as = 'div', variant = 'default', className, children, ...rest },

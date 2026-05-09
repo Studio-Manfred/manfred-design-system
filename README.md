@@ -1,13 +1,17 @@
 # Manfred Design System
 
 React component library for the Manfred product — brand tokens,
-typography, and 17 accessible components built on
+typography, and 30+ accessible components built on
 [shadcn/ui](https://ui.shadcn.com), Tailwind CSS v4, and Radix UI
 primitives.
 
 Published as `@studio-manfred/manfred-design-system` on GitHub Packages.
 
 **🔗 Live Storybook:** https://studio-manfred.github.io/manfred-design-system/ — every component, every state, no install needed.
+
+**🤖 AI agents:** see [AGENTS.md](AGENTS.md) (generic) or
+[CLAUDE.md](CLAUDE.md) (Claude Code). The repo ships a Storybook MCP
+server at `http://localhost:6006/mcp` for live component-API access.
 
 ## Install
 
@@ -61,10 +65,15 @@ or run it locally with `npm run storybook` (see below).
 
 ### Components
 
-Accordion · Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker ·
-Dialog · FormField · Icon · Label · Logo · NavigationMenu · ProgressBar ·
-RadioGroup · SearchBar · Separator · Sheet · Spinner · Switch · TextInput ·
-Textarea · Toaster · Tooltip · Typography.
+Accordion · Alert · Avatar · Badge · Breadcrumb · Button · Card ·
+Chart (Donut / Bar / Line / Legend / Tooltip) · Checkbox · DatePicker ·
+Dialog · FormField · Icon · Kbd · Label · Logo · NavBar · NavigationMenu ·
+ProgressBar · RadioGroup · SearchBar · Select · Separator · Sheet ·
+Spinner · Switch · Tabs · TextInput · Textarea · Toaster · Tooltip ·
+Typography.
+
+Plus layout primitives: Container · Grid · PageBackground · PageShell ·
+Stack (HStack / VStack).
 
 `DatePicker` supports single-date (`mode="single"`, default) and
 date-range (`mode="range"`) selection. TextInput-styled trigger,
@@ -95,6 +104,23 @@ classes. Prefer semantic utilities (`bg-background`,
 the theme. Named-colour utilities (`bg-business-blue`, `bg-beige`, …)
 are brand primitives that stay constant in both themes; use them only
 when the colour itself is the intent.
+
+## AI agents
+
+This repo is built to be consumed by AI coding agents — Claude, Cursor,
+Copilot, Windsurf, Cline, and friends. The on-ramp:
+
+- **[AGENTS.md](AGENTS.md)** — generic agent guide (Cursor / Copilot /
+  Windsurf / Cline). Start here.
+- **[CLAUDE.md](CLAUDE.md)** — canonical engineering guide; AGENTS.md
+  points at it for repo-specific conventions.
+- **Storybook MCP server** at `http://localhost:6006/mcp` (run
+  `npm run storybook` first). Registered for Claude Code via
+  [`.mcp.json`](.mcp.json) at repo root; see [AGENTS.md](AGENTS.md) for
+  Cursor / Windsurf snippets.
+- **The non-negotiable rule:** never invent component props. Query
+  `list-all-documentation` / `get-documentation` via the MCP before
+  using any DS component.
 
 ## Local development
 

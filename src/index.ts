@@ -144,6 +144,9 @@ export type { SeparatorProps } from './components/Separator';
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
+
 export { Stack, VStack, HStack } from './components/Stack';
 export type {
   StackProps,

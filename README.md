@@ -61,9 +61,10 @@ or run it locally with `npm run storybook` (see below).
 
 ### Components
 
-Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker · Dialog ·
-FormField · Icon · Label · Logo · ProgressBar · RadioGroup · SearchBar ·
-Separator · Sheet · Spinner · Switch · TextInput · Textarea · Toaster · Tooltip · Typography.
+Accordion · Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker ·
+Dialog · FormField · Icon · Label · Logo · ProgressBar · RadioGroup ·
+SearchBar · Separator · Sheet · Spinner · Switch · TextInput · Textarea ·
+Toaster · Tooltip · Typography.
 
 `DatePicker` supports single-date (`mode="single"`, default) and
 date-range (`mode="range"`) selection. TextInput-styled trigger,

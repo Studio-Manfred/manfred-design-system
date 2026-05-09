@@ -15,6 +15,19 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './components/Button
 export { Logo } from './components/Logo';
 export type { LogoProps, LogoVariant, LogoColor } from './components/Logo';
 
+export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from './components/Accordion';
+export type {
+  AccordionProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from './components/Accordion';
+
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertVariant } from './components/Alert';
 

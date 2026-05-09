@@ -4,11 +4,48 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Icon } from '../Icon';
 
+/**
+ * Root of the dialog primitive. Owns open / close state — uncontrolled
+ * by default, or wire `open` + `onOpenChange` for the controlled flavour.
+ * Re-exported from `@radix-ui/react-dialog` so every dialog inherits the
+ * focus-trap, scroll-lock, and `Escape` handling that Radix provides.
+ *
+ * @example Uncontrolled with a trigger
+ * ```tsx
+ * <Dialog>
+ *   <DialogTrigger asChild><Button>Open</Button></DialogTrigger>
+ *   <DialogContent>{...}</DialogContent>
+ * </Dialog>
+ * ```
+ */
 const Dialog = DialogPrimitive.Root;
+
+/**
+ * Element that opens the dialog. Use `asChild` to delegate the role
+ * onto a `Button` (or any focusable element) and avoid a nested
+ * `<button>` — Radix forwards the click + ARIA wiring through `Slot`.
+ */
 const DialogTrigger = DialogPrimitive.Trigger;
+
+/**
+ * Portal target for {@link DialogContent}. Used internally by
+ * `DialogContent`; only export-consumers reach for it directly when
+ * they need to mount overlay siblings outside the default body root.
+ */
 const DialogPortal = DialogPrimitive.Portal;
+
+/**
+ * Element that closes the dialog when activated. Wrap a `Button`
+ * with `asChild` to use it inside `DialogFooter`.
+ */
 const DialogClose = DialogPrimitive.Close;
 
+/**
+ * Backdrop scrim rendered behind {@link DialogContent}. Fades in /
+ * out via the `data-[state]` selectors and uses the
+ * `--color-bg-overlay` token. Rendered automatically by `DialogContent`
+ * — exported for callers who need a custom content wrapper.
+ */
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
@@ -51,12 +88,51 @@ const contentVariants = cva(
   },
 );
 
+/**
+ * Props for the {@link DialogContent} component. Forwards every prop
+ * from `@radix-ui/react-dialog` `Content` (e.g. `onOpenAutoFocus`,
+ * `onCloseAutoFocus`, `onEscapeKeyDown`) plus the cva-derived `size`.
+ */
 export interface DialogContentProps
   extends React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>,
     VariantProps<typeof contentVariants> {
+  /**
+   * Render the built-in close button (top-right `X` icon). Set to
+   * `false` for forced-choice dialogs where the user must pick one
+   * of the footer actions. Defaults to `true`.
+   */
   showCloseButton?: boolean;
 }
 
+/**
+ * Modal dialog body. Centred, focus-trapped, scroll-locks the page
+ * behind it, and dismisses on `Escape` — all via
+ * `@radix-ui/react-dialog`. Renders the {@link DialogOverlay} and
+ * an `X` close button automatically; opt out with `showCloseButton={false}`.
+ *
+ * Three sizes: `sm` (max-w-md), `md` (max-w-lg, default), `lg` (max-w-2xl).
+ *
+ * Accessibility:
+ * - Pair with `DialogTitle` and `DialogDescription` so Radix can wire
+ *   `aria-labelledby` / `aria-describedby` automatically.
+ * - When `showCloseButton` is `false` make sure the footer offers a
+ *   keyboard-reachable action — otherwise the dialog can only be
+ *   dismissed via `Escape`.
+ *
+ * @example Basic confirmation dialog
+ * ```tsx
+ * <DialogContent>
+ *   <DialogHeader>
+ *     <DialogTitle>Are you sure?</DialogTitle>
+ *     <DialogDescription>This cannot be undone.</DialogDescription>
+ *   </DialogHeader>
+ *   <DialogFooter>
+ *     <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+ *     <DialogClose asChild><Button variant="brand">Confirm</Button></DialogClose>
+ *   </DialogFooter>
+ * </DialogContent>
+ * ```
+ */
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
@@ -82,6 +158,11 @@ const DialogContent = React.forwardRef<
 ));
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
+/**
+ * Header slot for {@link DialogContent}. Vertical stack with a
+ * border-bottom separator. Reserve right-side padding so the
+ * built-in close button doesn't collide with the title.
+ */
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -93,6 +174,12 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 );
 DialogHeader.displayName = 'DialogHeader';
 
+/**
+ * Footer slot for {@link DialogContent}. Stacks vertically on mobile
+ * and switches to right-aligned row on `sm:` and up — so confirm
+ * actions sit on the right and cancel actions on the left where
+ * desktop conventions expect them.
+ */
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
@@ -104,6 +191,12 @@ const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 );
 DialogFooter.displayName = 'DialogFooter';
 
+/**
+ * Dialog heading. Wraps `@radix-ui/react-dialog` `Title` so Radix can
+ * wire `aria-labelledby` on the content automatically. Required for
+ * the dialog to have an accessible name — omit it and Radix logs a
+ * dev warning.
+ */
 const DialogTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
@@ -116,6 +209,12 @@ const DialogTitle = React.forwardRef<
 ));
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
+/**
+ * Supporting copy for the dialog. Wraps `@radix-ui/react-dialog`
+ * `Description` so Radix wires `aria-describedby` for screen readers.
+ * Optional but strongly recommended whenever the dialog asks for
+ * confirmation or describes a destructive action.
+ */
 const DialogDescription = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>

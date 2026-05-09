@@ -9,44 +9,109 @@ import { inputLikeVariants, type InputLikeSize, type InputLikeStatus } from '@/l
 import { cn } from '@/lib/utils';
 import { useDatePickerState } from './useDatePickerState';
 
+/**
+ * Props shared by both modes of the {@link DatePicker} component.
+ *
+ * The component is a discriminated union — see {@link DatePickerSingleProps}
+ * and {@link DatePickerRangeProps} for mode-specific `value` /
+ * `defaultValue` / `onValueChange` shapes. Trigger styling matches
+ * `TextInput` via `inputLikeVariants` so it sits cleanly inside a
+ * `FormField`.
+ */
 type DatePickerBaseProps = {
+  /**
+   * Placeholder text shown in the trigger when no date is selected.
+   * Falls back to a localised "Pick a date" / "Pick a date range".
+   */
   placeholder?: string;
+  /**
+   * `date-fns` locale used for month names, weekday headers, and the
+   * default `formatValue` output. Defaults to English.
+   */
   locale?: Locale;
+  /**
+   * Earliest selectable date (inclusive). Days before are rendered
+   * disabled in the calendar.
+   */
   minDate?: Date;
+  /**
+   * Latest selectable date (inclusive). Days after are rendered
+   * disabled in the calendar.
+   */
   maxDate?: Date;
+  /**
+   * Show a "Clear" button in the popover footer when a value is set.
+   * Defaults to `true`.
+   */
   clearable?: boolean;
+  /**
+   * Show a "Today" button in the popover footer that jumps the
+   * caption to the current month. Defaults to `true`.
+   */
   showTodayButton?: boolean;
+  /** Trigger height — `sm` = 32px, `md` = 40px (default), `lg` = 48px. */
   size?: InputLikeSize;
+  /**
+   * Validation status. `error` flips the trigger border and sets
+   * `aria-invalid="true"` so it pairs with `FormField` failure copy.
+   */
   status?: InputLikeStatus;
+  /** Stretch the trigger to fill the available container width. */
   fullWidth?: boolean;
+  /** Disable interaction and dim the trigger. */
   disabled?: boolean;
+  /** Trigger element id — wire from `FormField`'s `htmlFor`. */
   id?: string;
+  /**
+   * Form field name. In `single` mode the value is serialized to a
+   * hidden `<input name>`. In `range` mode it expands to two inputs
+   * — `${name}_from` and `${name}_to` — see the README.
+   */
   name?: string;
+  /** Mark the field required for native form validation + ARIA. */
   required?: boolean;
   'aria-label'?: string;
   'aria-labelledby'?: string;
   'aria-describedby'?: string;
+  /** Controlled popover open state. Pair with `onOpenChange`. */
   open?: boolean;
+  /** Fires when the popover opens or closes (controlled or uncontrolled). */
   onOpenChange?: (open: boolean) => void;
   className?: string;
 };
 
+/** Props for the default single-date variant of {@link DatePicker}. */
 export type DatePickerSingleProps = DatePickerBaseProps & {
+  /** Selection mode. Omit or set to `'single'` for one-date selection. */
   mode?: 'single';
+  /** Controlled selected date. */
   value?: Date;
+  /** Initial date for uncontrolled mode. */
   defaultValue?: Date;
+  /** Fires with the new `Date` (or `undefined` when cleared). */
   onValueChange?: (value: Date | undefined) => void;
+  /** Custom trigger formatter. Defaults to `date-fns` locale-aware format. */
   formatValue?: (value: Date, locale: Locale) => string;
 };
 
+/** Props for the date-range variant of {@link DatePicker}. */
 export type DatePickerRangeProps = DatePickerBaseProps & {
+  /** Selection mode. Pass `'range'` to enable two-click range selection. */
   mode: 'range';
+  /** Controlled `{ from, to }` range. `to` may be `undefined` mid-pick. */
   value?: DateRange;
+  /** Initial range for uncontrolled mode. */
   defaultValue?: DateRange;
+  /** Fires with the new range (or `undefined` when cleared). */
   onValueChange?: (value: DateRange | undefined) => void;
+  /** Custom trigger formatter. Defaults to `"from – to"` localised. */
   formatValue?: (value: DateRange, locale: Locale) => string;
 };
 
+/**
+ * Props for the {@link DatePicker} component — the discriminated union
+ * of {@link DatePickerSingleProps} and {@link DatePickerRangeProps}.
+ */
 export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
 /**
@@ -110,6 +175,56 @@ const rdpClassNames = {
     'bg-[var(--color-bg-subtle)] text-[var(--color-text-primary)] rounded-none',
 };
 
+/**
+ * Date input with a popover calendar. Built on `@radix-ui/react-popover`
+ * for the trigger/popover plumbing and `react-day-picker` v9 for the
+ * grid, keyboard model, and locale-aware month rendering.
+ *
+ * Two modes share one component:
+ * - `mode="single"` (default) — pick a single date.
+ * - `mode="range"` — pick a `{ from, to }` range across two clicks.
+ *
+ * Trigger styling matches `TextInput` via `inputLikeVariants` so it
+ * drops into a `FormField` without adjustment. Constrain the
+ * selectable window with `minDate` / `maxDate`. Pass a `date-fns`
+ * `locale` to localise month names, weekday headers, and the
+ * default trigger format. Set `name` to serialise into native form
+ * data — single mode emits one hidden input; range mode emits two,
+ * suffixed `_from` and `_to`.
+ *
+ * Accessibility:
+ * - Trigger uses `role="combobox"` with `aria-expanded` / `aria-controls`
+ *   wired to the popover. `ArrowDown` / `ArrowUp` opens the calendar
+ *   from the trigger; `Escape` closes it without selecting.
+ * - Inside the calendar, `react-day-picker` owns the roving-tabindex
+ *   model — arrow keys move between days, `Enter` / `Space` commits.
+ * - `status="error"` sets `aria-invalid="true"` on the trigger; pair
+ *   with a `FormField` `message` so the failure has visible text.
+ *
+ * @example Single date (uncontrolled)
+ * ```tsx
+ * <DatePicker defaultValue={new Date()} onValueChange={setDate} />
+ * ```
+ *
+ * @example Range with constraints, in a FormField
+ * ```tsx
+ * <FormField label="Stay" htmlFor="stay">
+ *   <DatePicker
+ *     id="stay"
+ *     mode="range"
+ *     name="stay"
+ *     minDate={today}
+ *     maxDate={endOfYear}
+ *   />
+ * </FormField>
+ * ```
+ *
+ * @example Localised (Swedish), single date
+ * ```tsx
+ * import { sv } from 'date-fns/locale';
+ * <DatePicker locale={sv} placeholder="Välj ett datum" />
+ * ```
+ */
 export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
   function DatePicker(props, ref) {
     const {

@@ -29,13 +29,42 @@ const badgeVariants = cva(
 export type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
 export type BadgeSize = NonNullable<VariantProps<typeof badgeVariants>['size']>;
 
+/**
+ * Props for the {@link Badge} component.
+ */
 export interface BadgeProps extends VariantProps<typeof badgeVariants> {
+  /** Badge label. Keep short — typically one or two words, or a count. */
   children: React.ReactNode;
   className?: string;
 }
 
 const STATUS_VARIANTS: BadgeVariant[] = ['success', 'warning', 'error', 'info'];
 
+/**
+ * Small inline label — counts, statuses, tags, attribute markers.
+ *
+ * Six visual variants split into two groups: `neutral` and `brand` for
+ * generic labels; `success` / `warning` / `error` / `info` for status.
+ * Two sizes (`sm` / `md`).
+ *
+ * Accessibility:
+ * - Status variants prepend a visually hidden severity prefix
+ *   ("success: ", "error: ", …) so colour is never the sole carrier of
+ *   meaning. Generic `neutral` / `brand` skip this.
+ * - Renders as a `<span>` — when the badge represents a count next to a
+ *   labelled control, place it inside the same accessible name (e.g.
+ *   `aria-label="Notifications, 3 unread"` on the parent).
+ *
+ * @example Status badge
+ * ```tsx
+ * <Badge variant="success">Active</Badge>
+ * ```
+ *
+ * @example Notification count
+ * ```tsx
+ * <Badge variant="error" size="sm">3</Badge>
+ * ```
+ */
 export function Badge({ variant = 'neutral', size = 'md', children, className }: BadgeProps) {
   const hasStatusPrefix = STATUS_VARIANTS.includes(variant!);
 

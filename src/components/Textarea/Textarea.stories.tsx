@@ -94,6 +94,7 @@ export const LongContent: Story = {
   render: () => (
     <div style={{ width: '420px' }}>
       <Textarea
+        aria-label="About Manfred"
         rows={5}
         defaultValue={`Manfred is a small studio that helps teams ship product. We work across discovery, design, and implementation — bringing UX strategy, design systems, and engineering together.
 

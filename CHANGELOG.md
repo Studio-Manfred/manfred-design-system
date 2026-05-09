@@ -7,6 +7,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-05-09
+
+Wave 2 of the intranet-adoption epic (STU-79). Two new overlay/disclosure
+components ship together. No breaking changes — pure additions.
+
+### Added
+
+- **`Sheet`** — side-drawer / bottom-sheet overlay built on
+  `@radix-ui/react-dialog`. 8 sub-parts: `Sheet`, `SheetTrigger`,
+  `SheetContent`, `SheetHeader`, `SheetTitle`, `SheetDescription`,
+  `SheetFooter`, `SheetClose` (plus `SheetPortal` and `SheetOverlay`
+  re-exports for advanced cases). `side="top" | "right" | "bottom" | "left"`,
+  default `right`. All slide animations gated behind `motion-safe:` so
+  they respect `prefers-reduced-motion`. (STU-94)
+- **`Accordion`** — collapsible content section built on
+  `@radix-ui/react-accordion`. 4 sub-parts: `Accordion`,
+  `AccordionItem`, `AccordionTrigger`, `AccordionContent`. Single + multiple
+  open modes via Radix `type="single" | "multiple"` passthrough. Chevron
+  rotates 180° on open via `data-[state=open]` selector; expand/collapse
+  animations use `tw-animate-css` `accordion-up`/`accordion-down` utilities,
+  gated behind `motion-safe:`. (STU-100)
+
+### Dependencies
+
+- New runtime dependency (already external in the build, so the bundled
+  `dist/` size is unchanged):
+  - `@radix-ui/react-accordion@^1.2.12`
+- `@radix-ui/react-dialog` (already installed for `Dialog`) is reused by
+  `Sheet`.
+
+### Notes for consumers
+
+- Both components are token-driven and rebind in dark mode automatically.
+  No new tokens introduced; reused `bg-background`, `text-foreground`,
+  `text-muted-foreground`, `border-border`, `--color-bg-overlay`,
+  `--shadow-focus`.
+- Sheet overlay animation is wrapped in `motion-safe:` (Dialog's overlay
+  is not — that's a future polish opportunity).
+- Use `Sheet` for mobile-friendly side panels (board sidebars, comment
+  threads, detail panels). Use `Accordion` for FAQs, info-page sections,
+  and sidebar groupings.
+- One sub-ticket remains in epic STU-79: NavigationMenu (STU-95) → v0.14.0.
+
 ## [0.12.0] - 2026-05-09
 
 Wave 1 of the intranet-adoption epic (STU-79). Four new form-layer

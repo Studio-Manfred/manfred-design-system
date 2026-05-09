@@ -15,6 +15,19 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './components/Button
 export { Logo } from './components/Logo';
 export type { LogoProps, LogoVariant, LogoColor } from './components/Logo';
 
+export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from './components/Accordion';
+export type {
+  AccordionProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from './components/Accordion';
+
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertVariant } from './components/Alert';
 
@@ -140,6 +153,20 @@ export type { SearchBarProps, SearchBarSize } from './components/SearchBar';
 
 export { Separator } from './components/Separator';
 export type { SeparatorProps } from './components/Separator';
+
+export {
+  Sheet,
+  SheetTrigger,
+  SheetClose,
+  SheetPortal,
+  SheetOverlay,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from './components/Sheet';
+export type { SheetContentProps, SheetSide } from './components/Sheet';
 
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';

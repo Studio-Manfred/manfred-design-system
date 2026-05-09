@@ -6,13 +6,38 @@ import type { IconName } from './Icon';
 const meta: Meta<typeof Icon> = {
   title: 'Components/Icon',
   component: Icon,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Single-colour SVG icon from the Manfred curated set. Strokes via ' +
+          '`currentColor`, so the icon inherits text colour from its parent — ' +
+          'drop it inside a button or label and it picks up the surrounding ' +
+          'style automatically. Names are restricted to the `IconName` union; ' +
+          'add new glyphs in `iconPaths.ts` rather than hand-writing SVG. ' +
+          'Pass `label` to make the icon meaningful (`role="img"` + ' +
+          '`aria-label`); omit for decorative use (`aria-hidden`).',
+      },
+    },
+  },
   argTypes: {
     name: {
       control: 'select',
       options: Object.keys(iconPaths) as IconName[],
+      description: 'Glyph to render. Restricted to the curated `IconName` union.',
     },
-    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg', 'xl'] },
+    size: {
+      control: 'select',
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
+      description: 'Visual size — `xs` (12px), `sm` (16px), `md` (20px, default), `lg` (24px), `xl` (32px).',
+      table: { defaultValue: { summary: 'md' } },
+    },
+    label: {
+      control: 'text',
+      description:
+        "Accessible label. Set for meaningful icons (`role='img'` + `aria-label`); omit for decorative.",
+    },
   },
 };
 
@@ -25,6 +50,15 @@ export const Playground: Story = {
     name: 'check',
     size: 'md',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — pick a glyph and a size from the Controls ' +
+          'panel below. Renders without `label`, so the icon is decorative.',
+      },
+    },
+  },
 };
 
 export const Labelled: Story = {
@@ -33,9 +67,28 @@ export const Labelled: Story = {
     size: 'md',
     label: 'Check mark',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Standalone icon with an accessible name. Use this shape when the ' +
+          'icon is the only thing communicating the action (icon-only button, ' +
+          'standalone status glyph).',
+      },
+    },
+  },
 };
 
 export const AllIcons: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every glyph in the curated set with its `IconName`. Visual ' +
+          'inventory — use it to pick a name, then look up the prop in code.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', maxWidth: '600px' }}>
       {(Object.keys(iconPaths) as IconName[]).map((name) => (
@@ -68,6 +121,16 @@ export const AllIcons: Story = {
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Five-step size scale. Stroke width stays at 1.5px across sizes ' +
+          'so the optical weight is consistent — useful when icons sit ' +
+          'side-by-side at different sizes.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
       {(['xs', 'sm', 'md', 'lg', 'xl'] as const).map((size) => (

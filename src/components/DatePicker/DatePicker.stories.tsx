@@ -23,6 +23,80 @@ const meta: Meta<typeof DatePicker> = {
         ],
       },
     },
+    docs: {
+      description: {
+        component:
+          'Date input with a popover calendar. Built on `@radix-ui/react-popover` ' +
+          'for the trigger/popover plumbing and `react-day-picker` v9 for the ' +
+          'grid + keyboard model. Two modes — `single` (default) for a ' +
+          'single date and `range` for a `{ from, to }` window. Trigger ' +
+          'styling matches `TextInput` via `inputLikeVariants` so it sits ' +
+          'cleanly inside a `FormField`. `minDate` / `maxDate` constrain the ' +
+          'window; pass a `date-fns` `locale` to localise month names. In ' +
+          'range mode `name` serializes to two hidden inputs, suffixed ' +
+          '`_from` and `_to` (see the README).',
+      },
+    },
+  },
+  argTypes: {
+    mode: {
+      control: 'select',
+      options: ['single', 'range'],
+      description: '`single` (default) picks one date; `range` picks `{ from, to }` across two clicks.',
+      table: { defaultValue: { summary: 'single' } },
+    },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      description: 'Trigger height — `sm` = 32px, `md` = 40px (default), `lg` = 48px.',
+      table: { defaultValue: { summary: 'md' } },
+    },
+    status: {
+      control: 'select',
+      options: ['default', 'error', 'success'],
+      description: '`error` flips the trigger border to the error token and sets `aria-invalid="true"`.',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    fullWidth: {
+      control: 'boolean',
+      description: 'Stretch the trigger to fill its container — useful inside `FormField` columns.',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    minDate: {
+      control: 'date',
+      description: 'Earliest selectable date (inclusive). Days before are disabled.',
+    },
+    maxDate: {
+      control: 'date',
+      description: 'Latest selectable date (inclusive). Days after are disabled.',
+    },
+    clearable: {
+      control: 'boolean',
+      description: 'Show a "Clear" button in the popover footer when a value is set.',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    showTodayButton: {
+      control: 'boolean',
+      description: 'Show a "Today" button that jumps the calendar caption to the current month.',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    placeholder: {
+      control: 'text',
+      description: 'Trigger text shown when no date is selected.',
+    },
+    name: {
+      control: 'text',
+      description:
+        'Hidden-input name. In range mode, expands to `${name}_from` and `${name}_to`.',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disable interaction and dim the trigger.',
+    },
+    required: {
+      control: 'boolean',
+      description: 'Mark required for native form validation + `aria-required`.',
+    },
   },
 };
 
@@ -31,6 +105,15 @@ export default meta;
 type Story = StoryObj<typeof DatePicker>;
 
 export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — the parent owns `value` and updates via ' +
+          '`onValueChange`. Toggle props in the Controls panel below.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>();
     return <DatePicker value={value} onValueChange={setValue} />;
@@ -38,6 +121,15 @@ export const Playground: Story = {
 };
 
 export const WithValue: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Controlled with a pre-selected date so the trigger renders the ' +
+          'localised default format and the popover opens centred on that month.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>(new Date(2026, 3, 15));
     return <DatePicker value={value} onValueChange={setValue} />;
@@ -45,6 +137,16 @@ export const WithValue: Story = {
 };
 
 export const WithConstraints: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Constrain selectable dates to a window with `minDate` / `maxDate`. ' +
+          'Days outside the range render disabled and are unreachable by ' +
+          'keyboard — the rdp roving-tabindex skips them.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>();
     return (
@@ -60,6 +162,16 @@ export const WithConstraints: Story = {
 };
 
 export const InFormField: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Standard form pattern — `FormField` owns the label and required ' +
+          'asterisk, `DatePicker` is the input. `htmlFor` matches the ' +
+          'trigger `id` so the label-click target is the trigger button.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>();
     return (
@@ -71,6 +183,16 @@ export const InFormField: Story = {
 };
 
 export const ErrorState: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Failure state in a `FormField` — `status="error"` flips the trigger ' +
+          'border, sets `aria-invalid="true"`, and the field message ' +
+          'announces via `role="alert"`.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>();
     return (
@@ -91,6 +213,16 @@ export const RangePlayground: Story = {
     clearable: true,
     showTodayButton: true,
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Range mode, fully argTypes-driven. Two-click selection — first ' +
+          'click sets `from`, second click sets `to`. Trigger renders ' +
+          '"from – to" once both are picked.',
+      },
+    },
+  },
   render: (args) => (
     <div className="w-80">
       <DatePicker {...(args as DatePickerRangeProps)} />
@@ -105,6 +237,16 @@ export const RangeWithConstraints: Story = {
     maxDate: new Date('2026-04-25'),
     defaultValue: { from: new Date('2026-04-10'), to: new Date('2026-04-15') },
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Range mode with `minDate` / `maxDate` and a pre-filled ' +
+          '`defaultValue`. Useful for booking flows where availability ' +
+          'is known up front.',
+      },
+    },
+  },
   render: (args) => (
     <div className="w-80">
       <DatePicker {...(args as DatePickerRangeProps)} />
@@ -113,6 +255,16 @@ export const RangeWithConstraints: Story = {
 };
 
 export const RangeInFormField: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Range mode inside a real `<form>` — `name="stay"` serialises to ' +
+          'two hidden inputs: `stay_from` and `stay_to`. The submit handler ' +
+          'reads them via `FormData` and alerts the result.',
+      },
+    },
+  },
   render: () => (
     <form
       onSubmit={(e) => {
@@ -139,6 +291,16 @@ export const RangeInFormField: Story = {
 
 export const RangePartialState: Story = {
   args: { mode: 'range' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies the partial-range UX — after the first click the popover ' +
+          'stays open and the trigger renders a "from – …" placeholder until ' +
+          'the user picks the second date.',
+      },
+    },
+  },
   render: (args) => (
     <div className="w-80">
       <DatePicker {...(args as DatePickerRangeProps)} />
@@ -167,6 +329,16 @@ export const RangePartialState: Story = {
 
 // Play: Tab to trigger, ArrowDown to open, Escape to close.
 export const KeyboardInteraction: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Keyboard regression for single mode — tab to trigger, `ArrowDown` ' +
+          'opens the popover (Radix combobox idiom), `Escape` closes it ' +
+          'without committing a selection.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState<Date | undefined>(new Date(2026, 3, 15));
     return <DatePicker value={value} onValueChange={setValue} />;
@@ -190,6 +362,17 @@ export const KeyboardInteraction: Story = {
 
 export const RangeKeyboardInteraction: Story = {
   args: { mode: 'range' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Keyboard regression for range mode — `ArrowDown` opens, arrow keys ' +
+          'navigate within the calendar, first `Enter` commits `from` and ' +
+          'keeps the popover open (partial state), second `Enter` commits ' +
+          '`to` and closes.',
+      },
+    },
+  },
   render: (args) => (
     <div className="w-80">
       <DatePicker {...(args as DatePickerRangeProps)} />

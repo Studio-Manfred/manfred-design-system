@@ -7,6 +7,66 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2026-05-09
+
+Wave 1 of the intranet-adoption epic (STU-79). Four new form-layer
+components ship together so the intranet (and other Manfred apps)
+can drop their local copies. No breaking changes — pure additions.
+
+### Added
+
+- **`Separator`** — horizontal/vertical divider wrapping
+  `@radix-ui/react-separator`. `orientation="horizontal" | "vertical"`,
+  default border from `--color-border-default`, `decorative` prop to
+  remove from the a11y tree. (STU-96)
+- **`Label`** — accessible form label wrapping
+  `@radix-ui/react-label`. `required` prop renders an `aria-hidden`
+  red asterisk; pairs naturally with `TextInput`, `Checkbox`,
+  `Switch`. Coexists with the existing `FormField` label rendering
+  — use `Label` for manual form-row composition, `FormField` for
+  the wrapped pattern. (STU-97)
+- **`Textarea`** — multi-line input that reuses the
+  `inputLikeVariants` shared CVA so it stays visually locked with
+  `TextInput`. Sizes `sm | md | lg`, statuses
+  `default | error | success`, `fullWidth`, `resize-y` for native
+  vertical resize. `autoResize` deferred to v2. (STU-98)
+- **`Switch`** — boolean toggle wrapping
+  `@radix-ui/react-switch`. Sizes `sm | md | lg`, optional inline
+  `label` prop (mirrors `Checkbox` pattern), `loading` shows a
+  centered Spinner inside the track and sets `aria-busy="true"`,
+  `error` sets `aria-invalid` and a red border. Visually distinct
+  from `Checkbox` — use `Switch` for binary settings, `Checkbox`
+  for selection. (STU-99)
+
+### Tests / fixes
+
+- Anchored DatePicker range-mode "first click" test to April 2026
+  via `vi.setSystemTime` so it stops failing once the system date
+  moves past April. The empty-range case opens the calendar to the
+  current month, and the day-cell aria-label regex needed the
+  visible month to be deterministic.
+
+### Dependencies
+
+- New runtime dependencies (already external in the build, so the
+  bundled `dist/` size is unchanged):
+  - `@radix-ui/react-separator@^1.1.8`
+  - `@radix-ui/react-label@^2.1.8`
+  - `@radix-ui/react-switch@^1.2.6`
+
+### Notes for consumers
+
+- All four components are token-driven and rebind in dark mode
+  automatically. No new tokens were introduced; reused
+  `--color-border-default`, `--color-bg-brand`, `--color-border-strong`,
+  `--color-feedback-error-fg`, `--color-feedback-success-fg`, and
+  `--shadow-focus`.
+- All four export both runtime and types from the package barrel.
+  `Textarea` additionally exports `TextareaSize` and `TextareaStatus`
+  type helpers for downstream code that wraps it.
+- Three sub-tickets remain in epic STU-79 for follow-up waves:
+  Sheet (STU-94), Accordion (STU-100), NavigationMenu (STU-95).
+
 ## [0.11.0] - 2026-04-29
 
 Storybook-only release — **no public API changes**. The published

@@ -98,6 +98,9 @@ export type {
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 
+export { Label } from './components/Label';
+export type { LabelProps } from './components/Label';
+
 export {
   Dialog,
   DialogTrigger,
@@ -135,8 +138,14 @@ export type { RadioGroupItemProps } from './components/Radio';
 export { SearchBar } from './components/SearchBar';
 export type { SearchBarProps, SearchBarSize } from './components/SearchBar';
 
+export { Separator } from './components/Separator';
+export type { SeparatorProps } from './components/Separator';
+
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
+
+export { Switch } from './components/Switch';
+export type { SwitchProps } from './components/Switch';
 
 export { Stack, VStack, HStack } from './components/Stack';
 export type {
@@ -152,6 +161,9 @@ export type {
 
 export { TextInput } from './components/TextInput';
 export type { TextInputProps, TextInputSize, TextInputStatus } from './components/TextInput';
+
+export { Textarea } from './components/Textarea';
+export type { TextareaProps, TextareaSize, TextareaStatus } from './components/Textarea';
 
 export { Toaster, toast } from './components/Toast';
 export type { ToastProps } from './components/Toast';

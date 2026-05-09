@@ -98,6 +98,9 @@ export type {
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 
+export { Label } from './components/Label';
+export type { LabelProps } from './components/Label';
+
 export {
   Dialog,
   DialogTrigger,

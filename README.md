@@ -62,7 +62,7 @@ or run it locally with `npm run storybook` (see below).
 ### Components
 
 Alert · Badge · Breadcrumb · Button · Checkbox · DatePicker · Dialog ·
-FormField · Icon · Logo · ProgressBar · RadioGroup · SearchBar ·
+FormField · Icon · Label · Logo · ProgressBar · RadioGroup · SearchBar ·
 Separator · Spinner · TextInput · Toaster · Tooltip · Typography.
 
 `DatePicker` supports single-date (`mode="single"`, default) and

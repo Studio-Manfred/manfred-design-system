@@ -5,11 +5,55 @@ import { ProgressBar } from './ProgressBar';
 const meta: Meta<typeof ProgressBar> = {
   title: 'Components/ProgressBar',
   component: ProgressBar,
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Determinate progress bar built on `@radix-ui/react-progress`. ' +
+          'Five colour variants (`default` / `brand` / `success` / `warning` ' +
+          '/ `error`), three sizes, an optional caption with percentage ' +
+          'readout, and an optional animated stripes overlay for live ' +
+          'operations. Radix supplies `role="progressbar"` semantics — pass ' +
+          '`label` so AT users hear a meaningful caption.',
+      },
+    },
+  },
   argTypes: {
-    value: { control: { type: 'range', min: 0, max: 100, step: 1 } },
-    variant: { control: 'select', options: ['default', 'brand', 'success', 'warning', 'error'] },
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    value: {
+      control: { type: 'range', min: 0, max: 100, step: 1 },
+      description: 'Current progress (0–100). Values outside the range are clamped.',
+    },
+    variant: {
+      control: 'select',
+      options: ['default', 'brand', 'success', 'warning', 'error'],
+      description:
+        'Fill colour. `brand` for normal progress; state variants for ' +
+        'validation / upload outcomes; `default` for a quiet neutral.',
+      table: { defaultValue: { summary: 'brand' } },
+    },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      description: 'Track height. `sm` = 4px, `md` = 8px (default), `lg` = 12px.',
+      table: { defaultValue: { summary: 'md' } },
+    },
+    label: {
+      control: 'text',
+      description: 'Visible caption above the track. Also drives the `aria-label` on the Root.',
+    },
+    showValue: {
+      control: 'boolean',
+      description: 'Show the percentage readout to the right of the label.',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    animated: {
+      control: 'boolean',
+      description:
+        'Add a diagonal-stripes overlay that animates left-to-right. ' +
+        'Decorative only — fill width still tracks `value`.',
+      table: { defaultValue: { summary: 'false' } },
+    },
   },
 };
 
@@ -25,9 +69,28 @@ export const Playground: Story = {
     label: 'Upload progress',
     showValue: true,
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — drag the value range, swap variant + size, ' +
+          'toggle the caption + percentage readout via the Controls panel.',
+      },
+    },
+  },
 };
 
 export const Variants: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All five colour variants side by side at fixed values. The state ' +
+          'variants (`success` / `warning` / `error`) exist for outcome ' +
+          'feedback — pair with the matching status copy in the label.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '400px' }}>
       <ProgressBar value={70} variant="brand" label="Brand" showValue />
@@ -40,6 +103,16 @@ export const Variants: Story = {
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three height scales. Use `sm` inside dense list rows or table ' +
+          'cells, `md` for most page-level progress, `lg` for prominent ' +
+          'standalone progress on a hero / dashboard surface.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', width: '400px' }}>
       <div>
@@ -59,6 +132,16 @@ export const Sizes: Story = {
 };
 
 export const Animated: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Adds the diagonal-stripes overlay via `animated`. Use this when an ' +
+          'operation is genuinely in flight and the user should see motion ' +
+          '— the fill width still tracks `value` so progress stays honest.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '400px' }}>
       <ProgressBar value={65} animated label="Processing…" />
@@ -67,6 +150,16 @@ export const Animated: Story = {
 };
 
 export const Interactive: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Wired to a native `<input type="range">` so you can scrub the ' +
+          'value and see the fill respond in real time. Useful for sanity-' +
+          'checking the 250ms transform transition during review.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState(40);
     return (

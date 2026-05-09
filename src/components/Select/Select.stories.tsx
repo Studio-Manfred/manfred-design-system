@@ -27,6 +27,17 @@ const meta: Meta<typeof Select> = {
   component: Select,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Compound select built on `@radix-ui/react-select`. The trigger ' +
+          'mirrors `TextInput` visuals through the shared `inputLikeVariants` ' +
+          'so closed selects line up with other form controls. Use ' +
+          '`SelectTrigger`, `SelectContent`, `SelectItem`, and optionally ' +
+          '`SelectGroup` + `SelectLabel` + `SelectSeparator` for grouped ' +
+          'options. Keyboard, type-ahead, and focus management come from Radix.',
+      },
+    },
   },
 };
 
@@ -35,6 +46,15 @@ export default meta;
 type Story = StoryObj<typeof Select>;
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Minimum-viable select — uncontrolled with a placeholder. Demonstrates ' +
+          'the closed trigger style and the popover panel.',
+      },
+    },
+  },
   render: () => (
     <Select>
       <SelectTrigger aria-label="Fruit" fullWidth>
@@ -58,6 +78,15 @@ export const Default: Story = {
 };
 
 export const Controlled: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Fully controlled select — the parent owns `value` and reacts to ' +
+          '`onValueChange`. The current value is echoed below the trigger.',
+      },
+    },
+  },
   render: () => {
     const ControlledFixture = () => {
       const [value, setValue] = React.useState<string>('');
@@ -95,6 +124,16 @@ export const Controlled: Story = {
 };
 
 export const Grouped: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Two `SelectGroup`s with their own `SelectLabel`, divided by a ' +
+          '`SelectSeparator`. Use grouping when the options fall into clearly ' +
+          'distinct categories.',
+      },
+    },
+  },
   render: () => (
     <Select>
       <SelectTrigger aria-label="Food" fullWidth>
@@ -124,6 +163,16 @@ export const Grouped: Story = {
 };
 
 export const WithLeadingIcon: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A `leadingIcon` on the trigger gives extra context (here: a search ' +
+          'scope picker). The icon is decorative — `aria-hidden` is applied ' +
+          'by the component.',
+      },
+    },
+  },
   render: () => (
     <Select>
       <SelectTrigger aria-label="Search scope" fullWidth leadingIcon="search">
@@ -143,6 +192,15 @@ export const WithLeadingIcon: Story = {
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three sizes (`sm` / `md` / `lg`) sharing the input scale. Pick the ' +
+          'size that matches the surrounding form controls.',
+      },
+    },
+  },
   render: () => (
     <div className="flex flex-col gap-3 w-64">
       <Select>
@@ -177,6 +235,16 @@ export const Sizes: Story = {
 };
 
 export const WithFormField: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Selects wrapped in `FormField` to inherit label, hint, and error ' +
+          'messaging. The error variant flips the trigger to `status="error"` ' +
+          'so the border and `aria-invalid` follow.',
+      },
+    },
+  },
   render: () => (
     <div className="flex flex-col gap-4 w-72">
       <FormField label="Country" htmlFor="country" status="hint" message="Select your country.">
@@ -223,6 +291,16 @@ export const WithFormField: Story = {
 };
 
 export const InsideDialog: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Select panels portal to `body`, so they layer correctly above an ' +
+          'open `Dialog`. Demonstrates the focus-handoff between Dialog and ' +
+          'the Select popover.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>

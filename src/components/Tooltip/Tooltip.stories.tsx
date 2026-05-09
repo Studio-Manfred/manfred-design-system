@@ -17,6 +17,16 @@ const meta: Meta<typeof Tooltip> = {
         ],
       },
     },
+    docs: {
+      description: {
+        component:
+          'Compound tooltip built on `@radix-ui/react-tooltip`. Mount one ' +
+          '`TooltipProvider` near the root, then wrap each tooltip with ' +
+          '`Tooltip` + `TooltipTrigger asChild` + `TooltipContent`. ' +
+          'Hover, focus-visible, and Escape-to-dismiss come from Radix; the ' +
+          'bubble portals to `body` and uses inverse surface tokens.',
+      },
+    },
   },
   decorators: [
     (Story) => (
@@ -32,6 +42,15 @@ export default meta;
 type Story = StoryObj<typeof Tooltip>;
 
 export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Single tooltip on a button. Hover or keyboard-focus the trigger to ' +
+          'open; press Escape to dismiss.',
+      },
+    },
+  },
   render: () => (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -43,6 +62,16 @@ export const Playground: Story = {
 };
 
 export const AllPlacements: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Four `side` placements (`top` / `bottom` / `left` / `right`). ' +
+          'Radix flips the bubble automatically when the chosen side would ' +
+          'overflow the viewport.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px', padding: '48px' }}>
       <Tooltip>
@@ -74,6 +103,16 @@ export const AllPlacements: Story = {
 };
 
 export const WithDelay: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Per-`TooltipProvider` `delayDuration` controls the open delay. ' +
+          'Use 0 for icon labels (instant feedback), 500ms for descriptive ' +
+          'help to avoid hover noise.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', gap: '16px' }}>
       <TooltipProvider delayDuration={0}>
@@ -98,6 +137,15 @@ export const WithDelay: Story = {
 
 // Play: keyboard-focus the trigger (Tab), assert tooltip appears, blur to dismiss.
 export const KeyboardInteraction: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Coverage story — focuses the trigger, asserts the tooltip is ' +
+          'announced, then verifies Escape closes it.',
+      },
+    },
+  },
   render: () => (
     // Per-story delayDuration=0 shadows the meta decorator's 200ms default — tooltip must appear immediately for the assertion.
     <TooltipProvider delayDuration={0}>
@@ -125,6 +173,15 @@ export const KeyboardInteraction: Story = {
 };
 
 export const OnInlineText: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tooltip anchored to inline text (a `<span>` with `tabIndex={0}` so ' +
+          'it is focusable). Useful for glossary terms and definitions.',
+      },
+    },
+  },
   render: () => (
     <p style={{ fontFamily: 'Host Grotesk, sans-serif', maxWidth: '480px' }}>
       Hover over{' '}

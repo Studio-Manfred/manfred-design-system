@@ -14,12 +14,43 @@ import { Badge } from '../Badge';
 const meta: Meta<typeof Grid> = {
   title: 'Layout/Grid',
   component: Grid,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Token-driven CSS-grid wrapper. `cols` accepts a fixed number ' +
+          '(1–12) or a responsive object (`{ base, sm, md, lg, xl }`). `gap` ' +
+          'follows the spacing token scale so grids stay rhythmically aligned ' +
+          'with the rest of the system.',
+      },
+    },
+  },
   argTypes: {
-    gap: { control: 'inline-radio', options: [1, 2, 3, 4, 6, 8, 12] },
-    align: { control: 'inline-radio', options: ['start', 'center', 'end', 'stretch'] },
-    justify: { control: 'inline-radio', options: ['start', 'center', 'end', 'stretch'] },
-    as: { control: 'select', options: ['div', 'ul', 'section'] },
+    gap: {
+      control: 'inline-radio',
+      options: [1, 2, 3, 4, 6, 8, 12],
+      description: 'Token-driven gap matching the `--space-*` scale.',
+      table: { defaultValue: { summary: '4' } },
+    },
+    align: {
+      control: 'inline-radio',
+      options: ['start', 'center', 'end', 'stretch'],
+      description: '`align-items` passthrough.',
+      table: { defaultValue: { summary: 'stretch' } },
+    },
+    justify: {
+      control: 'inline-radio',
+      options: ['start', 'center', 'end', 'stretch'],
+      description: '`justify-items` passthrough.',
+      table: { defaultValue: { summary: 'stretch' } },
+    },
+    as: {
+      control: 'select',
+      options: ['div', 'ul', 'section'],
+      description: 'Rendered HTML element. Use `ul` for lists.',
+      table: { defaultValue: { summary: 'div' } },
+    },
   },
 };
 export default meta;
@@ -34,6 +65,15 @@ const Tile = ({ children }: { children: React.ReactNode }) => (
 
 export const Default: Story = {
   args: { cols: 3, gap: 4 },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three-column grid with the default gap. Most card grids start ' +
+          'here.',
+      },
+    },
+  },
   render: (args) => (
     <Container>
       <Grid {...args}>
@@ -50,6 +90,15 @@ export const Default: Story = {
 
 export const FixedCols: Story = {
   name: 'Fixed cols (1-12)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A handful of fixed column counts to show the scale. Any integer ' +
+          'between 1 and 12 is valid.',
+      },
+    },
+  },
   render: () => (
     <Container>
       <div className="space-y-6">
@@ -72,6 +121,16 @@ export const FixedCols: Story = {
 
 export const ResponsiveCols: Story = {
   name: 'Responsive cols',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Adaptive layout — collapses to a single column on small screens ' +
+          'and grows to four columns from `lg`. Resize the preview to ' +
+          'verify the breakpoint changes.',
+      },
+    },
+  },
   render: () => (
     <Container>
       <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
@@ -87,6 +146,15 @@ export const ResponsiveCols: Story = {
 };
 
 export const Gaps: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Five points along the gap scale. Pick the gap that matches the ' +
+          'visual rhythm of the surrounding content.',
+      },
+    },
+  },
   render: () => (
     <Container>
       <div className="space-y-6">
@@ -109,6 +177,15 @@ export const Gaps: Story = {
 };
 
 export const Alignment: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`align="center"` + `justify="center"` centres each grid item ' +
+          'within its track when they have varying intrinsic sizes.',
+      },
+    },
+  },
   render: () => (
     <Container>
       <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
@@ -125,6 +202,15 @@ export const Alignment: Story = {
 
 export const AsListLandmark: Story = {
   name: 'As <ul> list',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Render the grid as a `<ul>` so each child becomes an implicit list ' +
+          'item — the right semantic choice for sets of comparable items.',
+      },
+    },
+  },
   render: () => (
     <Container>
       <Grid as="ul" cols={{ base: 1, sm: 2, md: 4 }} gap={3} className="list-none p-0">
@@ -140,6 +226,16 @@ export const AsListLandmark: Story = {
 
 export const KpiTileRow: Story = {
   name: 'KPI tile row (dashboard sketch)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Realistic dashboard pattern — three KPI cards collapsing to a ' +
+          'single column on small screens. Demonstrates how Grid composes ' +
+          'with Card and Badge.',
+      },
+    },
+  },
   render: () => (
     <Container size="xl">
       <Grid cols={{ base: 1, md: 3 }} gap={6}>

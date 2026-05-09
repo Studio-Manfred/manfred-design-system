@@ -7,15 +7,39 @@ const meta: Meta<typeof Switch> = {
   component: Switch,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Boolean toggle built on `@radix-ui/react-switch`. Three sizes, an ' +
+          'optional inline `label`, plus `loading` and `error` states for ' +
+          'async saves and form validation. Click-on-label works whenever the ' +
+          'control is given an `id`.',
+      },
+    },
   },
   argTypes: {
     size: {
       control: { type: 'inline-radio' },
       options: ['sm', 'md', 'lg'],
+      description: 'Track + thumb scale.',
+      table: { defaultValue: { summary: 'md' } },
     },
-    disabled: { control: 'boolean' },
-    loading: { control: 'boolean' },
-    error: { control: 'boolean' },
+    disabled: {
+      control: 'boolean',
+      description: 'Disable interaction. Inherited from Radix `Switch.Root`.',
+    },
+    loading: {
+      control: 'boolean',
+      description: 'Replace thumb with a spinner; sets `aria-busy` and disables interaction.',
+    },
+    error: {
+      control: 'boolean',
+      description: 'Sets `aria-invalid` and gives the track a red border.',
+    },
+    label: {
+      control: 'text',
+      description: 'Optional inline label rendered to the right.',
+    },
   },
 };
 
@@ -25,6 +49,15 @@ type Story = StoryObj<typeof Switch>;
 
 export const Default: Story = {
   args: { 'aria-label': 'Toggle setting' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Bare switch with an `aria-label` — use when the surrounding row ' +
+          'already labels the control visually.',
+      },
+    },
+  },
 };
 
 export const WithLabel: Story = {
@@ -32,9 +65,27 @@ export const WithLabel: Story = {
     label: 'Enable notifications',
     id: 'notifications',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Switch with an inline label. The component wraps both elements in ' +
+          'a `<label htmlFor>` so clicking the text toggles the switch.',
+      },
+    },
+  },
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All three size scales. Use `sm` in dense lists, `md` (default) ' +
+          'in standard forms, `lg` in marketing settings.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <Switch size="sm" label="Small" id="sw-sm" />
@@ -45,6 +96,15 @@ export const Sizes: Story = {
 };
 
 export const States: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every visible state — unchecked, checked, disabled (off / on), ' +
+          'loading, and error. Useful for token / dark-mode review.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <Switch label="Unchecked" id="state-unchecked" />
@@ -58,6 +118,15 @@ export const States: Story = {
 };
 
 export const Controlled: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Fully controlled switch — the parent owns `checked` and reacts to ' +
+          '`onCheckedChange`. The label updates with the boolean state.',
+      },
+    },
+  },
   render: () => {
     const [on, setOn] = useState(false);
     return (
@@ -83,6 +152,15 @@ export const Controlled: Story = {
 };
 
 export const InForm: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Settings form pattern — a labelled row with description per switch. ' +
+          'Each switch is independently controlled.',
+      },
+    },
+  },
   render: () => {
     const [marketing, setMarketing] = useState(true);
     const [twoFactor, setTwoFactor] = useState(false);

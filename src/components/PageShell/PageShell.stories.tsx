@@ -37,6 +37,16 @@ const meta: Meta<typeof PageShell> = {
   parameters: {
     layout: 'fullscreen',
     ...enableLandmarkRule,
+    docs: {
+      description: {
+        component:
+          'Full-viewport application shell. Auto-renders a keyboard-only ' +
+          'skip-link, wraps the page in a `min-h-screen` flex column, and ' +
+          'locks `PageBody` to `<main>`. Compose with `PageHeader`, ' +
+          '`PageBody`, `PageFooter` Card-style. The exported ' +
+          '`PAGE_SHELL_DEFAULT_MAIN_ID` matches the skip-link target.',
+      },
+    },
   },
 };
 export default meta;
@@ -55,6 +65,14 @@ export const DashboardExample: Story = {
           { id: 'landmark-one-main', enabled: true },
           { id: 'page-has-heading-one', enabled: true },
         ],
+      },
+    },
+    docs: {
+      description: {
+        story:
+          'Full dashboard composition matching the Mitt Intranat sketch — ' +
+          'header, three KPI cards, footer. Verifies the single-`<main>` ' +
+          'rule in axe.',
       },
     },
   },
@@ -177,6 +195,16 @@ export const DashboardExample: Story = {
 // WithoutSticky — the header scrolls off with the rest of the content.
 // ---------------------------------------------------------------------------
 export const WithoutSticky: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Header rendered with `sticky={false}` so it scrolls away with the ' +
+          'content — useful for marketing pages that don\'t need persistent ' +
+          'navigation chrome.',
+      },
+    },
+  },
   render: () => (
     <PageShell>
       <PageHeader sticky={false}>
@@ -218,6 +246,16 @@ export const WithoutSticky: Story = {
 // ShortContent — verifies footer pins to the bottom even with little body.
 // ---------------------------------------------------------------------------
 export const ShortContent: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies the footer pins to the bottom of the viewport even with ' +
+          'minimal body content. PageBody owns `flex-1` so the footer hugs ' +
+          'naturally.',
+      },
+    },
+  },
   render: () => (
     <PageShell>
       <PageHeader>
@@ -246,6 +284,15 @@ export const ShortContent: Story = {
 // LongContent — verifies body scrolls under the sticky header.
 // ---------------------------------------------------------------------------
 export const LongContent: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Verifies the body scrolls under the sticky header on long pages. ' +
+          'Tab into the page first to surface the skip-link.',
+      },
+    },
+  },
   render: () => (
     <PageShell>
       <PageHeader>

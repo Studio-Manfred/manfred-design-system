@@ -135,6 +135,9 @@ export type { RadioGroupItemProps } from './components/Radio';
 export { SearchBar } from './components/SearchBar';
 export type { SearchBarProps, SearchBarSize } from './components/SearchBar';
 
+export { Separator } from './components/Separator';
+export type { SeparatorProps } from './components/Separator';
+
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 

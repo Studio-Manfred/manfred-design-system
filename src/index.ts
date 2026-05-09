@@ -141,6 +141,20 @@ export type { SearchBarProps, SearchBarSize } from './components/SearchBar';
 export { Separator } from './components/Separator';
 export type { SeparatorProps } from './components/Separator';
 
+export {
+  Sheet,
+  SheetTrigger,
+  SheetClose,
+  SheetPortal,
+  SheetOverlay,
+  SheetContent,
+  SheetHeader,
+  SheetFooter,
+  SheetTitle,
+  SheetDescription,
+} from './components/Sheet';
+export type { SheetContentProps, SheetSide } from './components/Sheet';
+
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 

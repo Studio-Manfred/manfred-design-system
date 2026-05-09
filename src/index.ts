@@ -159,6 +159,9 @@ export type {
 export { TextInput } from './components/TextInput';
 export type { TextInputProps, TextInputSize, TextInputStatus } from './components/TextInput';
 
+export { Textarea } from './components/Textarea';
+export type { TextareaProps, TextareaSize, TextareaStatus } from './components/Textarea';
+
 export { Toaster, toast } from './components/Toast';
 export type { ToastProps } from './components/Toast';
 

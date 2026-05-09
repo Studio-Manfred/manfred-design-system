@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-05-09
+
+Wave 3 (final wave) of the intranet-adoption epic (STU-79). Adds the
+last component, **NavigationMenu**, completing the seven-component
+program. No breaking changes.
+
+### Added
+
+- **`NavigationMenu`** — top-level navigation menu with sub-menu support,
+  built on `@radix-ui/react-navigation-menu`. 8 sub-parts:
+  `NavigationMenu`, `NavigationMenuList`, `NavigationMenuItem`,
+  `NavigationMenuTrigger`, `NavigationMenuContent`, `NavigationMenuLink`,
+  `NavigationMenuViewport`, `NavigationMenuIndicator`. Plus the
+  `navigationMenuTriggerStyle` cva helper so plain `NavigationMenuLink`s
+  can reuse the trigger look. Active-link styling driven by tokens
+  (`data-[active]:bg-accent/50`). Keyboard navigation (Tab / Arrow keys /
+  Escape) provided by Radix. Animations (chevron rotation, content slide,
+  viewport zoom, indicator fade) all wrapped in `motion-safe:` so they
+  respect `prefers-reduced-motion`. (STU-95)
+
+### Dependencies
+
+- New runtime dependency (already external in the build, so the bundled
+  `dist/` size is unchanged):
+  - `@radix-ui/react-navigation-menu@^1.2.14`
+
+### Notes for consumers
+
+- Use `NavigationMenu` for top-bar menus that have sub-menu dropdowns.
+  Use the existing `NavBar` for flat horizontal navigation bars without
+  sub-menus — they coexist deliberately.
+- `navigationMenuTriggerStyle()` is exported as a cva so consumers can
+  apply the same visual treatment to a plain `NavigationMenuLink`
+  (matches the shadcn upstream pattern).
+- The `<NavigationMenuViewport>` is auto-rendered inside the root
+  `<NavigationMenu>`; the named export is for advanced cases where a
+  consumer wants to place the viewport outside the nav for overflow
+  reasons.
+
+### Epic closeout
+
+This release closes the **Add missing components for intranet adoption**
+epic (STU-79). The intranet (and other Manfred apps) can now drop their
+local copies of Sheet, NavigationMenu, Separator, Label, Textarea,
+Switch, and Accordion in favour of the shared DS components.
+
+Total epic delivery: 7 components across 3 minor releases (v0.12.0,
+v0.13.0, v0.14.0), no breaking changes to existing API.
+
 ## [0.13.0] - 2026-05-09
 
 Wave 2 of the intranet-adoption epic (STU-79). Two new overlay/disclosure

@@ -7,7 +7,7 @@ const preview: Preview = {
   tags: ['autodocs'],
   parameters: {
     docs: {
-      source: { type: 'auto', excludeDecorators: true },
+      source: { type: 'code', excludeDecorators: true },
     },
     options: {
       storySort: {

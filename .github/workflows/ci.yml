@@ -26,10 +26,9 @@ jobs:
         run: npm ci
 
       - name: Lint play tiers
-        # Soft-fail until Wave 2 (STU-129) fills coverage gaps.
-        # Flip continue-on-error to false once Wave 2 merges.
+        # All 37 components meet their tier as of Wave 3 (v0.20.0).
+        # Required gate; new components must enter scripts/play-tiers.json.
         run: npm run lint:play-tiers
-        continue-on-error: true
 
       - name: Unit tests
         run: npm run test

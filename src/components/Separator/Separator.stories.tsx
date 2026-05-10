@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Separator } from './Separator';
 import { Typography } from '../Typography';
 import { VStack, HStack } from '../Stack';
@@ -52,6 +53,11 @@ export const Horizontal: Story = {
           'use, breaking up stacked content.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Non-decorative Separator exposes role="separator" so AT announces the structural break.
+    expect(canvas.getByRole('separator')).toBeInTheDocument();
   },
   render: () => (
     <VStack gap="md" className="w-80">

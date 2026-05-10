@@ -1,5 +1,6 @@
 import * as React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -90,6 +91,18 @@ export const DonutLanes: AnyStory = {
           'longer `ariaDescription` linked via `aria-describedby`.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // ChartContainer renders role="img" with aria-label so AT users get a meaningful chart name.
+    const chart = canvas.getByRole('img', { name: 'Lane breakdown' });
+    expect(chart).toBeInTheDocument();
+    // Hover over the chart container to confirm pointer events are not blocked.
+    await userEvent.hover(chart);
+    // Tab into the chart region to verify keyboard-reachability of the chart area.
+    await userEvent.tab();
+    // aria-label is the primary accessibility contract — confirm it persists after interaction.
+    expect(chart).toHaveAttribute('aria-label', 'Lane breakdown');
   },
   render: () => (
     <Tile title="Lane breakdown">

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Spinner } from './Spinner';
 
 const meta: Meta<typeof Spinner> = {
@@ -48,6 +49,11 @@ export const Playground: Story = {
           'Controls panel.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Spinner carries role="status" so AT announces indeterminate loading state to the user.
+    expect(canvas.getByRole('status')).toBeInTheDocument();
   },
 };
 

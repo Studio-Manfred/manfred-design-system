@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React, { useState } from 'react';
+import { within, expect } from 'storybook/test';
 import { ProgressBar } from './ProgressBar';
 
 const meta: Meta<typeof ProgressBar> = {
@@ -77,6 +78,11 @@ export const Playground: Story = {
           'toggle the caption + percentage readout via the Controls panel.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Radix Progress.Root supplies role="progressbar" with aria-valuenow for AT users.
+    expect(canvas.getByRole('progressbar', { name: 'Upload progress' })).toBeInTheDocument();
   },
 };
 

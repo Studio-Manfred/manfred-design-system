@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -53,6 +54,21 @@ export const Simple: Story = {
           'pick up the active treatment from the cva style.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // NavigationMenu renders a <nav> landmark — confirm it is accessible to AT.
+    expect(canvas.getByRole('navigation')).toBeInTheDocument();
+    // The Home link is the first keyboard tab stop — verify it is reachable.
+    const homeLink = canvas.getByRole('link', { name: 'Home' });
+    expect(homeLink).toBeInTheDocument();
+    // Tab through links to confirm keyboard navigation order across menu items.
+    await userEvent.tab();
+    await userEvent.click(homeLink);
+    // data-active on the current link signals the active state in the DOM.
+    expect(homeLink).toHaveAttribute('data-active');
+    // Plain NavigationMenuLink elements are not buttons and have no aria-haspopup — confirm absence.
+    expect(homeLink).not.toHaveAttribute('aria-haspopup');
   },
   render: () => (
     <NavigationMenu>

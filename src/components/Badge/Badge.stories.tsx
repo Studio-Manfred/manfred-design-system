@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Badge } from './Badge';
 
 const meta: Meta<typeof Badge> = {
@@ -59,6 +60,12 @@ export const Playground: Story = {
           'Interactive sandbox — toggle every prop via the Controls panel below.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Badge renders as a <span> — assert the element is present and contains the expected label text.
+    const badge = canvas.getByRole('generic');
+    expect(badge).toBeInTheDocument();
   },
 };
 

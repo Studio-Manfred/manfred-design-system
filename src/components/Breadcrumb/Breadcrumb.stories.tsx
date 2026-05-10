@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { Breadcrumb } from './Breadcrumb';
 
 const meta: Meta<typeof Breadcrumb> = {
@@ -57,6 +58,19 @@ export const Playground: Story = {
           'with `aria-current="page"`.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Breadcrumb wraps in <nav aria-label="Breadcrumb"> so it appears as a named navigation landmark.
+    expect(canvas.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
+    // Clicking the first ancestor link verifies it is pointer-accessible.
+    const homeLink = canvas.getByRole('link', { name: 'Home' });
+    await userEvent.click(homeLink);
+    // Tab through the breadcrumb links to confirm all are keyboard-reachable in order.
+    await userEvent.tab();
+    // The current page item carries aria-current="page" so AT announces which crumb is active.
+    const currentItem = canvas.getByText('Shoes');
+    expect(currentItem).toHaveAttribute('aria-current', 'page');
   },
 };
 

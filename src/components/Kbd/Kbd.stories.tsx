@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Kbd } from './Kbd';
 import { SearchBar } from '../SearchBar';
 
@@ -47,6 +48,13 @@ export const Default: Story = {
         story: 'Two-key chord with the default `+` separator.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Kbd wrapper is aria-hidden by default (decorative shortcut hint); assert the chip text is visible in the DOM.
+    expect(canvas.getByText('⌘')).toBeInTheDocument();
+    // Confirm the outer wrapper span is present as the keyboard shortcut container.
+    expect(canvas.getByRole('generic')).toBeInTheDocument();
   },
 };
 

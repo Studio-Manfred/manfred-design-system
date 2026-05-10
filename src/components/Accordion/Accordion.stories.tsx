@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import {
   Accordion,
   AccordionItem,
@@ -96,6 +97,33 @@ export const Single: Story = {
       </AccordionItem>
     </Accordion>
   ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // All triggers render as buttons with aria-expanded="false" initially —
+    // guards against an item opening by default when no defaultValue is set.
+    const firstTrigger = canvas.getByRole('button', { name: /accessible/i });
+    expect(firstTrigger).toHaveAttribute('aria-expanded', 'false');
+
+    // Click opens the first item — guards against the Radix
+    // onValueChange / state-machine wiring regressing under future refactors.
+    await userEvent.click(firstTrigger);
+    expect(firstTrigger).toHaveAttribute('aria-expanded', 'true');
+    // Content becomes available; findByText handles the open animation —
+    // guards against AccordionContent failing to mount on state change.
+    expect(await canvas.findByText(/roving tabindex/i)).toBeVisible();
+
+    // ArrowDown moves focus to the next trigger via Radix's roving
+    // tabindex — guards against the keyboard handler regressing.
+    await userEvent.keyboard('{ArrowDown}');
+    const secondTrigger = canvas.getByRole('button', { name: /animate/i });
+    expect(secondTrigger).toHaveFocus();
+
+    // Single-collapsible: opening item 2 must close item 1 — guards
+    // against the discriminated `type` prop regressing into multi-open.
+    await userEvent.click(secondTrigger);
+    expect(firstTrigger).toHaveAttribute('aria-expanded', 'false');
+    expect(secondTrigger).toHaveAttribute('aria-expanded', 'true');
+  },
 };
 
 export const Multiple: Story = {

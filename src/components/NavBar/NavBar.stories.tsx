@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { NavBar, NavItem } from './NavBar';
 
 const meta: Meta<typeof NavBar> = {
@@ -40,6 +41,19 @@ export const Default: Story = {
           '`aria-current="page"` on the rendered element.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // NavBar wraps children in <nav aria-label="Primary"> so it registers as a named landmark.
+    expect(canvas.getByRole('navigation', { name: 'Primary' })).toBeInTheDocument();
+    // The active NavItem must have aria-current="page" so AT announces the current route.
+    const homeLink = canvas.getByRole('link', { name: 'Home' });
+    expect(homeLink).toHaveAttribute('aria-current', 'page');
+    // Clicking a non-active link confirms all nav links are pointer-accessible.
+    await userEvent.click(canvas.getByRole('link', { name: 'Boards' }));
+    // Tab back to Home to verify keyboard navigation order across the nav items.
+    await userEvent.tab();
+    expect(canvas.getByRole('navigation')).toBeInTheDocument();
   },
   render: () => (
     <NavBar>

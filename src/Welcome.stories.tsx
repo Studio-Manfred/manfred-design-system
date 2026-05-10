@@ -58,7 +58,7 @@ export const Default: Story = {
           <HStack gap={4} align="center" wrap>
             <Logo variant="wordmark" color="blue" height={56} />
             <Badge variant="secondary" size="sm">
-              v0.10.1
+              v0.16.0
             </Badge>
           </HStack>
 
@@ -89,18 +89,31 @@ export const Default: Story = {
                   </HStack>
                   <CardDescription>
                     Three-layer tokens (primitives → semantic → shadcn contract), a 9-step
-                    typography scale, the Manfred logo in wordmark and monogram, and the icon set.
+                    typography scale, the Manfred logo, the icon set, plus narrative pages on
+                    theming, accessibility, motion, and form composition.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Typography variant="bodySmall" color="muted">
-                    <NavLink href="./?path=/story/foundation-tokens--brand-palette">Tokens</NavLink>
+                    <NavLink href="./?path=/docs/foundation-tokens--docs">Tokens</NavLink>
                     {' · '}
                     <NavLink href="./?path=/story/foundation-typography--all-variants">
                       Typography
                     </NavLink>
                     {' · '}
                     <NavLink href="./?path=/story/foundation-logo--all-variants">Logo</NavLink>
+                    {' · '}
+                    <NavLink href="./?path=/docs/foundation-theming--docs">Theming</NavLink>
+                    {' · '}
+                    <NavLink href="./?path=/docs/foundation-accessibility--docs">
+                      Accessibility
+                    </NavLink>
+                    {' · '}
+                    <NavLink href="./?path=/docs/foundation-motion--docs">Motion</NavLink>
+                    {' · '}
+                    <NavLink href="./?path=/docs/foundation-formpatterns--docs">
+                      Form patterns
+                    </NavLink>
                   </Typography>
                 </CardContent>
               </Card>
@@ -227,6 +240,49 @@ export function App() {
               Every story is verified clean by the runtime axe scan in both modes — color contrast,
               focus indicators, and label semantics are part of the contract.
             </Typography>
+          </VStack>
+
+          <Divider />
+
+          <VStack gap={4}>
+            <Typography variant="headline3" as="h2">
+              Where to start (for AI agents)
+            </Typography>
+            <Typography variant="body">
+              This repo is built to be consumed by AI coding agents — Claude, Cursor, Copilot,
+              Windsurf, Cline. The on-ramp:
+            </Typography>
+            <VStack
+              as="ul"
+              gap={2}
+              style={{ paddingLeft: '1.25rem', margin: 0, listStyle: 'disc' }}
+            >
+              <Typography as="li" variant="body">
+                <NavLink href="https://github.com/Studio-Manfred/manfred-design-system/blob/main/AGENTS.md">
+                  AGENTS.md
+                </NavLink>{' '}
+                — generic agent guide (Cursor / Copilot / Windsurf / Cline). Start here.
+              </Typography>
+              <Typography as="li" variant="body">
+                <NavLink href="https://github.com/Studio-Manfred/manfred-design-system/blob/main/CLAUDE.md">
+                  CLAUDE.md
+                </NavLink>{' '}
+                — canonical engineering guide for Claude Code.
+              </Typography>
+              <Typography as="li" variant="body">
+                <strong>Storybook MCP server</strong> at <Code>http://localhost:6006/mcp</Code>{' '}
+                (run <Code>npm run storybook</Code> first). Registered for Claude Code via{' '}
+                <NavLink href="https://github.com/Studio-Manfred/manfred-design-system/blob/main/.mcp.json">
+                  .mcp.json
+                </NavLink>
+                .
+              </Typography>
+              <Typography as="li" variant="body">
+                <strong>The non-negotiable rule:</strong> never invent component props. Query{' '}
+                <Code>list-all-documentation</Code> / <Code>get-documentation</Code> via the MCP
+                before using any DS component.
+              </Typography>
+            </VStack>
           </VStack>
 
           <Divider />

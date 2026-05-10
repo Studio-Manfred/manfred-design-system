@@ -13,7 +13,7 @@ const preview: Preview = {
       storySort: {
         order: [
           'Welcome',
-          'Foundation', ['Tokens', 'Typography', 'Logo'],
+          'Foundation', ['Tokens', 'Typography', 'Logo', 'Theming', 'Accessibility', 'Motion', 'FormPatterns'],
           'Layout', ['Stack', 'Container', 'Grid', 'PageShell', 'PageBackground'],
           'Components',
           'Examples',

@@ -113,3 +113,133 @@ describe('lintComponent — tier C', () => {
     expect(r.tier).toBe('C');
   });
 });
+
+describe('lintComponent — defensive guards', () => {
+  const validSource = `
+    import { within, expect } from 'storybook/test';
+    export const Default = {
+      play: async ({ canvasElement }) => {
+        expect(within(canvasElement).getByRole('button')).toBeInTheDocument();
+      },
+    };
+  `;
+
+  it('rejects malformed mapping (missing excluded)', () => {
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: validSource,
+      mapping: { tiers: { A: ['Atom'], B: [], C: [] } },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/malformed mapping/i);
+  });
+
+  it('rejects malformed mapping (missing tiers.B)', () => {
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: validSource,
+      mapping: { tiers: { A: ['Atom'], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/malformed mapping/i);
+  });
+
+  it('rejects non-string storySource', () => {
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: undefined,
+      mapping: { tiers: { A: ['Atom'], B: [], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/must be a string/i);
+  });
+
+  it('rejects component appearing in multiple tiers', () => {
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: validSource,
+      mapping: { tiers: { A: ['Atom'], B: ['Atom'], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/multiple tier arrays/i);
+  });
+});
+
+describe('lintComponent — robustness', () => {
+  it('matches play function with multi-param destructure', () => {
+    const source = `
+      import { within, expect } from 'storybook/test';
+      export const Default = {
+        play: async ({ canvasElement, args, step }) => {
+          expect(within(canvasElement).getByRole('button')).toBeInTheDocument();
+        },
+      };
+    `;
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: source,
+      mapping: { tiers: { A: ['Atom'], B: [], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(true);
+    expect(r.tier).toBe('A');
+  });
+
+  it('matches play function with nested destructure params', () => {
+    const source = `
+      import { within, expect } from 'storybook/test';
+      export const Default = {
+        play: async ({ canvasElement, args: { onClick } }) => {
+          expect(within(canvasElement).getByRole('button')).toBeInTheDocument();
+        },
+      };
+    `;
+    const r = lintComponent({
+      component: 'Atom',
+      storySource: source,
+      mapping: { tiers: { A: ['Atom'], B: [], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(true);
+    expect(r.tier).toBe('A');
+  });
+
+  it('does not satisfy tier B from a userEvent.click hidden in a comment', () => {
+    const source = `
+      import { within, expect } from 'storybook/test';
+      // TODO: await userEvent.click(button)
+      export const Default = {
+        play: async ({ canvasElement }) => {
+          expect(within(canvasElement).getByRole('button')).toBeInTheDocument();
+        },
+      };
+    `;
+    const r = lintComponent({
+      component: 'Widget',
+      storySource: source,
+      mapping: { tiers: { A: [], B: ['Widget'], C: [] }, excluded: [] },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/userEvent/);
+  });
+
+  it('does not satisfy tier C from an aria-* hidden in a block comment', () => {
+    const source = `
+      import { within, userEvent, expect } from 'storybook/test';
+      /* expects aria-expanded after click */
+      export const Default = {
+        play: async ({ canvasElement }) => {
+          const trigger = within(canvasElement).getByRole('button');
+          await userEvent.click(trigger);
+          await userEvent.keyboard('{Escape}');
+          expect(trigger).toHaveAttribute('data-state', 'closed');
+        },
+      };
+    `;
+    const r = lintComponent({
+      component: 'Compound',
+      storySource: source,
+      mapping: { tiers: { A: [], B: [], C: ['Compound'] }, excluded: [] },
+    });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toMatch(/ARIA/);
+  });
+});

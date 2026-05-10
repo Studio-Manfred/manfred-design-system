@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint play tiers
+        # Soft-fail until Wave 2 (STU-129) fills coverage gaps.
+        # Flip continue-on-error to false once Wave 2 merges.
+        run: npm run lint:play-tiers
+        continue-on-error: true
+
+      - name: Unit tests
+        run: npm run test
+
+      # NOTE: npm run test:storybook (headless Chromium play functions) is
+      # available locally but the CI gate is deferred to v0.18.1 pending
+      # vitest browser-mode setup verification. See docs/PLAY-FUNCTIONS.md
+      # "Troubleshooting" section.
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-${{ runner.os }}-
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Start static Storybook server
+        run: |
+          npx --yes http-server@14 storybook-static -p 6006 --silent &
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:6006 > /dev/null; then break; fi
+            sleep 0.5
+          done
+
+      - name: Runtime a11y scan
+        run: node scripts/a11y-runtime-scan.mjs

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Icon } from './Icon';
 import { iconPaths } from './iconPaths';
 import type { IconName } from './Icon';
@@ -76,6 +77,11 @@ export const Labelled: Story = {
           'standalone status glyph).',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // When `label` is provided the SVG gets role="img" + aria-label so AT can announce a meaningful name.
+    expect(canvas.getByRole('img', { name: 'Check mark' })).toBeInTheDocument();
   },
 };
 

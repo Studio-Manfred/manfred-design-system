@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-05-10
+
+Wave 2 of the **Storybook play functions** epic (STU-127 / STU-129). Adds
+play functions to the 23 interactive components that were missing them,
+each meeting its tier per the contract introduced in v0.18.0. Brings
+`lint:play-tiers` from 27 failures down to 4 (the Wave 3 tier-mismatches
+on Checkbox, SearchBar, Sheet, Tooltip). No new runtime APIs, no
+breaking changes.
+
+### Added
+
+- **Tier A — smoke (10 components):** Avatar, Badge, Icon, Kbd, Label,
+  Logo, ProgressBar, Separator, Spinner, Typography. Each play asserts
+  the primary affordance renders with the expected role and accessible
+  name.
+- **Tier B — smoke + interaction (6 components):** Alert, Button, Card,
+  FormField, Radio, Switch. Each play exercises a state-changing user
+  interaction (`click` / `hover` / `type`) and verifies the resulting
+  state via `expect()`.
+- **Tier C — full (7 components):** Accordion, Breadcrumb, Chart,
+  NavBar, NavigationMenu, Tabs, Toast. Each play covers a keyboard
+  regression and asserts on an `aria-*` attribute. Notable specimens:
+  - Accordion verifies the single-collapsible auto-close invariant
+    (opening item 2 must close item 1) plus Radix roving tabindex
+    (`ArrowDown` shifts focus to the next trigger).
+  - Toast queries the Sonner status region via `within(document.body)`
+    since the live region portals outside `canvasElement`.
+
+### Notes
+
+- **Behaviour unverified at runtime in this release.** Story files
+  pass `lint:play-tiers` (regex-based tier compliance), but the
+  headless `npm run test:storybook` runner is still deferred to v0.18.1
+  — see [docs/PLAY-FUNCTIONS.md](docs/PLAY-FUNCTIONS.md) "Troubleshooting"
+  for the open issue. Plays render correctly in the Storybook UI
+  during dev; the CI gate will go strict once v0.18.1 lands the runner
+  fix and Wave 3 (STU-130) brings the remaining 4 components to tier.
+- **Spec:** `docs/superpowers/specs/2026-05-10-storybook-play-functions-design.md`.
+
 ## [0.18.0] - 2026-05-10
 
 Wave 1 of the **Storybook play functions** epic (STU-127 / STU-128).

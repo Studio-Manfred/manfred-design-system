@@ -1,0 +1,127 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as FormFieldStories from '../components/FormField/FormField.stories';
+import * as TextInputStories from '../components/TextInput/TextInput.stories';
+import * as SelectStories from '../components/Select/Select.stories';
+import * as DatePickerStories from '../components/DatePicker/DatePicker.stories';
+
+<Meta title="Foundation/FormPatterns" />
+
+# Form Patterns
+
+Manfred forms compose around one primitive: [`FormField`](?path=/docs/components-formfield--docs). It wraps a label, the input, and an optional helper / hint / error message into a consistent vertical stack — and it's the surface every form-shaped component (TextInput, Select, Checkbox, DatePicker) is designed to drop into.
+
+```
+<FormField label="…" htmlFor="…" status="…" message="…">
+  <TextInput | Select | Checkbox | DatePicker | Textarea />
+</FormField>
+```
+
+The container owns the **label**, the **status semantics**, and the **message live-region**. The wrapped input owns its own behaviour. Keep that division — don't push label or error rendering into the inner control.
+
+---
+
+## Pattern 1 — Single text input
+
+The 90% case. `FormField` provides the `<label htmlFor>`; `TextInput` takes the matching `id`; status text appears below.
+
+```tsx
+<FormField label="Email" htmlFor="email" status="hint" message="We'll never share it">
+  <TextInput id="email" type="email" placeholder="you@example.com" />
+</FormField>
+```
+
+<Canvas of={FormFieldStories.Playground} />
+
+Pair `htmlFor` with the input's `id` so clicking the label focuses the control. The `status="hint"` slot is the right place for guidance the user needs *before* they fill the field.
+
+---
+
+## Pattern 2 — Select / Textarea inside FormField
+
+Any DS form control composes the same way. Select takes `id` to wire up to `htmlFor`; the popover / native picker is an internal concern of the control.
+
+```tsx
+<FormField label="Country" htmlFor="country">
+  <Select>
+    <SelectTrigger id="country"><SelectValue placeholder="Pick one" /></SelectTrigger>
+    <SelectContent>
+      <SelectItem value="se">Sweden</SelectItem>
+      <SelectItem value="no">Norway</SelectItem>
+    </SelectContent>
+  </Select>
+</FormField>
+```
+
+<Canvas of={SelectStories.WithFormField} />
+
+A `Textarea` substitutes for `TextInput` without changing anything else about the field. The same is true for `Checkbox` (its label moves into the `FormField` slot, and the inner control becomes a control-only checkbox).
+
+---
+
+## Pattern 3 — DatePicker (single + range)
+
+`DatePicker` is built to drop straight into a `FormField` — its trigger reuses the `TextInput` styling so heights, padding, and focus rings line up.
+
+```tsx
+<FormField label="Departure" htmlFor="departure">
+  <DatePicker id="departure" name="departure" />
+</FormField>
+```
+
+<Canvas of={DatePickerStories.InFormField} />
+
+### Range mode serialises into two hidden inputs
+
+`mode="range"` on `DatePicker` accepts a `{ from, to }` value. When you also set `name`, the component renders **two** hidden inputs into the form — `name_from` and `name_to` — so the range round-trips through native form submission without any extra plumbing.
+
+```tsx
+<FormField label="Stay" htmlFor="stay">
+  <DatePicker
+    id="stay"
+    mode="range"
+    name="stay"        // → submits as `stay_from` and `stay_to`
+  />
+</FormField>
+```
+
+<Canvas of={DatePickerStories.RangeInFormField} />
+
+This is the only place in the system where one input prop expands into multiple form fields. If you need just one of the two values, set `name` on a controlled wrapper instead.
+
+---
+
+## Validation: `status="error"` + `errorText`
+
+`FormField` exposes four states through its `status` prop: `default`, `hint`, `error`, `success`. The error path is wired into the accessibility tree:
+
+- `status="error"` paired with a `message` renders the helper text with `role="alert"` so screen readers announce the failure on submit.
+- `status="success"` and `status="hint"` use a polite live-region (`aria-live="polite"`) so the change is announced without interrupting.
+- The wrapped input owns its `aria-invalid` — set it on the input directly (or rely on `status="error"` on a status-aware control like `TextInput` and `DatePicker`).
+
+```tsx
+<FormField
+  label="Email"
+  htmlFor="email"
+  required
+  status="error"
+  message="That doesn't look like a valid email"
+>
+  <TextInput id="email" status="error" defaultValue="not-an-email" />
+</FormField>
+```
+
+<Canvas of={FormFieldStories.WithError} />
+
+The visible error text and the screen-reader announcement come from the **same string** — don't add a separate visually-hidden announcement, and don't rely on colour alone. The error icon, alert role, and red token (`--color-feedback-error-fg`) all reinforce the same message.
+
+For a side-by-side variant reference, [`Components/TextInput`](?path=/docs/components-textinput--docs) shows the input-level states and [`Components/FormField`](?path=/docs/components-formfield--docs) shows the full status matrix.
+
+---
+
+## Authoring rules
+
+1. **One control per field.** A `FormField` wraps a single input. If you need two (e.g. first / last name), use two `FormField`s in a layout container.
+2. **`htmlFor` matches `id`.** Always. Without it, clicking the label doesn't focus the input and SR users lose the association.
+3. **`required` on both.** The asterisk is decorative (`aria-hidden`); set `required` on the inner input as well so the browser enforces it and assistive tech announces it.
+4. **Error text is the same text the user sees.** Never duplicate it into a separate aria-live region — `FormField` already wires the role and live-region for you.
+5. **Don't push label rendering into custom controls.** A new form-shaped component should accept an `id` and render its input only — the label belongs to `FormField`.

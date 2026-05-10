@@ -94,6 +94,10 @@ Path alias `@/*` → `src/*` is wired in `tsconfig.json`, `vite.config.ts`, and 
 
 `npm run test` deliberately runs **only the unit project**. Storybook tests execute inside Storybook itself or via the runtime a11y scan. Do not try to run the storybook project from the CLI unless you need a browser-context smoke test.
 
+### Play functions and the tier lint
+
+`npm run test:storybook` runs every story's `play` function in headless Chromium (Playwright). `npm run lint:play-tiers` enforces presence + tier from `scripts/play-tiers.json` (tiers A/B/C with an exclusion list for layout primitives). Both are wired by `.github/workflows/ci.yml`; `lint:play-tiers` is soft-fail until Wave 2 (STU-129) fills coverage gaps. The `test:storybook` CI gate is deferred to v0.18.1 — locally it works, in CI the vitest browser-mode setup is still being verified. Authoring guide: [docs/PLAY-FUNCTIONS.md](docs/PLAY-FUNCTIONS.md). When adding a new component to `src/components/`, you must either assign it a tier or add it to the exclusion list — otherwise the lint fails.
+
 ### Library build
 
 `vite build` uses `vite-plugin-dts` with `rollupTypes: true` to emit a single `dist/index.d.ts`. React, `react-dom`, `react/jsx-runtime`, every `@radix-ui/*`, `sonner`, `class-variance-authority`, `clsx`, and `tailwind-merge` are marked external — they are peer/declared dependencies, not bundled. CSS is emitted as a single non-split `dist/style.css` (the `./styles` export). If you add a new runtime dependency that should ship bundled, also remove it from `rollupOptions.external`.

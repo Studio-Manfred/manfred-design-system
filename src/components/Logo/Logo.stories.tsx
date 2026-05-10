@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Logo } from './Logo';
 
 const meta: Meta<typeof Logo> = {
@@ -65,6 +66,11 @@ export const Playground: Story = {
           'Interactive sandbox — toggle variant, colour, and height via the Controls panel.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Logo wraps the SVG in role="img" with a default aria-label of "Manfred" for the wordmark.
+    expect(canvas.getByRole('img', { name: 'Manfred' })).toBeInTheDocument();
   },
 };
 

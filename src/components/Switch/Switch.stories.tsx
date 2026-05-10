@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { userEvent, within, expect } from 'storybook/test';
 import { Switch } from './Switch';
 
 const meta: Meta<typeof Switch> = {
@@ -57,6 +58,15 @@ export const Default: Story = {
           'already labels the control visually.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Radix Switch.Root supplies role="switch" with aria-checked for AT users.
+    const sw = canvas.getByRole('switch', { name: 'Toggle setting' });
+    expect(sw).toBeInTheDocument();
+    // Clicking the switch flips aria-checked — verify Radix state update propagates to ARIA.
+    await userEvent.click(sw);
+    expect(sw).toBeChecked();
   },
 };
 

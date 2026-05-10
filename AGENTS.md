@@ -105,11 +105,16 @@ http://localhost:6006/mcp
 - **Tests** — `Component.test.tsx` lives next to `Component.tsx`. The
   unit project runs in jsdom; Storybook tests run in Chromium.
 
+## Storybook play functions
+
+Every interactive component has (or will have, by Wave 2) a play function asserting at least its tier baseline (A: smoke, B: smoke + interaction, C: full keyboard + ARIA). The mapping lives in [scripts/play-tiers.json](scripts/play-tiers.json) and is enforced by `npm run lint:play-tiers`. Authoring conventions: [docs/PLAY-FUNCTIONS.md](docs/PLAY-FUNCTIONS.md).
+
 ## Where to find more
 
 - [README.md](README.md) — install + use as a consumer.
 - [CLAUDE.md](CLAUDE.md) — full engineering guide (canonical).
 - [CHANGELOG.md](CHANGELOG.md) — release history, including breaking
   changes and migration notes.
+- [docs/PLAY-FUNCTIONS.md](docs/PLAY-FUNCTIONS.md) — play-function authoring guide and tier contract.
 - Public Storybook — every component, every state, no install needed:
   <https://studio-manfred.github.io/manfred-design-system/>

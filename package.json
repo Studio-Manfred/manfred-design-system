@@ -1,6 +1,6 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "repository": {
     "type": "git",
@@ -33,7 +33,10 @@
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
-    "test:coverage": "vitest run --project unit --coverage"
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:storybook": "vitest run --project storybook",
+    "test:all": "npm run test && npm run test:storybook",
+    "lint:play-tiers": "node scripts/lint-play-tiers.mjs"
   },
   "keywords": [
     "design-system",

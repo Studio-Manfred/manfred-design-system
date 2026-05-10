@@ -1,0 +1,50 @@
+{
+  "$schema": "./play-tiers.schema.json",
+  "tiers": {
+    "A": [
+      "Avatar",
+      "Badge",
+      "Icon",
+      "Kbd",
+      "Label",
+      "Logo",
+      "ProgressBar",
+      "Separator",
+      "Spinner",
+      "Typography"
+    ],
+    "B": [
+      "Alert",
+      "Button",
+      "Card",
+      "Checkbox",
+      "FormField",
+      "Radio",
+      "SearchBar",
+      "Switch",
+      "Textarea",
+      "TextInput"
+    ],
+    "C": [
+      "Accordion",
+      "Breadcrumb",
+      "Chart",
+      "DatePicker",
+      "Dialog",
+      "NavBar",
+      "NavigationMenu",
+      "Select",
+      "Sheet",
+      "Tabs",
+      "Toast",
+      "Tooltip"
+    ]
+  },
+  "excluded": [
+    "Container",
+    "Grid",
+    "PageBackground",
+    "PageShell",
+    "Stack"
+  ]
+}

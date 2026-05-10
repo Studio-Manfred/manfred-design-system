@@ -221,6 +221,9 @@ export const RangePlayground: Story = {
           'click sets `from`, second click sets `to`. Trigger renders ' +
           '"from – to" once both are picked.',
       },
+      // Args-driven sandbox — synthesize JSX from current args so the
+      // Controls panel drives the displayed source.
+      source: { type: 'auto' },
     },
   },
   render: (args) => (
@@ -245,6 +248,8 @@ export const RangeWithConstraints: Story = {
           '`defaultValue`. Useful for booking flows where availability ' +
           'is known up front.',
       },
+      // Args-driven sandbox — synthesize JSX from args.
+      source: { type: 'auto' },
     },
   },
   render: (args) => (
@@ -299,6 +304,8 @@ export const RangePartialState: Story = {
           'stays open and the trigger renders a "from – …" placeholder until ' +
           'the user picks the second date.',
       },
+      // Args-driven sandbox — synthesize JSX from args.
+      source: { type: 'auto' },
     },
   },
   render: (args) => (
@@ -371,6 +378,8 @@ export const RangeKeyboardInteraction: Story = {
           'keeps the popover open (partial state), second `Enter` commits ' +
           '`to` and closes.',
       },
+      // Args-driven sandbox — synthesize JSX from args.
+      source: { type: 'auto' },
     },
   },
   render: (args) => (

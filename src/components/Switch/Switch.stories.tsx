@@ -174,7 +174,7 @@ export const InForm: Story = {
           padding: '20px',
           border: '1px solid var(--color-border-default)',
           borderRadius: 'var(--radius-md)',
-          background: 'var(--color-bg-surface)',
+          background: 'var(--popover)',
         }}
       >
         <SettingRow

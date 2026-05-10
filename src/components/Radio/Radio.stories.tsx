@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { userEvent, within, expect } from 'storybook/test';
 import { RadioGroup, RadioGroupItem } from './Radio';
 
 const meta: Meta<typeof RadioGroup> = {
@@ -34,6 +35,16 @@ export const Playground: Story = {
           'is the click target; arrow keys move selection between items.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Radix RadioGroup supplies role="radio" with aria-checked for each item.
+    const optionA = canvas.getByRole('radio', { name: 'Option A' });
+    expect(optionA).toBeInTheDocument();
+    // Clicking Option B changes the selection — verify Radix state update fires correctly.
+    const optionB = canvas.getByRole('radio', { name: 'Option B' });
+    await userEvent.click(optionB);
+    expect(optionB).toBeChecked();
   },
   render: () => (
     <RadioGroup defaultValue="a">

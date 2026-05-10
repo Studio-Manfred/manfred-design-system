@@ -33,6 +33,33 @@ const meta: Meta<typeof Dialog> = {
         ],
       },
     },
+    docs: {
+      description: {
+        component:
+          'Modal dialog built on `@radix-ui/react-dialog`. Compound API — ' +
+          '`Dialog` owns state, `DialogTrigger` opens, and `DialogContent` ' +
+          'renders the focus-trapped body via a portal. Pair with ' +
+          '`DialogTitle` and `DialogDescription` so Radix can wire ' +
+          '`aria-labelledby` / `aria-describedby` automatically. Three ' +
+          'sizes (`sm` / `md` / `lg`); the built-in `X` close button can be ' +
+          'suppressed for forced-choice flows.',
+      },
+    },
+  },
+  argTypes: {
+    open: {
+      control: 'boolean',
+      description: 'Controlled open state. Pair with `onOpenChange`. Omit for uncontrolled.',
+    },
+    defaultOpen: {
+      control: 'boolean',
+      description: 'Initial open state for the uncontrolled mode.',
+    },
+    modal: {
+      control: 'boolean',
+      description: 'Trap focus and dim the page. Defaults to `true` — set false for non-modal flows.',
+      table: { defaultValue: { summary: 'true' } },
+    },
   },
 };
 
@@ -41,6 +68,16 @@ export default meta;
 type Story = StoryObj<typeof Dialog>;
 
 export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default destructive-confirmation pattern — title, description, ' +
+          'cancel, confirm. Both footer buttons use `DialogClose asChild` so ' +
+          'either resolves the dialog.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>
@@ -67,6 +104,15 @@ export const Playground: Story = {
 };
 
 export const SmallSize: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Compact dialog for quick confirmations — `size="sm"` caps the ' +
+          'content at `max-w-md` so it sits closer to a snackbar than a form.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>
@@ -88,6 +134,16 @@ export const SmallSize: Story = {
 };
 
 export const LargeSize: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Large dialog with internal scroll (`size="lg"`, `max-w-2xl`) — ' +
+          'used for terms-of-service / changelog dialogs where the body ' +
+          'needs more vertical room than the snug default.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>
@@ -120,6 +176,16 @@ export const LargeSize: Story = {
 };
 
 export const Opened: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Pre-opened variant for visual / a11y review — the play function ' +
+          'clicks the trigger and waits for the portaled content to mount ' +
+          'so axe scans the open state, not the opening animation.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>
@@ -153,6 +219,16 @@ export const Opened: Story = {
 
 // Play: open dialog via click, tab through interactive elements, close with Escape.
 export const KeyboardInteraction: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Keyboard regression — open with click, `Tab` through the focus ' +
+          'trap (close button + footer actions), then `Escape` to close. ' +
+          'Confirms the focus trap and Escape handling Radix provides.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>
@@ -194,6 +270,17 @@ export const KeyboardInteraction: Story = {
 };
 
 export const WithoutCloseButton: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Forced-choice variant — `showCloseButton={false}` removes the ' +
+          'top-right `X` so the user must pick a footer action. Reserve for ' +
+          'flows where dismissing without choosing would leave the app in ' +
+          'an inconsistent state.',
+      },
+    },
+  },
   render: () => (
     <Dialog>
       <DialogTrigger asChild>

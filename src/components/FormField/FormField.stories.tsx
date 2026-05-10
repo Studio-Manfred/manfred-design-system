@@ -5,7 +5,45 @@ import { TextInput } from '../TextInput';
 const meta: Meta<typeof FormField> = {
   title: 'Components/FormField',
   component: FormField,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Form-field layout primitive. Composes a `<label>`, the wrapped ' +
+          'input (passed via `children`), and an optional helper / error ' +
+          '`message` into a consistent vertical stack. Use it around any DS ' +
+          'form control — `TextInput`, `Checkbox`, `DatePicker`. `status` ' +
+          'controls the message colour, icon, and ARIA live-region: `error` ' +
+          'uses `role="alert"`; `hint` and `success` use a polite live-region.',
+      },
+    },
+  },
+  argTypes: {
+    label: {
+      control: 'text',
+      description: 'Visible label text. Required.',
+    },
+    htmlFor: {
+      control: 'text',
+      description: "Wired to `<label htmlFor>` — pass the wrapped input's `id`.",
+    },
+    status: {
+      control: 'select',
+      options: ['default', 'hint', 'error', 'success'],
+      description: 'Drives the message colour + icon. `error` renders the message as `role="alert"`.',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    message: {
+      control: 'text',
+      description: 'Helper / hint / error text below the input. Hidden when omitted.',
+    },
+    required: {
+      control: 'boolean',
+      description: 'Show a red asterisk after the label. Decorative — also set `required` on the input.',
+      table: { defaultValue: { summary: 'false' } },
+    },
+  },
 };
 
 export default meta;
@@ -13,6 +51,15 @@ export default meta;
 type Story = StoryObj<typeof FormField>;
 
 export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default field — label + input only, no message line. Toggle ' +
+          'props in the Controls panel below to explore the other states.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <FormField label="Email address" htmlFor="email-play">
@@ -23,6 +70,17 @@ export const Playground: Story = {
 };
 
 export const WithError: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Failure state — `status="error"` colours the message + icon, ' +
+          'and the message renders as `role="alert"` so screen readers ' +
+          'announce it on submit. The wrapped `TextInput` mirrors the ' +
+          'error border via its own `status` prop.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <FormField
@@ -43,6 +101,16 @@ export const WithError: Story = {
 };
 
 export const WithSuccess: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Confirmation state — `status="success"` for inline async ' +
+          'validation (e.g. "username available"). Uses a polite ' +
+          'live-region rather than `role="alert"`.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <FormField
@@ -63,6 +131,15 @@ export const WithSuccess: Story = {
 };
 
 export const WithHint: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Neutral guidance — `status="hint"` for "must be 8+ characters" ' +
+          'style helper copy. Pairs with the info icon and muted text.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <FormField
@@ -83,6 +160,16 @@ export const WithHint: Story = {
 };
 
 export const Required: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Required field — the asterisk is decorative (`aria-hidden`); ' +
+          'the wrapped input also carries `required` so the browser and ' +
+          'AT both pick it up.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <FormField label="Full name" htmlFor="fullname" required>
@@ -93,6 +180,16 @@ export const Required: Story = {
 };
 
 export const FullForm: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three fields stacked — confirms the vertical rhythm and the way ' +
+          '`required`, `error`, and `hint` states sit alongside each other ' +
+          'in a real form column.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '360px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <FormField label="Full name" htmlFor="ff-name" required>

@@ -61,14 +61,72 @@ const buttonVariants = cva(
 export type ButtonVariant = NonNullable<VariantProps<typeof buttonVariants>['variant']>;
 export type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>['size']>;
 
+/**
+ * Props for the {@link Button} component.
+ *
+ * Inherits every native `<button>` attribute (e.g. `onClick`, `type`,
+ * `name`, `form`, `disabled`) via `React.ButtonHTMLAttributes`. The
+ * cva-derived `variant`, `size`, and `fullWidth` props are documented
+ * in the Storybook controls panel — see Components/Button.
+ */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /**
+   * Render the button as the immediate child element using Radix
+   * `Slot` instead of a native `<button>`. Useful when an `<a>` (or
+   * any other element) needs the button's visual treatment, focus
+   * ring, and ARIA. The child must accept `className` and `ref`.
+   */
   asChild?: boolean;
+  /**
+   * Show a loading state. Disables interaction (`disabled` is forced
+   * true) and announces busy to assistive tech via `aria-busy="true"`.
+   * The caller renders any spinner / label change inside `children`.
+   */
   isLoading?: boolean;
+  /**
+   * Button label or content. Required. Pass plain text, an icon + text
+   * combo, or a single element wrapped in an icon-only container.
+   */
   children: React.ReactNode;
 }
 
+/**
+ * Brand button. Primary call-to-action component.
+ *
+ * Five visual variants (`primary` / `brand` / `outline` / `ghost` /
+ * `inverse`), three sizes (`sm` / `md` / `lg`), optional loading
+ * state, and an `asChild` escape hatch for rendering as a link or
+ * other element while keeping the visual treatment.
+ *
+ * Accessibility:
+ * - Loading state announces via `aria-busy="true"` and disables interaction.
+ * - Focus ring uses the `--ring` token; reduced-motion users skip the
+ *   colour transitions automatically.
+ * - When `asChild` is true the button delegates to its child element —
+ *   ensure the child is keyboard-reachable (an `<a>` with `href`,
+ *   a `<button>`, etc.) and carries any required ARIA.
+ *
+ * @example Default brand call-to-action
+ * ```tsx
+ * <Button variant="brand" onClick={onSave}>Save changes</Button>
+ * ```
+ *
+ * @example Link styled as a button
+ * ```tsx
+ * <Button asChild variant="outline">
+ *   <a href="/docs">Read the docs</a>
+ * </Button>
+ * ```
+ *
+ * @example Loading state during submission
+ * ```tsx
+ * <Button isLoading={isSubmitting} type="submit">
+ *   {isSubmitting ? 'Saving…' : 'Save'}
+ * </Button>
+ * ```
+ */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {

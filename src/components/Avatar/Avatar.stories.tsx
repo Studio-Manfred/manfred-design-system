@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Avatar } from './Avatar';
 
 const meta: Meta<typeof Avatar> = {
@@ -75,6 +76,11 @@ export const Default: Story = {
           'where photos aren\'t available.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Avatar renders a span with role="img" so AT announces it as a single image, not a path soup.
+    expect(canvas.getByRole('img', { name: 'Jens Wedin' })).toBeInTheDocument();
   },
 };
 

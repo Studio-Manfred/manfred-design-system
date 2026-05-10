@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { Button } from './Button';
 
 const meta: Meta<typeof Button> = {
@@ -87,6 +88,16 @@ export const Playground: Story = {
           'Interactive sandbox — toggle every prop via the Controls panel below.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const btn = canvas.getByRole('button', { name: 'Click me' });
+    // Button must be present and labelled before interaction is meaningful.
+    expect(btn).toBeInTheDocument();
+    // Click verifies the button accepts pointer events without throwing.
+    await userEvent.click(btn);
+    // Button stays in the DOM after click — basic stability check.
+    expect(btn).toBeInTheDocument();
   },
 };
 

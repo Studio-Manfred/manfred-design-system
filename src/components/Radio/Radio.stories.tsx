@@ -5,7 +5,20 @@ import { RadioGroup, RadioGroupItem } from './Radio';
 const meta: Meta<typeof RadioGroup> = {
   title: 'Components/RadioGroup',
   component: RadioGroup,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Compound radio surface built on `@radix-ui/react-radio-group`. ' +
+          '`RadioGroup` is the container (`role="radiogroup"`); ' +
+          '`RadioGroupItem` is the individual control with optional `label` ' +
+          'and `error` props. Radix supplies arrow-key selection, roving ' +
+          'tabindex, and `aria-checked` semantics — set `aria-label` on the ' +
+          'group when there is no visible heading.',
+      },
+    },
+  },
 };
 
 export default meta;
@@ -13,6 +26,15 @@ export default meta;
 type Story = StoryObj<typeof RadioGroup>;
 
 export const Playground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Uncontrolled group with `defaultValue`. The whole label + control ' +
+          'is the click target; arrow keys move selection between items.',
+      },
+    },
+  },
   render: () => (
     <RadioGroup defaultValue="a">
       <RadioGroupItem id="p-a" value="a" label="Option A" />
@@ -23,6 +45,16 @@ export const Playground: Story = {
 };
 
 export const Controlled: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Controlled via `value` + `onValueChange`. The selected value ' +
+          'echoes below the group so it is obvious that state lives outside ' +
+          'the component.',
+      },
+    },
+  },
   render: () => {
     const [value, setValue] = useState('a');
     return (
@@ -48,6 +80,17 @@ export const Controlled: Story = {
 };
 
 export const StandaloneItems: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Items with no `label` prop — only the 18px controls render. Use ' +
+          'this when the layout supplies labels separately (e.g. inside a ' +
+          'comparison table). Names come from `aria-label` on each item, and ' +
+          '`aria-label` on the group describes the choice.',
+      },
+    },
+  },
   render: () => (
     <RadioGroup defaultValue="a" aria-label="Plan">
       <RadioGroupItem id="sa-a" value="a" aria-label="Plan A" />
@@ -57,6 +100,17 @@ export const StandaloneItems: Story = {
 };
 
 export const States: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Coverage of every visual state — checked / unchecked, disabled in ' +
+          'both states, and the `error` border treatment. The error variant ' +
+          'is purely visual; production use should pair it with announced ' +
+          'error text via `FormField`.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <RadioGroup defaultValue="checked">

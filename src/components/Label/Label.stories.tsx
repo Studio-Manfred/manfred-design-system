@@ -7,7 +7,36 @@ import { FormField } from '../FormField';
 const meta: Meta<typeof Label> = {
   title: 'Components/Label',
   component: Label,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Token-styled wrapper around `@radix-ui/react-label`. Pairs the ' +
+          'visible label text with a form control via `htmlFor`, picks up ' +
+          'click + focus delegation from Radix, and offers an optional ' +
+          '`required` asterisk affordance. For the higher-level pattern that ' +
+          'also renders helper / error text use `FormField`.',
+      },
+    },
+  },
+  argTypes: {
+    htmlFor: {
+      control: 'text',
+      description:
+        'ID of the form control this label describes. Required for click-to-focus and screen-reader pairing.',
+    },
+    required: {
+      control: 'boolean',
+      description:
+        'Show the red asterisk affordance. Decorative only — set `required` / `aria-required` on the input too.',
+      table: { defaultValue: { summary: 'false' } },
+    },
+    children: {
+      control: 'text',
+      description: 'Label text.',
+    },
+  },
 };
 
 export default meta;
@@ -15,6 +44,15 @@ export default meta;
 type Story = StoryObj<typeof Label>;
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Plain label paired with a `TextInput` via `htmlFor`. Clicking the ' +
+          'label text focuses the input — that pairing is what `Label` exists for.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: 8 }}>
       <Label htmlFor="email-default">Email address</Label>
@@ -24,6 +62,16 @@ export const Default: Story = {
 };
 
 export const Required: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Adds the visual `*` affordance via `required`. The asterisk is ' +
+          '`aria-hidden`; the input itself carries `required` so assistive ' +
+          'tech announces the requirement.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: 8 }}>
       <Label htmlFor="email-required" required>
@@ -35,6 +83,16 @@ export const Required: Story = {
 };
 
 export const WithCheckbox: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Label can pair with any control that takes an `id`, not just text ' +
+          'inputs — here, a Checkbox. The clickable area extends across the ' +
+          'label text so the target is comfortable for pointer + touch users.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: 8 }}>
       <Label htmlFor="terms-cb">Terms of service</Label>
@@ -47,6 +105,17 @@ export const WithCheckbox: Story = {
 };
 
 export const WithFormField: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Side-by-side: a manually composed `Label` + `TextInput`, and the ' +
+          '`FormField` higher-level wrapper that renders its own label. Use ' +
+          '`FormField` when you also need helper / error text plumbing; reach ' +
+          'for raw `Label` when the layout needs to differ.',
+      },
+    },
+  },
   render: () => (
     <div
       style={{

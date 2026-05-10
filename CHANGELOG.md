@@ -7,6 +7,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-05-10
+
+Wave 3 (final wave) of the **AI/agent-friendly Storybook surface**
+epic (STU-113). Adds machine-readable artifacts so AI agents can
+discover the design system from a single well-known URL on the
+deployed Storybook, plus cleaner JSX source emission across every
+component story for both AI scrapers and human copy-paste consumers.
+**Closes the STU-113 epic.** Pure documentation / tooling release —
+no runtime API changes, no breaking changes.
+
+### Added
+
+- **`public/llms.txt`** — top-level index of agent-discoverable URLs,
+  served at `https://studio-manfred.github.io/manfred-design-system/llms.txt`
+  after deploy. Points at the Storybook root, the MCP endpoint, the
+  components-index (`index.json`), the component-registry
+  (`registry.json`), AGENTS.md, CLAUDE.md, and the install-setup
+  pointer. Single well-known URL means any agent can bootstrap the
+  whole DS surface from one HTTP GET. (STU-124)
+- **`registry.json`** — shadcn-shape component registry emitted
+  alongside Storybook's auto-emitted `index.json`. 37 entries — every
+  public-barrel component grouping (32 components + 5 layout
+  primitives), each with `name`, `type` (`"component"` | `"layout"`),
+  primary `story` ID (cross-checked against `index.json`), and
+  external-package `dependencies`. New `scripts/build-registry.mjs`
+  (Node ESM, no extra deps) wired into the `build-storybook` script.
+  Idempotent. JSON-validated in-process before writing. (STU-125)
+- **`public/`** added to `staticDirs` in `.storybook/main.ts` —
+  separates repo-root machine-readable artifacts (llms.txt, future
+  additions) from build-time `src/assets/` (favicon, fonts).
+
+### Changed
+
+- **`docs.source.type`** in `.storybook/preview.ts` flipped from
+  `'auto'` to `'code'` — autodocs **Show code** blocks now show the
+  literal story body instead of an args-synthesised flat tag. Better
+  for AI agents reading the source field via MCP, and for humans
+  copy-pasting examples. Args-only Playground stories (Button, Badge,
+  Alert, Avatar, Checkbox, Icon, Kbd, Logo, ProgressBar, Spinner,
+  Switch, SearchBar, Textarea, TextInput, Typography) all emit clean
+  flat-tag JSX under `'code'` — Storybook still synthesises from args
+  when no `render` body is provided, so no fixes needed. (STU-123)
+
+### Fixed
+
+- 4 DatePicker Range stories (RangePlayground, RangeWithConstraints,
+  RangePartialState, RangeKeyboardInteraction) get a per-story
+  `parameters.docs.source.type: 'auto'` override. Their
+  `(args) => <DatePicker {...(args as DatePickerRangeProps)} />`
+  render bodies use a TypeScript cast on the spread expression that
+  breaks Storybook's args-inliner AST recognizer — keeping `'auto'`
+  on those stories preserves them as argTypes-driven Controls
+  sandboxes.
+
+### Notes for consumers
+
+- Documentation-only release at the source level. The published npm
+  tarball is functionally identical except for the Storybook docs
+  site (cleaner copy-paste source blocks + new `llms.txt` /
+  `registry.json` artifacts at the deploy root).
+- AI agents now have **three discovery paths**:
+  - `https://studio-manfred.github.io/manfred-design-system/llms.txt`
+    (single-URL bootstrap)
+  - `…/registry.json` (machine-readable component inventory)
+  - `…/index.json` (Storybook story metadata, auto-emitted)
+  - Plus the live Storybook MCP at `http://localhost:6006/mcp` when
+    Storybook is running locally.
+
+### STU-113 epic closeout
+
+This release closes the **AI/agent-friendly Storybook surface** epic.
+Total delivery: **3 minor releases (v0.15.0 / v0.16.0 / v0.17.0)** +
+**1 patch (v0.15.1, DatePicker popover bg hotfix)** across **12
+PRs**, **zero breaking changes**.
+
+What shipped, in arc order:
+
+- **Wave 1 — Onramp + autodocs substance (v0.15.0).** AGENTS.md
+  pointer at the repo root for any non-Claude agent. README refresh
+  with the stale "17 components" → "30+" + new `## AI agents`
+  section. JSDoc on every component + ~60 compound sub-parts
+  (rendered into autodocs via `react-docgen-typescript`). Per-prop
+  JSDoc on every Props interface. Expanded `argTypes` + per-story
+  descriptions on every story file.
+- **Wave 2 — Foundations & narrative (v0.16.0).** 5 narrative MDX
+  foundation pages — Tokens, Theming, Accessibility, Motion,
+  FormPatterns. 6 new token-group stories under `Foundation/Tokens`
+  (Typography, Spacing, Radius, Motion, Effects, ChartPalette).
+  Refreshed Welcome story wiring the new pages into the on-ramp.
+- **Wave 3 — Machine-readable artifacts (v0.17.0, this release).**
+  llms.txt + registry.json deploy artifacts. Cleaner JSX source
+  emission across every component story.
+
+The Storybook MCP at `http://localhost:6006/mcp` was already shipping
+before this epic; the epic's job was to put **substance** behind that
+surface so agents querying it get fully-described props, narrative
+foundations, and a single-URL bootstrap.
+
 ## [0.16.0] - 2026-05-10
 
 Wave 2 of the **AI/agent-friendly Storybook surface** epic (STU-113).

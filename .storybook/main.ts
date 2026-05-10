@@ -17,7 +17,7 @@ const config: StorybookConfig = {
     name: '@storybook/react-vite',
     options: {},
   },
-  staticDirs: ['../src/assets'],
+  staticDirs: ['../src/assets', '../public'],
   viteFinal: async (config, { configType }) => {
     if (configType === 'PRODUCTION') {
       config.base = process.env.STORYBOOK_BASE_HREF ?? '/manfred-design-system/';

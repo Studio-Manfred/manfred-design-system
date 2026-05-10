@@ -17,12 +17,48 @@ const spinnerVariants = cva('inline-flex items-center justify-center text-[var(-
 
 export type SpinnerSize = NonNullable<VariantProps<typeof spinnerVariants>['size']>;
 
+/** Props for the {@link Spinner} component. */
 export interface SpinnerProps {
+  /** Size scale (`sm` = 16px, `md` = 24px, `lg` = 40px). Defaults to `md`. */
   size?: SpinnerSize;
+  /**
+   * Visually-hidden label announced by screen readers. Defaults to
+   * `"Loading"`. Override with a more specific verb when the spinner
+   * sits next to a known operation (e.g. `"Saving"`).
+   */
   label?: string;
+  /** Extra classes merged onto the wrapping `<span>`. */
   className?: string;
 }
 
+/**
+ * Indeterminate progress indicator drawn with an SVG arc.
+ *
+ * Three sizes (`sm` / `md` / `lg`), brand-coloured stroke, and a
+ * built-in `role="status"` so it announces correctly on its own. Use
+ * for short waits where progress can't be measured.
+ *
+ * Accessibility:
+ * - The wrapper is `role="status"` and contains a `sr-only` label —
+ *   assistive tech reads it without any extra wiring.
+ * - The animation is a CSS `animate-spin`. Users with
+ *   `prefers-reduced-motion` see a stationary arc (the rotation is
+ *   suppressed by the global motion-safe rules).
+ *
+ * @example Inline spinner inside a button
+ * ```tsx
+ * <Button disabled>
+ *   <Spinner size="sm" label="Saving" /> Saving…
+ * </Button>
+ * ```
+ *
+ * @example Block-level loading indicator
+ * ```tsx
+ * <div className="flex items-center justify-center p-8">
+ *   <Spinner size="lg" label="Loading dashboard" />
+ * </div>
+ * ```
+ */
 export function Spinner({ size = 'md', label = 'Loading', className }: SpinnerProps) {
   const radius = 9;
   const circumference = 2 * Math.PI * radius;

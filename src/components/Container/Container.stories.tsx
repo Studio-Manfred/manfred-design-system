@@ -11,11 +11,36 @@ import {
 const meta: Meta<typeof Container> = {
   title: 'Layout/Container',
   component: Container,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Centred max-width wrapper for page layout. Five `size` steps map ' +
+          'to the container tokens; `padded` controls the responsive ' +
+          'horizontal padding. Render as the right landmark via `as` ' +
+          '(`main` / `section` / `article`).',
+      },
+    },
+  },
   argTypes: {
-    size: { control: 'inline-radio', options: ['sm', 'md', 'lg', 'xl', 'full'] },
-    as: { control: 'select', options: ['div', 'main', 'section', 'article'] },
-    padded: { control: 'boolean' },
+    size: {
+      control: 'inline-radio',
+      options: ['sm', 'md', 'lg', 'xl', 'full'],
+      description: 'Max-width step. `full` disables the cap entirely.',
+      table: { defaultValue: { summary: 'lg' } },
+    },
+    as: {
+      control: 'select',
+      options: ['div', 'main', 'section', 'article'],
+      description: 'Rendered HTML element. Pick the right landmark for the page outline.',
+      table: { defaultValue: { summary: 'div' } },
+    },
+    padded: {
+      control: 'boolean',
+      description: 'Responsive horizontal padding. Disable for edge-to-edge surfaces.',
+      table: { defaultValue: { summary: 'true' } },
+    },
   },
 };
 export default meta;
@@ -34,6 +59,15 @@ const Demo = ({ label }: { label: string }) => (
 
 export const Default: Story = {
   args: { size: 'lg', padded: true, as: 'div' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default container — 64rem max-width with the responsive padding ' +
+          'on. Most pages start here.',
+      },
+    },
+  },
   render: (args) => (
     <Container {...args}>
       <Demo label="size=lg (default) — 64rem max-width, responsive padding" />
@@ -42,6 +76,15 @@ export const Default: Story = {
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All five size steps stacked. Resize the preview to see how each ' +
+          'caps the content width.',
+      },
+    },
+  },
   render: () => (
     <div className="space-y-4 py-6">
       <Container size="sm">
@@ -66,6 +109,16 @@ export const Sizes: Story = {
 export const EdgeToEdge: Story = {
   name: 'Edge-to-edge (padded=false)',
   args: { size: 'full', padded: false },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`size="full"` + `padded={false}` lets the content bleed to the ' +
+          'viewport edges. Useful for hero blocks and tools (canvas, maps) ' +
+          'that own the layout themselves.',
+      },
+    },
+  },
   render: (args) => (
     <Container {...args}>
       <Demo label="size=full + padded=false — bleeds to viewport edges" />
@@ -75,6 +128,16 @@ export const EdgeToEdge: Story = {
 
 export const AsMainLandmark: Story = {
   name: 'As <main> landmark',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Render the Container as `<main>` to give screen readers a single ' +
+          'main landmark. Pair with an `aria-label` when the page has more ' +
+          'than one major content area.',
+      },
+    },
+  },
   render: () => (
     <Container as="main" size="lg" aria-label="Page main content">
       <Card>

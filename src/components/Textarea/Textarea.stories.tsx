@@ -8,10 +8,37 @@ const meta: Meta<typeof Textarea> = {
   component: Textarea,
   parameters: {
     layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Multi-line input that mirrors `TextInput` visuals via the shared ' +
+          '`inputLikeVariants`. Three sizes, validation `status`, and a ' +
+          'wrapper that grows with `rows` while letting users drag-resize ' +
+          'vertically.',
+      },
+    },
   },
   argTypes: {
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
-    status: { control: 'select', options: ['default', 'error', 'success'] },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      description: 'Size scale shared with `TextInput` and `Select`.',
+      table: { defaultValue: { summary: 'md' } },
+    },
+    status: {
+      control: 'select',
+      options: ['default', 'error', 'success'],
+      description: 'Validation status. `error` flips `aria-invalid`.',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    fullWidth: {
+      control: 'boolean',
+      description: 'Stretch the textarea to fill its container.',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disable interaction. Inherited from native `<textarea>`.',
+    },
   },
 };
 
@@ -25,6 +52,15 @@ export const Playground: Story = {
     status: 'default',
     placeholder: 'Tell us a bit about yourself…',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — toggle every prop via the Controls panel ' +
+          'below.',
+      },
+    },
+  },
   render: (args) => (
     <div style={{ width: '360px' }}>
       <Textarea {...args} fullWidth />
@@ -33,6 +69,15 @@ export const Playground: Story = {
 };
 
 export const WithLabel: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Wrapped in `FormField` to inherit the label, hint, and ARIA wiring. ' +
+          'Most common production pattern.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '360px' }}>
       <FormField
@@ -48,6 +93,15 @@ export const WithLabel: Story = {
 };
 
 export const Sizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All three sizes stacked. Match the size used by sibling `TextInput` ' +
+          'controls in the same form.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '320px' }}>
       <Textarea placeholder="Small" size="sm" fullWidth />
@@ -58,6 +112,15 @@ export const Sizes: Story = {
 };
 
 export const Statuses: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default, error, and success borders. `error` also flips ' +
+          '`aria-invalid` on the inner `<textarea>`.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '320px' }}>
       <Textarea placeholder="Default" status="default" fullWidth />
@@ -78,6 +141,15 @@ export const Statuses: Story = {
 };
 
 export const Disabled: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Disabled state — interaction suppressed and the resize handle is ' +
+          'inert.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '320px' }}>
       <Textarea
@@ -91,6 +163,15 @@ export const Disabled: Story = {
 };
 
 export const LongContent: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Five-row textarea pre-filled with multi-paragraph content. Drag the ' +
+          'corner handle to verify vertical resize.',
+      },
+    },
+  },
   render: () => (
     <div style={{ width: '420px' }}>
       <Textarea
@@ -107,6 +188,15 @@ The Textarea component is built to handle long, multi-line input. Drag the handl
 
 // Play: focus, type into the textarea, assert the value reflects the typed text.
 export const KeyboardInteraction: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Coverage story — types into the textarea and asserts the value ' +
+          'reflects the keystrokes.',
+      },
+    },
+  },
   render: () => <Textarea aria-label="Note" placeholder="Write a note…" />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

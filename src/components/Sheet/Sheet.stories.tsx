@@ -33,6 +33,17 @@ const meta: Meta<typeof Sheet> = {
         ],
       },
     },
+    docs: {
+      description: {
+        component:
+          'Side-anchored sheet built on `@radix-ui/react-dialog`. Slides in ' +
+          'from `top` / `right` / `bottom` / `left`. Compose with ' +
+          '`SheetTrigger`, `SheetContent`, `SheetHeader`, `SheetTitle`, ' +
+          '`SheetDescription`, `SheetFooter`, and `SheetClose`. Focus trap, ' +
+          'escape-to-close, and overlay click-through come from Radix; slide ' +
+          'animations are gated on `motion-safe`.',
+      },
+    },
   },
 };
 
@@ -41,6 +52,15 @@ export default meta;
 type Story = StoryObj<typeof Sheet>;
 
 export const Right: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default `right`-side sheet with full header / body / footer. Most ' +
+          'common form-edit pattern.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -70,6 +90,14 @@ export const Right: Story = {
 };
 
 export const Left: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Left-anchored sheet — fits the mobile navigation drawer pattern.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -98,6 +126,15 @@ export const Left: Story = {
 };
 
 export const Top: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Top-anchored sheet — useful for system-wide announcements and ' +
+          'quick-action surfaces.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -121,6 +158,15 @@ export const Top: Story = {
 };
 
 export const Bottom: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Bottom-anchored sheet — fits the mobile action-sheet / comments ' +
+          'thread pattern.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -148,6 +194,16 @@ export const Bottom: Story = {
 };
 
 export const WithForm: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Sheet hosting a `FormField` + `TextInput` + `Textarea` form. ' +
+          'Demonstrates how the focus trap interacts with form controls and ' +
+          'how the footer aligns Cancel / Save buttons.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -180,6 +236,16 @@ export const WithForm: Story = {
 };
 
 export const NoCloseButton: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Hide the corner X via `showCloseButton={false}` when you want users ' +
+          'to commit to an explicit Cancel / Save decision. Escape and ' +
+          'overlay click still close.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>
@@ -207,6 +273,15 @@ export const NoCloseButton: Story = {
 };
 
 export const Opened: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Visual / a11y review story — the `play` function clicks the trigger ' +
+          'so the sheet starts open. Lets axe scan the dialog subtree.',
+      },
+    },
+  },
   render: () => (
     <Sheet>
       <SheetTrigger asChild>

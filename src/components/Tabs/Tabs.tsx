@@ -4,11 +4,39 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 /**
- * Tabs — token-styled wrapper around `@radix-ui/react-tabs`. Two visual
- * variants ("segmented" pill switcher, "underline" classic tabs) + two sizes
- * (sm / md). Variant + size are set on the root `Tabs` and consumed by
- * descendant `TabsList` / `TabsTrigger` via context so the trigger can react
- * to the active style without each caller re-passing the props.
+ * Compound tabbed view built on `@radix-ui/react-tabs`.
+ *
+ * Two visual variants — `segmented` (pill switcher inside a bordered
+ * track) and `underline` (classic tab strip) — and two sizes (`sm` /
+ * `md`). Variant + size are set on the root `Tabs` and shared with
+ * descendant `TabsList` / `TabsTrigger` via context, so triggers
+ * follow the active style without per-call repetition.
+ *
+ * Accessibility: roving focus, arrow-key navigation, and the
+ * `tab` / `tabpanel` / `tablist` roles all come from Radix.
+ *
+ * @example Segmented tabs (default)
+ * ```tsx
+ * <Tabs defaultValue="profile">
+ *   <TabsList>
+ *     <TabsTrigger value="profile">Profile</TabsTrigger>
+ *     <TabsTrigger value="security">Security</TabsTrigger>
+ *   </TabsList>
+ *   <TabsContent value="profile">…</TabsContent>
+ *   <TabsContent value="security">…</TabsContent>
+ * </Tabs>
+ * ```
+ *
+ * @example Underline variant for in-page sections
+ * ```tsx
+ * <Tabs variant="underline" defaultValue="overview">
+ *   <TabsList>
+ *     <TabsTrigger value="overview">Overview</TabsTrigger>
+ *     <TabsTrigger value="activity">Activity</TabsTrigger>
+ *   </TabsList>
+ *   …
+ * </Tabs>
+ * ```
  */
 
 export type TabsVariant = 'segmented' | 'underline';
@@ -24,12 +52,24 @@ const TabsContext = React.createContext<TabsContextValue>({
   size: 'md',
 });
 
+/**
+ * Props for the {@link Tabs} root.
+ *
+ * Inherits `value`, `defaultValue`, `onValueChange`, `orientation`,
+ * `dir`, `activationMode`, etc. from Radix `Tabs.Root`.
+ */
 export interface TabsProps
   extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> {
+  /** Visual style. `segmented` is a pill switcher; `underline` is a classic tab strip. Defaults to `segmented`. */
   variant?: TabsVariant;
+  /** Size scale shared with descendant triggers. `sm` for dense UIs, `md` (default) otherwise. */
   size?: TabsSize;
 }
 
+/**
+ * Root of the tabbed view. Provides `variant` and `size` via context so
+ * `TabsList` and `TabsTrigger` style themselves to match.
+ */
 export const Tabs = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Root>,
   TabsProps
@@ -58,6 +98,10 @@ const tabsListVariants = cva('inline-flex items-center', {
   },
 });
 
+/**
+ * Container for {@link TabsTrigger}s. Picks up `variant` from context
+ * to apply either the segmented track or the underline rule.
+ */
 export const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -108,6 +152,11 @@ const tabsTriggerVariants = cva(
   },
 );
 
+/**
+ * Single tab button. The `value` prop must match a {@link TabsContent}
+ * `value`. Style flips between `segmented` and `underline` automatically
+ * based on the parent {@link Tabs} root.
+ */
 export const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
@@ -123,6 +172,11 @@ export const TabsTrigger = React.forwardRef<
 });
 TabsTrigger.displayName = 'TabsTrigger';
 
+/**
+ * Panel rendered when its `value` matches the active tab. Receives
+ * `role="tabpanel"` and an `aria-labelledby` link to the trigger from
+ * Radix.
+ */
 export const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>

@@ -47,6 +47,11 @@ export function usePrefersReducedMotion(forceReducedMotion?: boolean): boolean {
   return forceReducedMotion ?? reduced;
 }
 
+/**
+ * Props for the {@link ChartContainer} component. Inherits standard
+ * `<div>` attributes (className, style, id, …) via
+ * `React.HTMLAttributes<HTMLDivElement>`.
+ */
 export interface ChartContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Fixed pixel height for the chart canvas. Width is always 100%. */
   height?: number;
@@ -97,6 +102,32 @@ function formatCell(value: unknown): string {
   }
 }
 
+/**
+ * Accessibility-first wrapper around Recharts'
+ * `ResponsiveContainer`.
+ *
+ * Renders the chart inside a 100%-width responsive container at a
+ * fixed pixel `height`, exposes `role="img"` with an auto-generated
+ * (or custom) `aria-label`, and emits a fully-populated screen-reader
+ * data table built from `data` + `series` + `categoryKey`. Use it as
+ * the outer element for every Manfred chart so the same a11y contract
+ * applies everywhere.
+ *
+ * Also publishes a {@link ChartContainerContextValue} carrying the
+ * resolved reduced-motion preference; child charts read it via
+ * {@link useChartContainer} to disable animation when appropriate.
+ *
+ * @example Bar chart with auto a11y table
+ * ```tsx
+ * <ChartContainer
+ *   data={rows}
+ *   series={[{ key: 'visits', name: 'Visits' }]}
+ *   categoryKey="month"
+ * >
+ *   <BarChart data={rows} dataKey="visits" categoryKey="month" />
+ * </ChartContainer>
+ * ```
+ */
 export const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerProps>(
   (
     {
@@ -204,7 +235,16 @@ export const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerPro
 );
 ChartContainer.displayName = 'ChartContainer';
 
-/** Cycle through chart-1..5 by index. */
+/**
+ * Resolve a series colour by zero-based index. Cycles through the five
+ * `--chart-1` … `--chart-5` token slots so multi-series charts stay
+ * on-palette and theme-aware.
+ *
+ * @example
+ * ```tsx
+ * series.map((s, i) => <Bar key={s.key} fill={chartSeriesColor(i)} />)
+ * ```
+ */
 export function chartSeriesColor(index: number): string {
   const slot = (index % 5) + 1;
   return `var(--chart-${slot})`;

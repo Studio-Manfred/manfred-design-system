@@ -7,23 +7,56 @@ import { Badge } from '../Badge';
 const meta: Meta<typeof Stack> = {
   title: 'Layout/Stack',
   component: Stack,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Sibling-spacing primitive. DS components carry no outer margin so ' +
+          'composition stays predictable; Stack owns the gap between ' +
+          'siblings. `VStack` and `HStack` are pre-bound aliases for clearer ' +
+          'call sites. The `gap` scale is locked to the spacing tokens.',
+      },
+    },
+  },
   argTypes: {
-    direction: { control: 'inline-radio', options: ['vertical', 'horizontal'] },
-    gap: { control: 'select', options: [1, 2, 3, 4, 6, 8, 12] },
+    direction: {
+      control: 'inline-radio',
+      options: ['vertical', 'horizontal'],
+      description: 'Layout axis.',
+      table: { defaultValue: { summary: 'vertical' } },
+    },
+    gap: {
+      control: 'select',
+      options: [1, 2, 3, 4, 6, 8, 12],
+      description: 'Spacing between siblings, mapped to the `--space-*` tokens.',
+      table: { defaultValue: { summary: '4' } },
+    },
     align: {
       control: 'inline-radio',
       options: ['start', 'center', 'end', 'stretch'],
+      description: '`align-items` passthrough.',
+      table: { defaultValue: { summary: 'stretch' } },
     },
     justify: {
       control: 'inline-radio',
       options: ['start', 'center', 'end', 'between', 'around'],
+      description: '`justify-content` passthrough.',
+      table: { defaultValue: { summary: 'start' } },
     },
-    wrap: { control: 'boolean' },
-    fullWidth: { control: 'boolean' },
+    wrap: {
+      control: 'boolean',
+      description: 'Allow flex children to wrap onto a new line.',
+    },
+    fullWidth: {
+      control: 'boolean',
+      description: 'Stretch the stack to fill its container.',
+    },
     as: {
       control: 'select',
       options: ['div', 'section', 'nav', 'ul', 'ol', 'li'],
+      description: 'Rendered HTML element. Use `ul`/`ol`/`li` for lists.',
+      table: { defaultValue: { summary: 'div' } },
     },
   },
 };
@@ -38,6 +71,15 @@ const Box = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Vertical Stack with three boxes — the default direction. Toggle ' +
+          'every variant via the Controls panel.',
+      },
+    },
+  },
   render: (args) => (
     <Stack {...args} className="w-72">
       <Box>One</Box>
@@ -48,6 +90,15 @@ export const Default: Story = {
 };
 
 export const Horizontal: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`HStack` (pre-bound horizontal Stack) used for an action button ' +
+          'row. Same API minus `direction`.',
+      },
+    },
+  },
   render: () => (
     <HStack gap={4}>
       <Button variant="brand">Save</Button>
@@ -59,6 +110,15 @@ export const Horizontal: Story = {
 
 export const GapScale: Story = {
   name: 'Gap scale (1 / 2 / 3 / 4 / 6 / 8 / 12)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Each step on the gap scale rendered between three boxes. Use this ' +
+          'to confirm token rhythm before settling on a gap.',
+      },
+    },
+  },
   render: () => (
     <VStack gap={6} className="w-80">
       {([1, 2, 3, 4, 6, 8, 12] as const).map((g) => (
@@ -76,6 +136,15 @@ export const GapScale: Story = {
 };
 
 export const AlignAndJustify: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`justify="between"` for split rows, `align="center"` for centring ' +
+          'content with mixed heights — the two flex controls used most.',
+      },
+    },
+  },
   render: () => (
     <VStack gap={4} className="w-80">
       <div className="text-xs text-muted-foreground">justify="between"</div>
@@ -94,6 +163,15 @@ export const AlignAndJustify: Story = {
 
 export const ListOfCards: Story = {
   name: 'List of Cards (real-world use)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Render the Stack as `<ul>` (with `<li>` children) so each card is ' +
+          'a list item — the right semantic for a set of comparable items.',
+      },
+    },
+  },
   render: () => (
     <VStack as="ul" gap={4} className="w-96 list-none p-0">
       {['Conversion rate', 'Active users', 'Open tickets'].map((label) => (
@@ -116,6 +194,15 @@ export const ListOfCards: Story = {
 };
 
 export const Wrapping: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`wrap` lets horizontal stacks flow onto a second line — the ' +
+          'pattern for tag clouds and chip groups.',
+      },
+    },
+  },
   render: () => (
     <HStack gap={2} wrap className="w-80">
       {Array.from({ length: 12 }, (_, i) => (

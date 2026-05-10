@@ -45,6 +45,13 @@ const thumbVariants = cva(
 
 type SwitchSize = NonNullable<VariantProps<typeof trackVariants>['size']>;
 
+/**
+ * Props for the {@link Switch} component.
+ *
+ * Inherits Radix `Switch.Root` props (e.g. `checked`, `defaultChecked`,
+ * `onCheckedChange`, `name`, `value`, `required`) via
+ * `React.ComponentPropsWithoutRef`.
+ */
 export interface SwitchProps extends Omit<RadixSwitchProps, 'children'> {
   /** Track + thumb size. Defaults to `md`. */
   size?: SwitchSize;
@@ -56,6 +63,35 @@ export interface SwitchProps extends Omit<RadixSwitchProps, 'children'> {
   error?: boolean;
 }
 
+/**
+ * Boolean toggle built on `@radix-ui/react-switch`.
+ *
+ * Three sizes (`sm` / `md` / `lg`), optional inline label, an `error`
+ * state for invalid forms, and a `loading` state that swaps the thumb
+ * for a spinner while disabling interaction.
+ *
+ * Accessibility:
+ * - Native role `switch` and `aria-checked` come from Radix.
+ * - `loading` sets `aria-busy="true"`; `error` sets `aria-invalid`.
+ * - When `label` is provided, the control is wrapped in a `<label>`
+ *   so clicking the text toggles the switch — pair with an `id` to
+ *   keep the implicit/explicit association robust.
+ *
+ * @example Inline labelled switch
+ * ```tsx
+ * <Switch id="notifications" label="Email notifications" defaultChecked />
+ * ```
+ *
+ * @example Async save with loading state
+ * ```tsx
+ * <Switch
+ *   checked={enabled}
+ *   loading={isSaving}
+ *   onCheckedChange={save}
+ *   label="Auto-publish"
+ * />
+ * ```
+ */
 export const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitive.Root>,
   SwitchProps

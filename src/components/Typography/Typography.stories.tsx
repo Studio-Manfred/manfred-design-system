@@ -6,6 +6,16 @@ const meta: Meta<typeof Typography> = {
   component: Typography,
   parameters: {
     layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Type-system primitive driven by `cva`. Nine variants spanning ' +
+          'headlines through caption, four colour roles bound to tokens, and ' +
+          'an `as` escape hatch for picking the right HTML tag. Pick a ' +
+          'variant by role (`label`, `body`, `caption`) rather than by ' +
+          'visual size.',
+      },
+    },
   },
   argTypes: {
     variant: {
@@ -14,10 +24,17 @@ const meta: Meta<typeof Typography> = {
         'headline1', 'headline2', 'headline3', 'headline4',
         'large', 'body', 'bodySmall', 'label', 'caption',
       ],
+      description: 'Visual + semantic role. Each variant pairs a size, weight, and line-height.',
     },
     color: {
       control: 'select',
       options: ['default', 'inverse', 'brand', 'muted'],
+      description: 'Colour role bound to design tokens. Defaults to `default`.',
+      table: { defaultValue: { summary: 'default' } },
+    },
+    as: {
+      control: 'text',
+      description: 'Override the rendered HTML tag (`h1`–`h6`, `p`, `span`, `div`, `label`).',
     },
   },
 };
@@ -32,9 +49,27 @@ export const Playground: Story = {
     color: 'default',
     children: 'The quick brown fox jumps over the lazy dog.',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — toggle every prop via the Controls panel ' +
+          'below.',
+      },
+    },
+  },
 };
 
 export const AllVariants: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Every variant stacked top-to-bottom — useful for visual review of ' +
+          'the type scale.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Typography variant="headline1">Headline 1 — ExtraBold 56px</Typography>
@@ -58,6 +93,14 @@ export const ColorVariants: Story = {
         // individual pairings (e.g. brand blue on dark) are intentional showcases,
         // not production copy. Contrast rules don't apply to swatch demos.
         rules: [{ id: 'color-contrast', enabled: false }],
+      },
+    },
+    docs: {
+      description: {
+        story:
+          'Each `color` role on a dark background. Showcase only — colour ' +
+          'pairings here are demonstrative, not contrast-audited for ' +
+          'production use.',
       },
     },
   },

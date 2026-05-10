@@ -16,7 +16,22 @@ import { ChartLegend } from './ChartLegend';
 
 const meta: Meta = {
   title: 'Components/Chart',
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Chart family wrapping Recharts. The high-level wrappers — ' +
+          '`BarChart`, `LineChart`, `DonutChart` — share `ChartContainer` ' +
+          'for accessibility (role, aria-label, sr-only data table) and ' +
+          'reduced-motion handling. Drop down to `ChartContainer` + Recharts ' +
+          'primitives for fully custom charts; use `ChartTooltip` and ' +
+          '`ChartLegend` to keep the popover and legend on-token. Note: ' +
+          '`ChartTooltip` is the *chart hover* tooltip — distinct from the ' +
+          'Radix-based `Tooltip` used to label icon buttons.',
+      },
+    },
+  },
 };
 export default meta;
 
@@ -67,6 +82,15 @@ const Tile: React.FC<{ title: string; children: React.ReactNode }> = ({ title, c
 
 export const DonutLanes: AnyStory = {
   name: 'Donut: lane breakdown',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`DonutChart` with three slices, an explicit `ariaLabel`, and a ' +
+          'longer `ariaDescription` linked via `aria-describedby`.',
+      },
+    },
+  },
   render: () => (
     <Tile title="Lane breakdown">
       <DonutChart
@@ -83,6 +107,15 @@ export const DonutLanes: AnyStory = {
 
 export const BarMonthly: AnyStory = {
   name: 'Bar: monthly performance',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Two-series `BarChart` showing the default legend behaviour ' +
+          '(auto-enabled when there is more than one series).',
+      },
+    },
+  },
   render: () => (
     <Tile title="Monthly performance">
       <BarChart
@@ -99,6 +132,15 @@ export const BarMonthly: AnyStory = {
 
 export const LineTrend: AnyStory = {
   name: 'Line: trend',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Two-series `LineChart` for monthly trends. Demonstrates the ' +
+          'monotone curve smoothing and dot styling.',
+      },
+    },
+  },
   render: () => (
     <Tile title="Trend">
       <LineChart
@@ -119,6 +161,16 @@ export const LineTrend: AnyStory = {
  */
 export const WithCustomTooltip: AnyStory = {
   name: 'With custom tooltip',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Composed example using `ChartContainer` + Recharts primitives ' +
+          'directly. The path to take when you need a custom tooltip body, ' +
+          'ordering, or extra chart elements beyond the wrapper API.',
+      },
+    },
+  },
   render: () => {
     const data = monthly.slice(0, 6);
     return (
@@ -157,6 +209,16 @@ export const WithCustomTooltip: AnyStory = {
 
 export const WithLegend: AnyStory = {
   name: 'With legend',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Composed `ChartContainer` example with `ChartLegend` mounted ' +
+          'inside. Use this when you need to control axis / tooltip / ' +
+          'legend ordering by hand.',
+      },
+    },
+  },
   render: () => {
     const data = monthly.slice(0, 6);
     return (
@@ -186,6 +248,16 @@ export const WithLegend: AnyStory = {
 
 export const AccessibilityFallback: AnyStory = {
   name: 'Accessibility fallback (table)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Forces the sr-only data table to render visibly so the a11y ' +
+          'fallback can be reviewed. In production it lives behind ' +
+          '`sr-only` and is read by assistive tech only.',
+      },
+    },
+  },
   render: () => (
     <Tile title="Sr-only table forced visible">
       <BarChart
@@ -203,6 +275,16 @@ export const AccessibilityFallback: AnyStory = {
 
 export const ReducedMotion: AnyStory = {
   name: 'Reduced motion',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Forces reduced motion via `forceReducedMotion` so the chart ' +
+          'renders without entry animation — the same behaviour users with ' +
+          '`prefers-reduced-motion: reduce` see automatically.',
+      },
+    },
+  },
   render: () => (
     <Tile title="prefers-reduced-motion: forced">
       <LineChart

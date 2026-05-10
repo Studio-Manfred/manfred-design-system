@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { FormField } from './FormField';
 import { TextInput } from '../TextInput';
 
@@ -59,6 +60,15 @@ export const Playground: Story = {
           'props in the Controls panel below to explore the other states.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The label's htmlFor pairing must expose the textbox by its visible name to AT users.
+    const input = canvas.getByRole('textbox', { name: 'Email address' });
+    expect(input).toBeInTheDocument();
+    // Typing confirms the input is editable and the label-input association doesn't block focus.
+    await userEvent.type(input, 'test@example.com');
+    expect(input).toHaveValue('test@example.com');
   },
   render: () => (
     <div style={{ width: '320px' }}>

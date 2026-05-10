@@ -1,0 +1,66 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundation/Accessibility" />
+
+# Accessibility
+
+Accessibility is part of the product, not a check that runs after the work. Every Manfred component is built to clear WCAG 2.2 AA in both light and dark modes, on the keyboard, and through a screen reader. When something fails the bar, we fix the root — we don't suppress the rule.
+
+The two living reports in the repo:
+
+- [`A11Y-AUDIT.md`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/A11Y-AUDIT.md) — component-by-component audit findings.
+- [`A11Y-COLOR-AUDIT.md`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/A11Y-COLOR-AUDIT.md) — token-level contrast audit, light and dark.
+
+---
+
+## Globally disabled axe rules
+
+Four axe rules are disabled globally in [`.storybook/preview.ts`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/.storybook/preview.ts) for the addon-a11y panel:
+
+```ts
+{ id: 'region',                enabled: false },
+{ id: 'landmark-one-main',     enabled: false },
+{ id: 'page-has-heading-one',  enabled: false },
+{ id: 'bypass',                enabled: false },
+```
+
+The rationale, in plain language: a Storybook story is a single component rendered into an iframe. There is no `<main>`, no `<h1>`, no skip link, and no surrounding landmarks — those are responsibilities of the **app shell**, not the component. Page-level rules don't apply to a component-in-iframe preview, and leaving them on would generate noise that drowns the real findings.
+
+| Rule | Why it's off in stories | Where it belongs |
+|------|-------------------------|------------------|
+| `region` | Components render outside any landmark by design. | Consumer's app shell. |
+| `landmark-one-main` | A story has no `<main>` — that's the page wrapping it. | Consumer's app shell (or our `PageShell` component). |
+| `page-has-heading-one` | A button has no `<h1>` — that's the page hosting it. | Consumer's page. |
+| `bypass` | No skip link in an iframe-isolated component. | Consumer's app shell. |
+
+Consumers are responsible for landmarks, page headings, and skip links in their own app shell. Stories that **do** compose a full page (`Layout/PageShell` and the `Examples/*` demos) opt back in to `landmark-one-main` per-story.
+
+---
+
+## Runtime a11y scan
+
+Storybook's addon-a11y is the live feedback loop while authoring. The full sweep runs through [`scripts/a11y-runtime-scan.mjs`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/scripts/a11y-runtime-scan.mjs) — a Playwright CLI that walks every story in headless Chromium and runs axe-core against each one.
+
+```bash
+npm run storybook &                          # Storybook must be on :6006
+node scripts/a11y-runtime-scan.mjs           # light scheme
+node scripts/a11y-runtime-scan.mjs --dark    # dark scheme (Playwright colorScheme: 'dark')
+```
+
+Results are written to `/tmp/a11y-runtime.json`. Every component must clear the scan in **both** light and dark before merge.
+
+The scan keeps its suppression policy in sync with the Storybook addon-a11y config — the same four `GLOBAL_DISABLED_RULES` are applied to every story, and a small `CONTRAST_EXEMPT_STORIES` set turns off `color-contrast` on token and typography showcases where the swatch *is* the subject. If you add a new showcase story (e.g. a fresh palette demo), update that set in the script — but keep it small and named, not a category.
+
+Page-shape stories (`Layout/PageShell`, `Examples/*`) opt back in to `landmark-one-main` so the runtime scan still enforces it where it actually applies.
+
+---
+
+## Authoring rules
+
+1. **Fix the root, don't suppress.** If `color-contrast` fails, change the token, not the rule. If a label is missing, add the label, not an `aria-label` patch on top of a broken element.
+2. **Suppressions need an explicit justification.** A per-story `parameters.a11y.config.rules` override is allowed only with a comment that names the rule, the reason, and what would have to change to remove the suppression. The four global suppressions above are the only ones that don't need a per-story comment.
+3. **Light AND dark.** A pass in light mode without a pass in dark mode is not a pass.
+4. **Keyboard before mouse.** Every interactive component has a keyboard story (`KeyboardInteraction`, or play function) that tabs through the surface, activates with `Enter`/`Space`, and dismisses with `Escape`.
+5. **Screen reader semantics, not visual hacks.** A loading spinner needs `aria-live`, an error message needs `role="alert"`, an icon-only button needs `aria-label`. Don't try to make CSS substitute for the accessibility tree.
+
+The mantra (also captured in [CLAUDE.md](https://github.com/Studio-Manfred/manfred-design-system/blob/main/CLAUDE.md)): a11y is product-level, not a post-hoc check. Treat it that way.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { lintComponent } from '../lint-play-tiers.mjs';
+import { lintComponent, lintAll } from '../lint-play-tiers.mjs';
 
 describe('lintComponent — unmapped component', () => {
   it('rejects a component not in mapping or exclusion list', () => {
@@ -241,5 +241,15 @@ describe('lintComponent — robustness', () => {
     });
     expect(r.ok).toBe(false);
     expect(r.reason).toMatch(/ARIA/);
+  });
+});
+
+describe('lintAll — repository walker', () => {
+  it('runs against the real repo and returns a result per component', async () => {
+    const results = await lintAll();
+    // 37 components should produce 37 results.
+    expect(results.length).toBe(37);
+    // All results must have ok set.
+    expect(results.every((r) => typeof r.ok === 'boolean')).toBe(true);
   });
 });

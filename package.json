@@ -33,7 +33,8 @@
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
-    "test:coverage": "vitest run --project unit --coverage"
+    "test:coverage": "vitest run --project unit --coverage",
+    "lint:play-tiers": "node scripts/lint-play-tiers.mjs"
   },
   "keywords": [
     "design-system",

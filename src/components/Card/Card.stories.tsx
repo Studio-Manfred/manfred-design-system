@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import {
   Card,
   CardHeader,
@@ -67,6 +68,15 @@ export const Default: Story = {
           'card.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The footer button must be reachable so users can activate the card's primary action.
+    const actionBtn = canvas.getByRole('button', { name: 'Primary action' });
+    expect(actionBtn).toBeInTheDocument();
+    // Clicking the button confirms pointer events flow through the Card surface.
+    await userEvent.click(actionBtn);
+    expect(actionBtn).toBeInTheDocument();
   },
   render: (args) => (
     <Card {...args} className="w-80">

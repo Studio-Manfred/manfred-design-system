@@ -1,0 +1,85 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as AccordionStories from '../components/Accordion/Accordion.stories';
+import * as SheetStories from '../components/Sheet/Sheet.stories';
+
+<Meta title="Foundation/Motion" />
+
+# Motion
+
+Manfred uses one convention for animation: **`motion-safe:` Tailwind v4 gating**. Every transition, every keyframe, every translate / scale / rotate / fade ships behind the `motion-safe:` prefix. Users with `prefers-reduced-motion: reduce` get the state change immediately — no transition, no animation. Users without that preference get the full motion.
+
+This isn't a fallback or a polyfill. It's the contract.
+
+---
+
+## How `motion-safe:` works
+
+`motion-safe:` is a Tailwind v4 variant that compiles to `@media (prefers-reduced-motion: no-preference)`. The default state is **no animation**; the `motion-safe:` prefix opts a class in **only** when the user hasn't asked for reduced motion.
+
+```tsx
+// Chevron rotates over 200ms — but only for users who haven't
+// requested reduced motion. Reduced-motion users see the
+// rotation flip instantly.
+<Icon
+  name="chevron-down"
+  className="motion-safe:transition-transform motion-safe:duration-200"
+/>
+```
+
+This is the inverse of the older pattern of writing animation by default and overriding it with `@media (prefers-reduced-motion: reduce)`. The Tailwind variant lets us write the "safe to animate" path directly, so we never have to maintain a manual reduced-motion override.
+
+It satisfies **WCAG 2.3.3 — Animation from Interactions** (the success criterion that lets users disable non-essential animation triggered by interaction) without per-component CSS.
+
+---
+
+## What to wrap, what to leave alone
+
+`motion-safe:` is for **motion** — the things that move, fade, or scale. State styling stays unwrapped: a reduced-motion user still needs to see that an accordion is open, that a menu has focus, that a button is pressed.
+
+| Wrap in `motion-safe:` | Leave unwrapped |
+|------------------------|-----------------|
+| `transition-transform`, `transition-opacity`, `transition-colors` | `data-[state=open]:bg-accent` |
+| `duration-*` | `aria-expanded:rotate-180` (no transition → instant) |
+| `animate-in`, `animate-out`, `fade-in-0`, `slide-in-from-*` | `data-[state=open]:underline` |
+| Custom keyframes (`animate-accordion-down`, …) | `focus-visible:shadow-[var(--shadow-focus)]` |
+
+A useful test: if you removed the class, would a sighted user still understand the state changed? If yes, the class is decorative motion — wrap it. If no, the class is state — leave it.
+
+The only exception is the focus ring. We do **not** animate focus rings; they appear instantly in either mode. That keeps keyboard users oriented without forcing reduced-motion users to wait for a transition.
+
+---
+
+## Where it lives in the system
+
+Four components currently apply the `motion-safe:` convention. The list is grep-able from the components folder:
+
+- **NavigationMenu** — submenu fade/slide and indicator translation.
+- **Accordion** — chevron rotation + content slide-in/out.
+- **Sheet** — full-screen panel slide-in from each edge.
+- **DatePicker** — popover open/close transitions.
+
+When you add a new component with motion, add the `motion-safe:` prefix and add the component to this list.
+
+### Accordion — chevron rotation + content slide
+
+The chevron rotates 180° on `data-[state=open]`, but the *transition* between rotations is gated. Reduced-motion users see the chevron flip instantly; everyone else sees a 200ms rotation. The content panel does the same with the `accordion-up` / `accordion-down` keyframes.
+
+<Canvas of={AccordionStories.Single} />
+
+### Sheet — slide in from any edge
+
+Sheet animates in from `top`, `right`, `bottom`, or `left` using `slide-in-from-*` and `slide-out-to-*` keyframes, all wrapped in `motion-safe:`. Reduced-motion users get the open/close immediately, without sliding.
+
+<Canvas of={SheetStories.Right} />
+
+For NavigationMenu and DatePicker motion in action, see [`Components/NavigationMenu`](?path=/docs/components-navigationmenu--docs) and [`Components/DatePicker`](?path=/docs/components-datepicker--docs).
+
+---
+
+## Authoring rules
+
+1. **Default to no animation.** Write the static styling first; then layer motion on top with `motion-safe:`.
+2. **Wrap motion utilities, not state utilities.** `motion-safe:transition-colors` — yes. `motion-safe:data-[state=open]:bg-accent` — no, that hides the state from reduced-motion users.
+3. **Pair `motion-safe:transition-*` with `motion-safe:duration-*`.** Without a duration class, the browser falls back to its default (often instant or jarring).
+4. **No manual `@media (prefers-reduced-motion: reduce)`.** The whole point of the convention is that the `motion-safe:` prefix is the override. If you find yourself writing the media query by hand, the styling is in the wrong place.
+5. **Never animate focus rings.** Keyboard users need them to appear instantly.

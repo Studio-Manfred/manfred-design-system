@@ -1,0 +1,10 @@
+# Manfred Design System
+# https://studio-manfred.github.io/manfred-design-system/
+
+storybook: https://studio-manfred.github.io/manfred-design-system/
+storybook-mcp: http://localhost:6006/mcp (run `npm run storybook` first)
+components-index: https://studio-manfred.github.io/manfred-design-system/index.json
+component-registry: https://studio-manfred.github.io/manfred-design-system/registry.json
+agents-guide: https://github.com/Studio-Manfred/manfred-design-system/blob/main/AGENTS.md
+claude-guide: https://github.com/Studio-Manfred/manfred-design-system/blob/main/CLAUDE.md
+install: GitHub Packages — see README.md for .npmrc setup

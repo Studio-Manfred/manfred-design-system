@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-05-10
+
+Wave 1 of the **Storybook play functions** epic (STU-127 / STU-128).
+Establishes the tier contract, ships the lint that enforces it, and
+wires unit tests + runtime a11y scan + tier lint into the PR pipeline.
+**No new component play coverage** — that's Wave 2 (STU-129). Pure
+infra release; no runtime API changes; no breaking changes.
+
+### Added
+
+- **`scripts/play-tiers.json`** — tier mapping for all 37 components.
+  Every component is in exactly one of tier A (smoke), B (smoke +
+  interaction), C (full keyboard + ARIA), or `excluded` (layout
+  primitives: Container, Grid, PageBackground, PageShell, Stack).
+  This is the single source of truth for the lint.
+- **`scripts/lint-play-tiers.mjs`** — Node ESM lint, zero deps.
+  Exports `lintComponent(...)` (pure function, 18 unit tests) and
+  `lintAll()` (filesystem walker over `src/components/`). CLI entry
+  point with `--report` mode that writes `docs/PLAY-AUDIT.md`.
+  Hardened against nested-destructure params, comment-injected
+  tokens, malformed mappings, non-string sources, and duplicate-tier
+  membership.
+- **`npm run lint:play-tiers`** — invokes the lint. Exits 1 on any
+  failure. Used by CI.
+- **`npm run test:storybook`** — `vitest run --project storybook`.
+  Headless Chromium play execution. **Local use only in v0.18.0**;
+  the CI gate is deferred to v0.18.1 pending vitest browser-mode
+  setup verification.
+- **`npm run test:all`** — chains `test` (unit) + `test:storybook`
+  for local pre-push.
+- **`docs/PLAY-FUNCTIONS.md`** — authoring guide. Tier definitions,
+  conventions (`storybook/test` imports, portal queries via
+  `within(document.body)`, `findByRole` for async, no style
+  assertions), per-tier templates, troubleshooting.
+- **`.github/workflows/ci.yml`** — first PR-trigger workflow in this
+  repo. Runs `lint:play-tiers` (soft-fail until Wave 2 fills
+  coverage), unit tests, Storybook build, and the runtime a11y scan.
+- **AGENTS.md / CLAUDE.md** — short links to the new authoring
+  guide and tier mapping.
+
+### Notes
+
+- **Lint baseline:** 27 of 37 components currently fail
+  `lint:play-tiers` — 23 missing play, 4 below tier (Checkbox,
+  SearchBar, Sheet, Tooltip). The lint is wired as soft-fail in CI;
+  Wave 2 fills coverage and Wave 3 brings the existing 4 to tier.
+- **Scope correction during Wave 1:** the original epic plan
+  assumed 22 existing play functions. The real count is 9 — earlier
+  inventory used a `grep -l "play:"` that false-matched
+  `display: 'flex'`. Wave 2 / Wave 3 ticket scopes have been
+  re-baselined on the [STU-127 epic](https://linear.app/studio-manfred/issue/STU-127).
+- **Spec:** `docs/superpowers/specs/2026-05-10-storybook-play-functions-design.md`.
+  **Plan:** `docs/superpowers/plans/2026-05-10-play-functions-wave-1.md`.
+
 ## [0.17.0] - 2026-05-10
 
 Wave 3 (final wave) of the **AI/agent-friendly Storybook surface**

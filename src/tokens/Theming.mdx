@@ -1,0 +1,101 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Foundation/Theming" />
+
+# Theming
+
+Manfred ships **light** as the default and **dark** as a peer. There is no high-contrast or branded theme tier — both modes resolve through the same three-layer token chain documented on the [**Tokens**](?path=/docs/foundation-tokens--docs) page, and only **layer 2 (semantic) tokens rebind**. Primitives never change. The shadcn contract flips automatically through `var()` indirection.
+
+```
+<html>                 → follow OS prefers-color-scheme
+<html class="dark">    → force dark, regardless of OS
+<html class="light">   → force light, regardless of OS
+```
+
+A consumer wires this into their app shell — typically with a small toggle that adds or removes the class on `<html>`. Storybook does the same thing through its theme decorator (see below).
+
+---
+
+## Three-state toggle: system / light / dark
+
+The three-state contract is the only one we support. "System" means **no class**, so the OS preference governs. "Light" and "Dark" set an explicit class on `<html>` that overrides the OS.
+
+In Storybook, that's wired through `withThemeByClassName` from `@storybook/addon-themes` in [`.storybook/preview.ts`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/.storybook/preview.ts):
+
+```ts
+withThemeByClassName({
+  // 'system' maps to no class so the OS preference
+  // (prefers-color-scheme) wins. 'light'/'dark' set
+  // an explicit class on <html> that overrides it.
+  themes: { system: '', light: 'light', dark: 'dark' },
+  defaultTheme: 'system',
+  parentSelector: 'html',
+});
+```
+
+The toolbar toggle in Storybook flips between these three states on `<html>`. Consumers replicate the same shape — there is nothing Storybook-specific about the contract.
+
+---
+
+## How dark mode actually flips
+
+Two CSS blocks in [`src/tokens/tokens.css`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/src/tokens/tokens.css) carry the same declarations and together make the three-state contract work:
+
+```css
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    /* layer-2 semantic overrides */
+  }
+}
+
+:root.dark {
+  /* identical layer-2 semantic overrides */
+}
+```
+
+- `@media (prefers-color-scheme: dark) :root:not(.light)` activates when the OS prefers dark **and** no explicit `light` class is set. That's how `<html>` (no class) follows the OS.
+- `:root.dark` activates whenever `<html class="dark">` is present, regardless of the OS preference. That's how an app forces dark.
+- `:root.light` simply has no dark overrides applied to it, so light wins. That's how an app forces light.
+
+CSS can't group `@media` and a bare selector under one block, so the declarations are intentionally duplicated. Keep the two blocks in sync when adding a dark value.
+
+---
+
+## The `:where(body)` baseline
+
+Before the dark blocks, `tokens.css` sets a single neutral baseline on `body`:
+
+```css
+:where(body) {
+  background-color: var(--color-bg-default);
+  color: var(--color-text-primary);
+}
+```
+
+The `:where(...)` wrap keeps specificity at zero so consumers override trivially. This is what gives the page its theme-aware background and makes `currentColor` icons inherit the right foreground in either mode — components don't need to set a `color` themselves.
+
+---
+
+## What rebinds, what doesn't
+
+| Layer | Rebinds in dark? | Why |
+|-------|-----------------:|-----|
+| 1 — Primitives (`--blue-500`, `--neutral-800`) | No | Physical pigments, not roles. |
+| 2 — Semantic (`--color-text-primary`, `--color-bg-default`) | Yes | The single rebind point. |
+| 3 — shadcn contract (`--background`, `--primary`, `--ring`) | Indirectly | Wired through `var()` to layer 2 — flips automatically. |
+| `@theme inline` (`bg-primary`, `text-foreground`) | Indirectly | Bridges layer 3 to Tailwind utilities — also automatic. |
+
+If you ever feel the urge to override a shadcn contract token in `:root.dark`, stop — the layer-2 alias under it is the right place.
+
+---
+
+## Authoring rule
+
+When a value needs to change between themes:
+
+1. **Add it once** in the layer-2 light defaults.
+2. **Add the dark override** in **both** the `@media (prefers-color-scheme: dark) :root:not(.light)` block **and** the `:root.dark` block — they must stay identical.
+3. **Never override at the primitive level.** Primitives are pigments; rebinding them breaks the shadcn contract for everyone downstream.
+4. **Never override at the shadcn contract layer.** The contract reads through `var()` and flips automatically.
+
+If a component needs different behaviour in dark mode that **isn't** a token swap (e.g. a different SVG asset), gate it on a `prefers-color-scheme` media query inside the component — don't try to encode it through the token system.

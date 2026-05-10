@@ -33,6 +33,12 @@ const CONTRAST_EXEMPT_STORIES = new Set([
   'foundation-tokens--color-scales',
   'foundation-tokens--semantic-tokens',
   'foundation-tokens--sizing-tokens',
+  'foundation-tokens--typography-tokens',
+  'foundation-tokens--spacing-tokens',
+  'foundation-tokens--radius-tokens',
+  'foundation-tokens--motion-tokens',
+  'foundation-tokens--effect-tokens',
+  'foundation-tokens--chart-palette',
   'foundation-typography--color-variants',
 ]);
 // Stories that ARE pages (PageShell composes a full app shell, Examples/*

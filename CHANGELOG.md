@@ -7,6 +7,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-05-10
+
+Wave 2 of the **AI/agent-friendly Storybook surface** epic (STU-113).
+Pure documentation release — no runtime API changes, no breaking
+changes. Adds the narrative MDX foundation pages that autodocs
+cannot generate, polishes the Foundation/Tokens story coverage so
+every primitive group is browseable, and refreshes the Welcome
+story into a current AI on-ramp.
+
+### Added
+
+- **`Foundation/Tokens` narrative** — new `src/tokens/Tokens.mdx`
+  page bound to the existing tokens.stories.tsx via
+  `<Meta of={...} />`. Documents the three-layer token model
+  (primitives → semantic → shadcn contract → `@theme`), the
+  authoring rule "never hardcode hex in components", and embeds
+  10 token-stories canvases. (STU-120)
+- **6 new token-group stories** under `Foundation/Tokens`, using
+  the existing `Section` / `SwatchRow` / `ScaleRow` helpers (no new
+  helpers reinvented):
+  - `TypographyTokens` — font-size, line-height, font-weight scales
+  - `SpacingTokens` — `--space-*` scale
+  - `RadiusTokens` — `--radius-*` scale
+  - `MotionTokens` — `--duration-*` and `--ease-*` scales
+  - `EffectTokens` — `--shadow-*` and overlay tokens
+  - `ChartPalette` — `--chart-1..5`, `--chart-axis`, `--chart-grid`
+
+  Existing stories (BrandPalette, ColorScales, SemanticTokens,
+  SizingTokens) preserved with new per-story descriptions added.
+- **4 new Foundation MDX pages** under `src/tokens/`, sibling to
+  Tokens.mdx (STU-121):
+  - **`Foundation/Theming`** — three-state theme toggle (system / light
+    / dark), `withThemeByClassName` decorator, dark mode rebinds only
+    layer-2 semantic tokens, `:where(body)` baseline rule.
+  - **`Foundation/Accessibility`** — non-negotiable that a11y is
+    product-level, the 4 globally disabled axe rules in `preview.ts`
+    and their rationale (stories render in isolation), the runtime axe
+    scan workflow.
+  - **`Foundation/Motion`** — the `motion-safe:` Tailwind v4 gating
+    convention; lists the 4 components currently using it; documents
+    what NOT to wrap; embeds 2 canvases (Accordion, Sheet).
+  - **`Foundation/FormPatterns`** — compositional doc around `FormField`
+    + `Label` + input; three patterns (text input / textarea / Select)
+    plus the DatePicker range special case (`name_from` / `name_to`
+    serialisation); 5 embedded canvases.
+- **storySort updated** in `.storybook/preview.ts` — Foundation entry
+  extended with the new MDX pages:
+  ```diff
+  - 'Foundation', ['Tokens', 'Typography', 'Logo'],
+  + 'Foundation', ['Tokens', 'Typography', 'Logo', 'Theming',
+  +   'Accessibility', 'Motion', 'FormPatterns'],
+  ```
+- **Welcome refresh** (STU-122):
+  - Version badge bumped from `v0.10.1` → `v0.16.0`.
+  - Foundation card expanded with all 7 entries: Tokens, Typography,
+    Logo, Theming, Accessibility, Motion, Form patterns. The Tokens
+    link now points at the Docs-tab URL so consumers land on the
+    Tokens.mdx narrative by default.
+  - New "Where to start (for AI agents)" section between the
+    theme toggle section and the existing "Working with the system"
+    section: links AGENTS.md, CLAUDE.md, the Storybook MCP endpoint,
+    `.mcp.json`, and the non-negotiable rule.
+
+### Notes for consumers
+
+- Documentation-only release at the source level. The published npm
+  tarball is functionally identical except for the Storybook docs site
+  (now ~5 new MDX pages, 6 new token stories, refreshed Welcome).
+- The `Foundation/*` MDX corpus is now the canonical narrative
+  surface. AI agents querying via the Storybook MCP see all 5
+  Foundation pages alongside the component autodocs.
+
+### Wave 2 of 3
+
+Wave 1 closed the on-ramp + autodocs-substance gap. **Wave 2 (this
+release)** closes the foundations + narrative gap. **Wave 3 (target
+v0.17.0)** adds machine-readable artifacts (`llms.txt`, augmented
+`registry.json`, cleaner JSX source emission via
+`docs.source.type: 'code'`).
+
 ## [0.15.1] - 2026-05-10
 
 Hotfix release. Pure visual bug fix; no API changes.

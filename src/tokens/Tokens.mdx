@@ -1,0 +1,84 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as TokensStories from './tokens.stories';
+
+<Meta of={TokensStories} />
+
+# Tokens
+
+Manfred styling flows through one file — [`src/tokens/tokens.css`](https://github.com/Studio-Manfred/manfred-design-system/blob/main/src/tokens/tokens.css) — in three strict layers. Components never reach for hex literals; every value resolves through this chain, and that's what lets the system flip cleanly between light and dark, change brand colour without a sweep, and stay legible to designers reading the stylesheet from top to bottom.
+
+```
+Layer 1 — Primitives        Raw scales (--blue-500, --space-4)
+   ↓
+Layer 2 — Semantic           Aliases by intent (--color-text-primary)
+   ↓
+Layer 3 — shadcn contract    --background, --primary, --ring, …
+   ↓
+@theme inline { … }          Tailwind v4 utilities (bg-primary, ring-ring)
+```
+
+There is **no `tailwind.config.js`** — Tailwind v4 reads the `@theme` block at the bottom of `tokens.css` directly.
+
+---
+
+## Layer 1 — Primitives
+
+Raw values, named after **what they are**: `--blue-500`, `--neutral-800`, `--space-4`, `--font-size-lg`. Primitives never rebind under dark mode — they're physical pigments, not roles.
+
+<Canvas of={TokensStories.BrandPalette} />
+<Canvas of={TokensStories.ColorScales} />
+<Canvas of={TokensStories.TypographyTokens} />
+<Canvas of={TokensStories.SpacingTokens} />
+<Canvas of={TokensStories.SizingTokens} />
+<Canvas of={TokensStories.RadiusTokens} />
+<Canvas of={TokensStories.MotionTokens} />
+
+---
+
+## Layer 2 — Semantic
+
+Aliases named after **what they do**: `--color-text-primary`, `--color-interactive-brand-bg`, `--color-border-focus`. This is the layer components reference, and it's the only layer that rebinds under dark mode. Add a dark value here — never at the primitive level — by extending the `.dark, :root:where(...)` block in `tokens.css`.
+
+<Canvas of={TokensStories.SemanticTokens} />
+<Canvas of={TokensStories.EffectTokens} />
+<Canvas of={TokensStories.ChartPalette} />
+
+---
+
+## Layer 3 — shadcn contract
+
+The shadcn/ui ecosystem expects a fixed token vocabulary: `--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--border`, `--input`, `--ring`. We map our semantic tokens onto that vocabulary so stock shadcn components drop in unchanged. Because the contract is wired through `var()` indirection (e.g. `--primary: var(--color-interactive-primary-bg)`), it flips with dark mode automatically — there's nothing to override at this layer.
+
+If you're adding a third-party shadcn component, this is the only contract you need to satisfy.
+
+---
+
+## `@theme inline` — Tailwind utilities
+
+The block at the bottom of `tokens.css` exposes the shadcn contract (and a few aliases) as Tailwind v4 utilities:
+
+```css
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary:    var(--primary);
+  --color-ring:       var(--ring);
+  /* …radius, font-sans, animations… */
+}
+```
+
+That's how `bg-primary`, `text-foreground`, `ring-ring`, `rounded-md`, and the rest end up in the utility namespace. The `@theme` block doesn't define new design intent — it's a bridge.
+
+---
+
+## Authoring rules
+
+When adding a new value, walk the layers in order:
+
+1. **Add the primitive** to layer 1 (e.g. a new `--blue-50` shade). Skip if you can reuse an existing scale step.
+2. **Alias semantically** in layer 2 (`--color-feedback-info-bg: var(--blue-50)`). The semantic name is what components reference.
+3. **Map onto shadcn contract** only if a shadcn component needs it. Most additions stop at layer 2.
+4. **Expose in `@theme`** only if you want a Tailwind utility class for it.
+5. **Add a dark-mode override** in the `.dark, :root:where(...)` block if the value needs to change between themes — at layer 2 only.
+
+**Never hardcode hex in a component.** If you find yourself writing `bg-[#2c28ec]` or `color: #1e1e24`, that's a missing token, not a styling shortcut. Add the token first; reference it second.

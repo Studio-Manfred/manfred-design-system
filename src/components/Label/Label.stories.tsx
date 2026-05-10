@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Label } from './Label';
 import { TextInput } from '../TextInput';
 import { Checkbox } from '../Checkbox';
@@ -52,6 +53,11 @@ export const Default: Story = {
           'label text focuses the input — that pairing is what `Label` exists for.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The label's htmlFor pairing lets AT users find the input by its visible label — assert that link holds.
+    expect(canvas.getByRole('textbox', { name: 'Email address' })).toBeInTheDocument();
   },
   render: () => (
     <div style={{ width: '320px', display: 'flex', flexDirection: 'column', gap: 8 }}>

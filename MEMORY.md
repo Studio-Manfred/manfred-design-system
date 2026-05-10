@@ -4,7 +4,70 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
-## Current state — 2026-05-09 (v0.14.0 shipped, STU-79 epic closed)
+## Current state — 2026-05-10 (v0.17.0 shipped, STU-113 epic closed)
+
+- **Release:** `v0.17.0` — Wave 3 (final wave) of the
+  AI/agent-friendly Storybook surface epic. Published to GitHub
+  Packages via `.github/workflows/publish.yml`; Storybook auto-deployed
+  to GitHub Pages.
+- **Branch:** `main` — clean working tree.
+- **Epic STU-113 — AI/agent-friendly Storybook surface — DONE.**
+  12 PRs across 3 minor releases (v0.15.0, v0.16.0, v0.17.0) plus
+  1 patch (v0.15.1). Zero breaking changes.
+
+### What shipped during the STU-113 epic
+
+**v0.15.0 — Wave 1 (Onramp + autodocs substance, PRs #19–#25)**
+- `AGENTS.md` at the repo root — generic on-ramp for non-Claude
+  agents (Cursor, Copilot, Windsurf, Cline).
+- README refresh — bumped stale "17 components" to "30+", added
+  `## AI agents` section.
+- JSDoc on every component + ~60 compound sub-parts — rendered into
+  autodocs Description blocks via `react-docgen-typescript`.
+- Per-prop JSDoc on every Props interface — autodocs prop-table
+  description column populated.
+- Expanded `argTypes` + per-story descriptions on every story file.
+
+**v0.15.1 — DatePicker popover bg hotfix (PR #26, STU-126)**
+- `bg-[var(--color-bg-surface)]` (phantom token) →  `bg-popover`
+  (canonical shadcn). Lesson saved to
+  [`reference_phantom_token_pitfall`](memory).
+
+**v0.16.0 — Wave 2 (Foundations & narrative, PRs #27–#30)**
+- 5 narrative MDX foundation pages — Tokens, Theming, Accessibility,
+  Motion, FormPatterns. All under `Foundation/*` in the sidebar.
+- 6 new token-group stories — TypographyTokens, SpacingTokens,
+  RadiusTokens, MotionTokens, EffectTokens, ChartPalette.
+- Refreshed Welcome story with v0.16.0 badge, expanded Foundation
+  card (7 links), new "Where to start (for AI agents)" section.
+
+**v0.17.0 — Wave 3 (Machine-readable artifacts, PRs #31–#34)**
+- `/llms.txt` at the deploy root — single-URL bootstrap for AI
+  agents.
+- `/registry.json` at the deploy root — shadcn-shape, 37 entries
+  emitted by `scripts/build-registry.mjs` on every build.
+- `docs.source.type: 'code'` in `.storybook/preview.ts` — autodocs
+  Show-code blocks emit literal story bodies. 4 DatePicker Range
+  stories got per-story `'auto'` overrides
+  ([reference_source_type_code_spread_cast](memory)).
+
+### Conventions surfaced or reinforced this epic
+
+- **Pilot-then-parallel-batches** for repo-wide template work (see
+  [`procedure_pilot_then_parallel_batches`](memory)) — Wave 1
+  applied the Button JSDoc template across 36 components in
+  ~25 min wall-clock via 4 parallel subagents.
+- **Integration-preview branch** for multi-PR waves (see
+  [`procedure_integration_preview_branch`](memory)) — local-only
+  three-way merge so the user reviews combined state in Storybook
+  before merging upstream PRs.
+- **Storybook MDX binding patterns** — `<Meta of={...} />` for
+  pages with sibling stories, `<Meta title="..." />` for
+  narrative-only. Both used in the Foundation/* corpus.
+
+---
+
+## Previous state — 2026-05-09 (v0.14.0 shipped, STU-79 epic closed)
 
 - **Release:** `v0.14.0` — published to GitHub Packages via
   `.github/workflows/publish.yml`. Wave 3 (final wave) of the

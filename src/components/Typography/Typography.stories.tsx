@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { within, expect } from 'storybook/test';
 import { Typography } from './Typography';
 
 const meta: Meta<typeof Typography> = {
@@ -69,6 +70,11 @@ export const AllVariants: Story = {
           'the type scale.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // headline1 maps to <h1> — verify the variant-to-element mapping produces the correct heading level.
+    expect(canvas.getByRole('heading', { level: 1 })).toBeInTheDocument();
   },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

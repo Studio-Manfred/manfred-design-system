@@ -31,16 +31,38 @@ const avatarVariants = cva(
 export type AvatarSize = NonNullable<VariantProps<typeof avatarVariants>['size']>;
 export type AvatarVariant = NonNullable<VariantProps<typeof avatarVariants>['variant']>;
 
+/**
+ * Props for the {@link Avatar} component.
+ *
+ * Inherits standard `<span>` attributes (e.g. `id`, `data-*`,
+ * `onClick`) via `React.HTMLAttributes`, except `role` and `aria-label`
+ * which the component sets internally.
+ */
 export interface AvatarProps
   extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'role' | 'aria-label'>,
     VariantProps<typeof avatarVariants> {
-  /** Required accessible name. Avatar is identity, not decorative. */
+  /**
+   * Required accessible name. Avatar represents identity, not decoration —
+   * pass the person or account name (e.g. "Jens Wedin", "Account: Acme Co.").
+   * Read aloud as the avatar's label by assistive tech.
+   */
   alt: string;
-  /** Optional image source. Falls back to initials if missing or fails to load. */
+  /**
+   * Optional image URL. If missing or it fails to load, falls back to
+   * initials derived from `name` / `alt` or the explicit `initials` prop.
+   */
   src?: string;
-  /** Source for initials when no image. Defaults to `alt`. */
+  /**
+   * Source string for initial derivation when no image is shown. Defaults
+   * to `alt`. Use this when the displayed initials should differ from the
+   * accessible name (e.g. derive from "Acme Co." while labelling as
+   * "Account: Acme Co.").
+   */
   name?: string;
-  /** Explicit initials override (skips derivation). */
+  /**
+   * Override the derived initials with an explicit string. Use sparingly —
+   * the default derivation handles most cases.
+   */
   initials?: string;
 }
 
@@ -61,6 +83,31 @@ function deriveInitials(input: string): string {
     .toUpperCase();
 }
 
+/**
+ * Compact identity badge — a person or account represented by an image
+ * with an initials fallback.
+ *
+ * Three sizes (`sm` 28px, `md` 36px, `lg` 48px) and two variants
+ * (`neutral` for most cases, `brand` for the user's own account /
+ * primary identity slot).
+ *
+ * Accessibility:
+ * - Renders as a `<span role="img">` with `aria-label={alt}`. The image
+ *   itself is `aria-hidden` because the wrapping `role="img"` already
+ *   carries the accessible name.
+ * - Initials are decorative; never communicate meaning through them
+ *   alone.
+ *
+ * @example Image with initials fallback
+ * ```tsx
+ * <Avatar alt="Jens Wedin" src="/me.jpg" name="Jens Wedin" />
+ * ```
+ *
+ * @example Initials only
+ * ```tsx
+ * <Avatar alt="Acme Co." name="Acme Co." variant="brand" />
+ * ```
+ */
 export const Avatar = React.forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
   { alt, src, name, initials, size = 'md', variant = 'neutral', className, ...rest },
   ref,

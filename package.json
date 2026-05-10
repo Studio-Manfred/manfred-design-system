@@ -34,6 +34,8 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
+    "test:storybook": "vitest run --project storybook",
+    "test:all": "npm run test && npm run test:storybook",
     "lint:play-tiers": "node scripts/lint-play-tiers.mjs"
   },
   "keywords": [

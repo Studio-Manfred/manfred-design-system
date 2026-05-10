@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';
 
 const meta: Meta<typeof Tabs> = {
@@ -46,6 +47,20 @@ export const Segmented: Story = {
           'track. Best for binary or small-set view switches.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The tab list must be present and named so AT can announce the group.
+    expect(canvas.getByRole('tablist', { name: 'View' })).toBeInTheDocument();
+    // The default tab is selected — verify aria-selected is "true" on the active trigger.
+    const boardTab = canvas.getByRole('tab', { name: 'Board' });
+    expect(boardTab).toHaveAttribute('aria-selected', 'true');
+    // Clicking the Dashboard tab switches selection — verify Radix state update fires.
+    await userEvent.click(canvas.getByRole('tab', { name: 'Dashboard' }));
+    expect(canvas.getByRole('tab', { name: 'Dashboard' })).toHaveAttribute('aria-selected', 'true');
+    // ArrowLeft keyboard navigation moves focus back to the Board tab in Radix's roving tabindex.
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(canvas.getByRole('tab', { name: 'Board' })).toHaveAttribute('aria-selected', 'true');
   },
   render: (args) => (
     <Tabs defaultValue="board" {...args}>

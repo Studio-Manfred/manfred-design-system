@@ -37,6 +37,11 @@ const DEFAULT_MAIN_ID = 'page-body';
 // PageShell (root)
 // --------------------------------------------------------------------------
 
+/**
+ * Props for the {@link PageShell} root. Inherits standard `<div>`
+ * attributes; the page-level a11y wiring is handled by the dedicated
+ * skip-link props below.
+ */
 export interface PageShellProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Id used for the skip-link target. Must match the id passed to PageBody
@@ -49,6 +54,24 @@ export interface PageShellProps extends React.HTMLAttributes<HTMLDivElement> {
   includeSkipLink?: boolean;
 }
 
+/**
+ * Full-viewport application shell with one main landmark.
+ *
+ * Wraps the page in a `min-h-screen` flex column, auto-renders a
+ * keyboard-only skip-link as the first focusable element, and locks
+ * the inner {@link PageBody} to `<main>`. Compose with
+ * {@link PageHeader}, {@link PageBody}, and {@link PageFooter} —
+ * Card-style composition.
+ *
+ * @example Standard app shell
+ * ```tsx
+ * <PageShell>
+ *   <PageHeader><NavBar /></PageHeader>
+ *   <PageBody><Container>…</Container></PageBody>
+ *   <PageFooter>© Studio Manfred</PageFooter>
+ * </PageShell>
+ * ```
+ */
 export const PageShell = React.forwardRef<HTMLDivElement, PageShellProps>(
   function PageShell(
     {
@@ -107,10 +130,18 @@ const pageHeaderVariants = cva(
   },
 );
 
+/**
+ * Props for {@link PageHeader}. Adds the `sticky` toggle on top of
+ * standard `<header>` attributes.
+ */
 export interface PageHeaderProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof pageHeaderVariants> {}
 
+/**
+ * Top chrome rendered as a `<header>` landmark. Sticky to the top of
+ * the viewport by default; pass `sticky={false}` for an inline header.
+ */
 export const PageHeader = React.forwardRef<HTMLElement, PageHeaderProps>(
   function PageHeader({ className, sticky = true, children, ...rest }, ref) {
     return (
@@ -142,10 +173,19 @@ const pageBodyVariants = cva(['flex-1 overflow-y-auto'].join(' '), {
   },
 });
 
+/**
+ * Props for {@link PageBody}. Adds a `padded` toggle for the responsive
+ * inner padding.
+ */
 export interface PageBodyProps
   extends React.HTMLAttributes<HTMLElement>,
     VariantProps<typeof pageBodyVariants> {}
 
+/**
+ * The page's `<main>` landmark. Owns `flex-1` so the surrounding header
+ * + footer pin correctly when content is short, and is the target of
+ * the auto-rendered skip-link via its `id`.
+ */
 export const PageBody = React.forwardRef<HTMLElement, PageBodyProps>(
   function PageBody(
     { className, padded = true, id = DEFAULT_MAIN_ID, children, ...rest },
@@ -169,8 +209,14 @@ PageBody.displayName = 'PageBody';
 // PageFooter
 // --------------------------------------------------------------------------
 
+/** Props for {@link PageFooter}. Standard `<footer>` attributes. */
 export interface PageFooterProps extends React.HTMLAttributes<HTMLElement> {}
 
+/**
+ * Bottom chrome rendered as a `<footer>` landmark. Sits below the body;
+ * because PageBody owns `flex-1`, the footer naturally hugs the
+ * viewport bottom on short pages.
+ */
 export const PageFooter = React.forwardRef<HTMLElement, PageFooterProps>(
   function PageFooter({ className, children, ...rest }, ref) {
     return (

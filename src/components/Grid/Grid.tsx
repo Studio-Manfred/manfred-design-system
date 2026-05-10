@@ -151,10 +151,15 @@ export type GridAlign = NonNullable<VariantProps<typeof gridVariants>['align']>;
 export type GridJustify = NonNullable<VariantProps<typeof gridVariants>['justify']>;
 export type GridElement = 'div' | 'ul' | 'section';
 
+/**
+ * Props for the {@link Grid} component. Combines standard HTML
+ * attributes with the cva-derived `gap` / `align` / `justify` variants
+ * plus a responsive `cols` API.
+ */
 export interface GridProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     Omit<VariantProps<typeof gridVariants>, 'gap' | 'align' | 'justify'> {
-  /** Column count: a number (1–12) or a responsive object. Defaults to 1. */
+  /** Column count: a number (1–12) or a responsive object like `{ base: 1, md: 3 }`. Defaults to 1. */
   cols?: GridCols;
   /** Token-driven gap matching the `--space-*` scale. Defaults to 4. */
   gap?: GridGap;
@@ -162,11 +167,31 @@ export interface GridProps
   align?: GridAlign;
   /** `justify-items` passthrough. Defaults to `stretch`. */
   justify?: GridJustify;
-  /** Element to render as. Defaults to `div`. */
+  /** Element to render as. Defaults to `div`. Use `ul` for lists. */
   as?: GridElement;
+  /** Grid items. */
   children?: React.ReactNode;
 }
 
+/**
+ * Token-driven CSS-grid wrapper.
+ *
+ * `cols` accepts a single number (1–12) for fixed grids or a
+ * responsive object (`{ base, sm, md, lg, xl }`) for adaptive layouts.
+ * `gap` is locked to the spacing scale exposed via `--space-*` tokens
+ * so grids stay rhythmically aligned with the rest of the system.
+ *
+ * Tailwind v4 statically extracts class names; the `cols` map is
+ * pre-listed in source so JIT picks it up at build time. Don't replace
+ * with template-literal class strings.
+ *
+ * @example Responsive 1 / 2 / 3 column layout
+ * ```tsx
+ * <Grid cols={{ base: 1, md: 2, lg: 3 }} gap={6}>
+ *   {items.map((it) => <Card key={it.id} {...it} />)}
+ * </Grid>
+ * ```
+ */
 export const Grid = React.forwardRef<HTMLElement, GridProps>(function Grid(
   {
     as = 'div',

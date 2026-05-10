@@ -11,17 +11,57 @@ import { Button } from '@/components/Button';
 const meta: Meta<typeof Accordion> = {
   title: 'Components/Accordion',
   component: Accordion,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Vertically stacked, expand-and-collapse panel set built on ' +
+          '`@radix-ui/react-accordion`. Composes `Accordion` (root) with ' +
+          '`AccordionItem`, `AccordionTrigger`, and `AccordionContent`. ' +
+          'Single-open or multi-open via Radix\'s discriminated `type` prop. ' +
+          'Animations are gated behind `motion-safe:` so reduced-motion ' +
+          'users still get full open / close behaviour.',
+      },
+    },
+  },
+  argTypes: {
+    type: {
+      control: 'inline-radio',
+      options: ['single', 'multiple'],
+      description:
+        '`single` allows one open item at a time; `multiple` allows any ' +
+        'number open. Required by Radix.',
+    },
+    collapsible: {
+      control: 'boolean',
+      description:
+        'Only valid when `type="single"`. Lets the user close the open ' +
+        'item by clicking it again.',
+    },
+    defaultValue: {
+      control: 'text',
+      description:
+        'Uncontrolled initial open value (string for single, string[] for ' +
+        'multiple).',
+    },
+  },
 };
 export default meta;
 
 type Story = StoryObj<typeof Accordion>;
 
-/**
- * Single mode: only one item open at a time. `collapsible` lets the
- * user close the open item by clicking it again.
- */
 export const Single: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Single-open mode with `collapsible`. The most common shape — an ' +
+          'FAQ block, where focusing one answer hides the others. Clicking ' +
+          'the open item closes it.',
+      },
+    },
+  },
   render: () => (
     <Accordion type="single" collapsible className="w-[480px]">
       <AccordionItem value="item-1">
@@ -58,10 +98,17 @@ export const Single: Story = {
   ),
 };
 
-/**
- * Multiple mode: any number of items can be open at the same time.
- */
 export const Multiple: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Multi-open mode. Use when the items are independent and the user ' +
+          'might want to compare them — settings categories, side-by-side ' +
+          'sections — rather than scan one at a time.',
+      },
+    },
+  },
   render: () => (
     <Accordion type="multiple" className="w-[480px]">
       <AccordionItem value="item-1">
@@ -86,10 +133,17 @@ export const Multiple: Story = {
   ),
 };
 
-/**
- * Single mode with `defaultValue` set so item 2 is open on first render.
- */
 export const DefaultOpen: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Uncontrolled accordion seeded with `defaultValue` so the named ' +
+          'item is open on first render. Use when the page should land on a ' +
+          'specific section without forcing controlled state.',
+      },
+    },
+  },
   render: () => (
     <Accordion
       type="single"
@@ -115,11 +169,18 @@ export const DefaultOpen: Story = {
   ),
 };
 
-/**
- * Items can contain rich content — paragraphs, lists, buttons —
- * not just a string.
- */
 export const WithRichContent: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`AccordionContent` accepts arbitrary children. Demonstrates that ' +
+          'content panels can hold paragraphs, lists, and call-to-action ' +
+          'buttons — not just plain copy — for FAQ pages with embedded ' +
+          'flows.',
+      },
+    },
+  },
   render: () => (
     <Accordion type="single" collapsible className="w-[520px]">
       <AccordionItem value="item-1">
@@ -152,11 +213,17 @@ export const WithRichContent: Story = {
   ),
 };
 
-/**
- * Realistic placement: Accordion inside a Card, e.g. an FAQ block on a
- * settings or marketing page.
- */
 export const InCard: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Realistic placement: an Accordion nested inside a Card — the ' +
+          'standard FAQ block on a settings or marketing page. Verifies ' +
+          'the two components compose without padding clashes.',
+      },
+    },
+  },
   render: () => (
     <Card className="w-[520px]">
       <CardHeader>

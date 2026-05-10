@@ -4,9 +4,30 @@ import { Spinner } from './Spinner';
 const meta: Meta<typeof Spinner> = {
   title: 'Components/Spinner',
   component: Spinner,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Indeterminate progress indicator drawn with an SVG arc. Three ' +
+          'sizes (`sm` / `md` / `lg`) and a built-in `role="status"` plus ' +
+          '`sr-only` label so it announces correctly to assistive tech. Use ' +
+          'for short waits where progress can\'t be measured.',
+      },
+    },
+  },
   argTypes: {
-    size: { control: 'select', options: ['sm', 'md', 'lg'] },
+    size: {
+      control: 'select',
+      options: ['sm', 'md', 'lg'],
+      description: 'Size scale — 16px / 24px / 40px.',
+      table: { defaultValue: { summary: 'md' } },
+    },
+    label: {
+      control: 'text',
+      description: 'Visually-hidden label read by screen readers.',
+      table: { defaultValue: { summary: 'Loading' } },
+    },
   },
 };
 
@@ -19,9 +40,27 @@ export const Playground: Story = {
     size: 'md',
     label: 'Loading',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — toggle size and screen-reader label via the ' +
+          'Controls panel.',
+      },
+    },
+  },
 };
 
 export const AllSizes: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three sizes side by side. `sm` for inline use (button labels), ' +
+          '`md` (default) for inline blocks, `lg` for full-surface loading.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', gap: '32px', alignItems: 'center' }}>
       {(['sm', 'md', 'lg'] as const).map((size) => (
@@ -51,6 +90,15 @@ export const AllSizes: Story = {
 };
 
 export const OnDarkBackground: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Spinner on the brand-blue surface. The arc inherits the brand ' +
+          'colour token, so the contrast stays readable against the logo blue.',
+      },
+    },
+  },
   render: () => (
     <div
       style={{

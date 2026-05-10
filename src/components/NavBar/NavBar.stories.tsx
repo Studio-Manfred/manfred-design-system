@@ -4,13 +4,43 @@ import { NavBar, NavItem } from './NavBar';
 const meta: Meta<typeof NavBar> = {
   title: 'Components/NavBar',
   component: NavBar,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Flat horizontal navigation with no sub-menus. Wraps children in a ' +
+          '`<nav aria-label="Primary">` landmark; pair with `NavItem` for ' +
+          'styled links that get `aria-current="page"` automatically when ' +
+          '`active`. For navigation with dropdown panels, use ' +
+          '`NavigationMenu` instead — that one is built on Radix and supports ' +
+          'sub-menus, viewport animations, and keyboard menu traversal.',
+      },
+    },
+  },
+  argTypes: {
+    'aria-label': {
+      control: 'text',
+      description:
+        'Accessible name for the nav landmark. Defaults to "Primary"; set when more than one nav exists on a page.',
+    },
+  },
 };
 export default meta;
 
 type Story = StoryObj<typeof NavBar>;
 
 export const Default: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Three flat links, with the first marked `active`. The active item ' +
+          'gets the foreground colour, an underline indicator, and ' +
+          '`aria-current="page"` on the rendered element.',
+      },
+    },
+  },
   render: () => (
     <NavBar>
       <NavItem href="#home" active>
@@ -23,6 +53,16 @@ export const Default: Story = {
 };
 
 export const SecondActive: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Sanity check that the active treatment moves cleanly between items — ' +
+          'this story exists to catch regressions where the indicator pins to ' +
+          'the first child by accident.',
+      },
+    },
+  },
   render: () => (
     <NavBar>
       <NavItem href="#home">Home</NavItem>
@@ -36,6 +76,16 @@ export const SecondActive: Story = {
 
 export const InTopBar: Story = {
   name: 'TopBar usage (dashboard sketch)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Realistic placement: NavBar sits between a brand label and a ' +
+          'utility item inside a `<header>`. Shows the spacing + alignment ' +
+          'NavBar is designed for.',
+      },
+    },
+  },
   render: () => (
     <header className="flex items-center justify-between w-[640px] h-14 px-4 border-b border-border bg-card">
       <span className="text-sm font-semibold">Mitt Intranat</span>
@@ -53,6 +103,17 @@ export const InTopBar: Story = {
 
 export const WithRouterLikeComponent: Story = {
   name: 'NavItem with `as` (router Link mock)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Passing `as={RouterLink}` swaps the underlying element while ' +
+          'keeping NavItem styling. The mock Link here writes a ' +
+          '`data-router` attribute so it is obvious in the DOM that the ' +
+          'consumer-supplied component renders, not a plain `<a>`.',
+      },
+    },
+  },
   render: () => {
     const RouterLink = ({
       to,

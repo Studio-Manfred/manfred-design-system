@@ -15,12 +15,19 @@ import {
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 
+/** Props for the {@link BarChart} component. */
 export interface BarChartProps {
+  /** Row data — each row is one category, with one numeric field per series. */
   data: Record<string, unknown>[];
+  /** Series definitions; `key` matches a field on each row, `name` is the legend label. */
   series: ChartSeriesDef[];
+  /** Field on each row used as the X-axis category label. */
   categoryKey: string;
+  /** Fixed canvas height in px. Width fills the parent. Defaults to 240. */
   height?: number;
+  /** Accessible name for the chart. Auto-generated from data + series when omitted. */
   ariaLabel?: string;
+  /** Long description linked via `aria-describedby`. */
   ariaDescription?: string;
   /** Show the legend. Defaults to true when more than one series. */
   showLegend?: boolean;
@@ -30,9 +37,28 @@ export interface BarChartProps {
   showFallbackTable?: boolean;
   /** Force reduced motion (test/story override). */
   forceReducedMotion?: boolean;
+  /** Extra classes merged onto the wrapping `ChartContainer`. */
   className?: string;
 }
 
+/**
+ * Vertical bar chart wrapping Recharts' `BarChart`.
+ *
+ * Renders one bar series per `series[]` entry, with colours cycling
+ * through the `--chart-1` … `--chart-5` token slots via
+ * {@link chartSeriesColor}. Wraps everything in {@link ChartContainer}
+ * so the chart inherits the standard a11y contract (role, aria-label,
+ * sr-only data table) and reduced-motion handling.
+ *
+ * @example Single-series traffic chart
+ * ```tsx
+ * <BarChart
+ *   data={rows}
+ *   series={[{ key: 'visits', name: 'Visits' }]}
+ *   categoryKey="month"
+ * />
+ * ```
+ */
 export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>((props, ref) => {
   const {
     data,

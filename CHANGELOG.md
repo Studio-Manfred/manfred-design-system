@@ -7,6 +7,91 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-05-10
+
+Wave 1 of the **AI/agent-friendly Storybook surface** epic (STU-113).
+Pure documentation release — no runtime API changes, no breaking
+changes. Lands an `AGENTS.md` on-ramp at the repo root, refreshes
+the stale README, and adds JSDoc + story-description coverage
+across the entire component surface so the autodocs prop-table
+description column populates and the Storybook MCP
+`get-documentation` tool returns rich metadata.
+
+### Added
+
+- **`AGENTS.md`** at the repo root — generic agent on-ramp for
+  Cursor / Copilot / Windsurf / Cline / generic MCP clients.
+  Documents the Storybook MCP endpoint at
+  `http://localhost:6006/mcp`, the five tools every agent needs
+  (`list-all-documentation`, `get-documentation`,
+  `get-storybook-story-instructions`, `run-story-tests`,
+  `preview-stories`), the non-negotiable "never invent props"
+  rule, and points at `CLAUDE.md` as the canonical engineering
+  guide. (STU-114)
+- **JSDoc on every component + sub-part** — 36 components and
+  ~60 compound sub-parts now have component-level JSDoc rendered
+  in the autodocs Description block. Per-prop JSDoc on every
+  Props interface renders in the autodocs prop-table description
+  column via `react-docgen-typescript`. Compound components
+  (Card, Dialog, Sheet, Tabs, Tooltip, NavigationMenu, Select,
+  Accordion, Radio, etc.) have JSDoc on each exported sub-part.
+  (STU-115..119)
+- **Expanded `argTypes` and per-story descriptions** on every
+  story file — meta-level `parameters.docs.description.component`,
+  `argTypes` with `description` strings on every entry, and
+  per-story `parameters.docs.description.story` on every named
+  story. Storybook autodocs and the public Storybook on GitHub
+  Pages now ship a fully-described component surface.
+- README — top-of-file 🤖 AI agents pointer and an `## AI agents`
+  section above `## Local development` linking AGENTS.md /
+  CLAUDE.md / the MCP endpoint.
+
+### Changed
+
+- README — refreshed component count from "17" to "30+",
+  refreshed the inline component list (added Avatar, Card, Chart,
+  Kbd, NavBar, Select, Tabs that were exported from the barrel
+  but missing from the list; added a separate line for the 5
+  layout primitives Container / Grid / PageBackground / PageShell
+  / Stack).
+
+### Notes for consumers
+
+- Documentation-only release at the source level — no runtime
+  API changes. The published npm tarball is functionally
+  identical except that consumers of the Storybook MCP server (or
+  the public Storybook on GitHub Pages) will now see
+  fully-populated prop tables and story descriptions.
+- The AGENTS.md / CLAUDE.md / Storybook MCP contract is now
+  formalised for AI agents working in consumer codebases that
+  import `@studio-manfred/manfred-design-system`. Point your
+  agent at the MCP endpoint when running Storybook locally.
+
+### Surface coverage
+
+After this release, every component in the public barrel
+(`src/index.ts`) and every layout primitive has:
+
+1. Component-level JSDoc (visible to MCP `get-documentation` and
+   the autodocs Description block).
+2. Per-prop JSDoc on the Props interface (rendered in the
+   autodocs prop-table description column).
+3. Meta-level `parameters.docs.description.component`.
+4. `argTypes` with `description` strings (or, for compound-only
+   APIs like NavigationMenu and RadioGroup, intentional omission
+   documented in the meta).
+5. Per-story `parameters.docs.description.story` on every named
+   story.
+
+### Wave 1 of 3
+
+Wave 1 closes the on-ramp + autodocs-substance gap. **Wave 2**
+adds narrative MDX foundations (Tokens, Theming, Accessibility,
+Motion, Form Patterns) — target v0.16.0. **Wave 3** adds
+machine-readable artifacts (`llms.txt`, augmented `registry.json`,
+cleaner JSX source emission via `docs.source.type: 'code'`) —
+target v0.17.0.
+
 ## [0.14.0] - 2026-05-09
 
 Wave 3 (final wave) of the intranet-adoption epic (STU-79). Adds the

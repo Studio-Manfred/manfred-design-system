@@ -5,9 +5,54 @@ import { Alert } from './Alert';
 const meta: Meta<typeof Alert> = {
   title: 'Components/Alert',
   component: Alert,
-  parameters: { layout: 'padded' },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'Inline feedback message — for status, validation, and one-off ' +
+          'notices that should sit alongside content rather than overlay it. ' +
+          'Four severity variants (`info` / `success` / `warning` / ' +
+          '`error`), optional title, optional dismiss button, and a ' +
+          'colour-and-icon pairing so severity is never communicated by ' +
+          'colour alone. Renders with `role="alert"` so screen readers ' +
+          'announce the message when it appears in the DOM.',
+      },
+    },
+  },
   argTypes: {
-    variant: { control: 'select', options: ['info', 'success', 'warning', 'error'] },
+    variant: {
+      control: 'select',
+      options: ['info', 'success', 'warning', 'error'],
+      description:
+        'Severity. Drives both the colour palette and the leading icon. ' +
+        '`info` is neutral; `success` / `warning` / `error` are status.',
+      table: { defaultValue: { summary: 'info' } },
+    },
+    title: {
+      control: 'text',
+      description:
+        'Optional bold heading. Use a short noun phrase ("Changes saved", ' +
+        '"Something went wrong") rather than a sentence.',
+    },
+    children: {
+      control: 'text',
+      description:
+        'Body content. Plain text or inline markup. Omit when `title` ' +
+        'alone suffices.',
+    },
+    icon: {
+      control: 'boolean',
+      description:
+        'Show the variant icon at the leading edge. Defaults to `true`.',
+      table: { defaultValue: { summary: 'true' } },
+    },
+    onClose: {
+      action: 'close',
+      description:
+        'When provided, renders a dismiss button. Caller owns dismissal — ' +
+        'typically by removing the alert from state.',
+    },
   },
 };
 
@@ -21,9 +66,27 @@ export const Playground: Story = {
     title: 'Information',
     children: 'This is an informational message for the user.',
   },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive sandbox — toggle every prop via the Controls panel below.',
+      },
+    },
+  },
 };
 
 export const AllVariants: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'All four severity levels in vertical sequence so the colour-and-icon ' +
+          'pairing is comparable at a glance. Confirms each variant carries ' +
+          'meaning beyond colour alone.',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '480px' }}>
       <Alert variant="info">Your account settings have been updated.</Alert>
@@ -35,6 +98,16 @@ export const AllVariants: Story = {
 };
 
 export const WithTitle: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Title + body shape — the most common form. The title is the ' +
+          'scannable summary, the body the detail. Use this when the message ' +
+          'has both a "what happened" and a "what to do".',
+      },
+    },
+  },
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '480px' }}>
       <Alert variant="success" title="Changes saved">
@@ -48,6 +121,16 @@ export const WithTitle: Story = {
 };
 
 export const Dismissible: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Dismissible alerts — pass `onClose` to render the close button. ' +
+          'Each alert can be dismissed independently; the close control ships ' +
+          'with `aria-label="Dismiss alert"` for screen readers.',
+      },
+    },
+  },
   render: () => {
     const [alerts, setAlerts] = useState<string[]>(['info', 'success', 'warning', 'error']);
     return (

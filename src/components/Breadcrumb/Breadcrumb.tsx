@@ -2,17 +2,65 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import { Icon } from '../Icon';
 
+/**
+ * One breadcrumb entry — usually a page or section in the hierarchy.
+ * The last item in the list is rendered as the current page (no link)
+ * and the rest as anchors when `href` is provided.
+ */
 export interface BreadcrumbItem {
+  /** Visible text. Required. */
   label: string;
+  /**
+   * Link target for non-current items. Omit on the last item; for
+   * intermediate items without a destination, omit and the entry will
+   * render as plain muted text.
+   */
   href?: string;
 }
 
+/**
+ * Props for the {@link Breadcrumb} component.
+ */
 export interface BreadcrumbProps {
+  /**
+   * Ordered list of breadcrumb entries from root to current page. The
+   * last item is treated as the current page and gets `aria-current`.
+   */
   items: BreadcrumbItem[];
+  /**
+   * Visual divider between items. `chevron` (default) for typical app
+   * shells; `slash` for a denser, text-only treatment.
+   */
   separator?: 'chevron' | 'slash';
   className?: string;
 }
 
+/**
+ * Hierarchical wayfinding trail — shows where the user is in a nested
+ * page structure and provides links back to ancestors.
+ *
+ * Renders a `<nav aria-label="Breadcrumb">` containing an ordered list.
+ * The current page (last item) is rendered with `aria-current="page"`,
+ * not a link; intermediate items become `<a>` tags when `href` is set.
+ *
+ * Accessibility:
+ * - Wrapped in a navigation landmark with an explicit label so screen
+ *   readers can jump to it.
+ * - Separators are `aria-hidden` — assistive tech follows the list
+ *   structure, not the visual divider.
+ * - The current page is identified via `aria-current="page"`.
+ *
+ * @example Standard trail
+ * ```tsx
+ * <Breadcrumb
+ *   items={[
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Products', href: '/products' },
+ *     { label: 'Shoes' },
+ *   ]}
+ * />
+ * ```
+ */
 export function Breadcrumb({ items, separator = 'chevron', className }: BreadcrumbProps) {
   return (
     <nav aria-label="Breadcrumb" className={cn('text-sm', className)}>

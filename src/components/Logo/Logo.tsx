@@ -4,12 +4,35 @@ import { cn } from '@/lib/utils';
 export type LogoVariant = 'wordmark' | 'monogram';
 export type LogoColor = 'blue' | 'black' | 'white';
 
+/**
+ * Props for the {@link Logo} component.
+ *
+ * `variant` picks between the full Manfred wordmark and the `M` monogram;
+ * `color` is a brand-literal — see the component JSDoc for why these
+ * values do not flip with theme.
+ */
 export interface LogoProps {
+  /**
+   * Wordmark (full "Manfred" lockup) or monogram (single `M`). Default
+   * `wordmark`. Use the monogram when horizontal space is tight or when
+   * the brand context is already established by surrounding chrome.
+   */
   variant?: LogoVariant;
+  /**
+   * Brand-literal fill colour. Resolves to fixed brand tokens that do
+   * **not** rebind under dark mode — pick the variant per surface.
+   * Use `white` on dark / brand backgrounds, `black` or `blue` on light.
+   */
   color?: LogoColor;
-  /** Height in pixels — width scales proportionally via viewBox */
+  /** Height in pixels — width scales proportionally via viewBox. Default `48`. */
   height?: number;
+  /** Optional class names appended to the wrapper `<span>`. */
   className?: string;
+  /**
+   * Accessible name for the inline image. Defaults to `"Manfred"` for
+   * wordmark and `"M"` for monogram. Override when the logo carries a
+   * different meaning in context (e.g. `"Manfred home"`).
+   */
   'aria-label'?: string;
 }
 
@@ -59,6 +82,35 @@ function MonogramSvg({ fill }: { fill: string }) {
   );
 }
 
+/**
+ * Manfred brand mark. Renders the wordmark or monogram as inline SVG.
+ *
+ * The fill comes from a fixed brand-literal token set
+ * (`--color-brand-logo-blue` / `-ink` / `-paper`) that intentionally
+ * does **not** rebind under dark mode — brand identity is a constant,
+ * so we pick the variant per surface rather than letting the theme
+ * decide. A 48px height is the default; width scales proportionally
+ * through the SVG `viewBox`.
+ *
+ * Accessibility:
+ * - Wraps the SVG in a `<span role="img" aria-label="…">`, so AT
+ *   announces the logo as a single image rather than a path soup.
+ * - Override `aria-label` when the logo conveys more than the brand
+ *   name in context (for example, when used as a home link, prefer
+ *   `"Manfred home"` and let the surrounding link carry the action).
+ *
+ * @example Default wordmark
+ * ```tsx
+ * <Logo />
+ * ```
+ *
+ * @example Monogram on a brand-blue surface
+ * ```tsx
+ * <div style={{ background: 'var(--color-brand-logo-blue)', padding: 24 }}>
+ *   <Logo variant="monogram" color="white" height={40} />
+ * </div>
+ * ```
+ */
 export function Logo({
   variant = 'wordmark',
   color = 'blue',

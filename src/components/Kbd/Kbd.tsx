@@ -41,15 +41,54 @@ const kbdKeyVariants = cva(
 
 export type KbdSize = NonNullable<VariantProps<typeof kbdVariants>['size']>;
 
+/**
+ * Props for the {@link Kbd} component.
+ *
+ * Inherits every native HTML attribute via `React.HTMLAttributes`
+ * (e.g. `className`, `title`, `aria-hidden`) except `children` —
+ * the visible chips are derived from `keys` so the rendering stays
+ * consistent across usages.
+ */
 export interface KbdProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     VariantProps<typeof kbdVariants> {
-  /** Sequence of keys to render. Each entry becomes its own `<kbd>` chip. */
+  /**
+   * Sequence of keys to render. Each entry becomes its own `<kbd>`
+   * chip with the separator between, e.g. `['⌘', 'K']` →
+   * `⌘ + K`. Required.
+   */
   keys: string[];
-  /** Visual separator rendered between keys. Defaults to `+`. */
+  /**
+   * Visual separator rendered between keys. Defaults to `+`. Pass
+   * `''` for no separator (chord visualisation), or any node — e.g.
+   * a custom arrow icon — for fancier shortcuts.
+   */
   separator?: React.ReactNode;
 }
 
+/**
+ * Keyboard-shortcut hint. Renders each entry in `keys` as its own
+ * `<kbd>` chip joined by `separator`. Used in command-palette
+ * triggers, menu-item shortcuts, and help text.
+ *
+ * Accessibility:
+ * - The wrapper is `aria-hidden="true"` by default — keyboard hints
+ *   are decorative when the surrounding control already announces
+ *   its action. Set `aria-hidden={false}` when the shortcut is the
+ *   only way the user discovers the keystroke (e.g. help-page copy).
+ * - The separator is always `aria-hidden`, so screen readers don't
+ *   read the literal `+` between keys.
+ *
+ * @example Command-palette shortcut, decorative
+ * ```tsx
+ * <SearchBar trailing={<Kbd keys={['⌘', 'K']} />} />
+ * ```
+ *
+ * @example Help-page copy, announced
+ * ```tsx
+ * <p>Press <Kbd keys={['⌘', 'K']} aria-hidden={false} /> to search.</p>
+ * ```
+ */
 export const Kbd = React.forwardRef<HTMLElement, KbdProps>(function Kbd(
   {
     keys,

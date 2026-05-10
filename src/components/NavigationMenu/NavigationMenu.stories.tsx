@@ -18,18 +18,42 @@ import { Logo } from '@/components/Logo';
 const meta: Meta<typeof NavigationMenu> = {
   title: 'Components/NavigationMenu',
   component: NavigationMenu,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      description: {
+        component:
+          'Top-level navigation that supports sub-menu dropdown panels. ' +
+          'Token-styled wrapper around `@radix-ui/react-navigation-menu`. ' +
+          'For **flat** horizontal nav with no dropdowns, use `NavBar` ' +
+          'instead — NavigationMenu carries the full Radix machinery for ' +
+          'triggers, viewport sizing, motion-safe transitions, and keyboard ' +
+          'menu traversal. Eight exported sub-parts: `NavigationMenu`, ' +
+          '`NavigationMenuList`, `NavigationMenuItem`, ' +
+          '`NavigationMenuTrigger`, `NavigationMenuContent`, ' +
+          '`NavigationMenuLink`, `NavigationMenuViewport`, ' +
+          '`NavigationMenuIndicator`, plus the `navigationMenuTriggerStyle` ' +
+          'cva helper. All animations respect `prefers-reduced-motion`.',
+      },
+    },
+  },
 };
 export default meta;
 
 type Story = StoryObj<typeof NavigationMenu>;
 
-/**
- * Flat list of links — no sub-menus. Each `NavigationMenuLink` uses the
- * shared `navigationMenuTriggerStyle()` so plain links match the look of
- * sub-menu triggers.
- */
 export const Simple: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Flat list of links — no sub-menus. Each `NavigationMenuLink` uses ' +
+          'the shared `navigationMenuTriggerStyle()` so plain links match the ' +
+          'look of sub-menu triggers. The current route gets `data-active` to ' +
+          'pick up the active treatment from the cva style.',
+      },
+    },
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>
@@ -62,11 +86,18 @@ export const Simple: Story = {
   ),
 };
 
-/**
- * Realistic top-bar pattern with two triggers each opening a panel of
- * grouped links.
- */
 export const WithSubmenus: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Realistic top-bar pattern with two triggers each opening a panel ' +
+          'of grouped links, plus one plain link. Demonstrates the typical ' +
+          'mixed shape: dropdowns for sections that need a sub-menu, plain ' +
+          'links styled with `navigationMenuTriggerStyle()` for the rest.',
+      },
+    },
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>
@@ -122,12 +153,18 @@ export const WithSubmenus: Story = {
   ),
 };
 
-/**
- * A content panel with a richer layout — a hero card on the left and a
- * list of links on the right. Demonstrates that NavigationMenuContent
- * can hold any composition, not just lists.
- */
 export const NestedRich: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A content panel with a richer layout — a hero card on the left, a ' +
+          'list of links on the right. Exists to show that ' +
+          '`NavigationMenuContent` is just a container — it can hold any ' +
+          'composition, not just lists, and the viewport sizes itself to fit.',
+      },
+    },
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>
@@ -174,11 +211,18 @@ export const NestedRich: Story = {
   ),
 };
 
-/**
- * Adds the optional `NavigationMenuIndicator` — a small arrow that
- * tracks the active trigger.
- */
 export const WithIndicator: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Adds the optional `NavigationMenuIndicator` — a small arrow that ' +
+          'tracks the active trigger and points at the open panel. Purely ' +
+          'decorative; visibility is driven by Radix data attributes and ' +
+          'fades in/out under `motion-safe:`.',
+      },
+    },
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>
@@ -234,12 +278,20 @@ export const WithIndicator: Story = {
   ),
 };
 
-/**
- * Composed inside a `<PageHeader>` + `Container` — what the intranet's
- * top bar looks like in production.
- */
 export const InAppHeader: Story = {
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'Composed inside a `<PageHeader>` + `Container` — what the ' +
+          "intranet's top bar looks like in production. Uses a monogram " +
+          'logo on the left, a NavigationMenu in the centre with mixed ' +
+          'plain links + dropdowns, and shows realistic spacing inside the ' +
+          'page-shell chrome.',
+      },
+    },
+  },
   render: () => (
     <PageHeader>
       <Container size="xl">

@@ -11,13 +11,31 @@ import {
 const meta: Meta<typeof PageBackground> = {
   title: 'Layout/PageBackground',
   component: PageBackground,
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Page-tone wrapper that paints a token-driven surface across the ' +
+          'full viewport. Five variants (`default` / `warm` / `warm-muted` / ' +
+          '`accent` / `inverse`) flip with the theme automatically. Compose ' +
+          'with `Container` for inner page layout.',
+      },
+    },
+  },
   argTypes: {
     variant: {
       control: 'inline-radio',
       options: ['default', 'warm', 'warm-muted', 'accent', 'inverse'],
+      description: 'Surface tone. All variants flip automatically under dark mode.',
+      table: { defaultValue: { summary: 'default' } },
     },
-    as: { control: 'select', options: ['div', 'section', 'main'] },
+    as: {
+      control: 'select',
+      options: ['div', 'section', 'main'],
+      description: 'Rendered HTML element. Use `main` for a single-landmark page.',
+      table: { defaultValue: { summary: 'div' } },
+    },
   },
 };
 export default meta;
@@ -58,6 +76,16 @@ const SampleContent = () => (
 
 export const Default: Story = {
   args: { variant: 'default' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Default surface — `bg-background` / `text-foreground` from the ' +
+          'shadcn contract. Maps to `--neutral-50` in light, `--neutral-900` ' +
+          'in dark.',
+      },
+    },
+  },
   render: (args) => (
     <PageBackground {...args}>
       <SampleContent />
@@ -67,6 +95,15 @@ export const Default: Story = {
 
 export const Warm: Story = {
   args: { variant: 'warm' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Warm cream surface — beige in light mode, neutral-800 in dark. ' +
+          'Use for marketing or studio-tone pages.',
+      },
+    },
+  },
   render: (args) => (
     <PageBackground {...args}>
       <SampleContent />
@@ -77,6 +114,15 @@ export const Warm: Story = {
 export const WarmMuted: Story = {
   name: 'Warm muted',
   args: { variant: 'warm-muted' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Slightly heavier warm surface — beige in light, neutral-700 in ' +
+          'dark. Lifts cards on top of the page chrome.',
+      },
+    },
+  },
   render: (args) => (
     <PageBackground {...args}>
       <SampleContent />
@@ -86,6 +132,15 @@ export const WarmMuted: Story = {
 
 export const Accent: Story = {
   args: { variant: 'accent' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Brand-accent surface — pink in light, neutral-700 in dark. ' +
+          'Reserve for hero or campaign pages.',
+      },
+    },
+  },
   render: (args) => (
     <PageBackground {...args}>
       <SampleContent />
@@ -95,6 +150,15 @@ export const Accent: Story = {
 
 export const Inverse: Story = {
   args: { variant: 'inverse' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Inverse pairing — dark surface with light text in light mode and ' +
+          'the reverse in dark. Useful for high-contrast launcher screens.',
+      },
+    },
+  },
   render: (args) => (
     <PageBackground {...args}>
       <SampleContent />
@@ -104,7 +168,16 @@ export const Inverse: Story = {
 
 export const AllVariants: Story = {
   name: 'All variants',
-  parameters: { layout: 'fullscreen' },
+  parameters: {
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        story:
+          'All five variants tiled side-by-side for visual / dark-mode ' +
+          'review. Each tile flips together with the theme.',
+      },
+    },
+  },
   render: () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
       {(['default', 'warm', 'warm-muted', 'accent', 'inverse'] as const).map(

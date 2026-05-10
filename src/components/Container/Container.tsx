@@ -42,14 +42,47 @@ const containerVariants = cva('mx-auto w-full', {
 export type ContainerSize = NonNullable<VariantProps<typeof containerVariants>['size']>;
 export type ContainerElement = 'div' | 'main' | 'section' | 'article';
 
+/**
+ * Props for the {@link Container} component. Inherits standard HTML
+ * attributes (className, style, id, …) on top of the cva-derived
+ * `size` and `padded` variants.
+ */
 export interface ContainerProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     VariantProps<typeof containerVariants> {
   /** Element to render as. Defaults to `div`. Use `main` / `section` / `article` for landmarks. */
   as?: ContainerElement;
+  /** The layout content. */
   children?: React.ReactNode;
 }
 
+/**
+ * Centred max-width wrapper for page-level layout.
+ *
+ * Pairs with {@link Grid}, {@link Stack}, and the rest of the layout
+ * primitives. Five `size` steps (`sm` / `md` / `lg` / `xl` / `full`)
+ * map to container tokens; `padded` toggles the responsive horizontal
+ * padding (`px-4` → `px-6` → `px-8` across breakpoints).
+ *
+ * Use the `as` prop to render the right landmark — `main` for primary
+ * page content, `section` / `article` when nested. Defaults to `div`
+ * so multiple Containers don't conflict over landmark roles.
+ *
+ * @example Centred page main with default size
+ * ```tsx
+ * <Container as="main">
+ *   <h1>Dashboard</h1>
+ *   …
+ * </Container>
+ * ```
+ *
+ * @example Edge-to-edge tool surface
+ * ```tsx
+ * <Container size="full" padded={false}>
+ *   <CanvasEditor />
+ * </Container>
+ * ```
+ */
 export const Container = React.forwardRef<HTMLElement, ContainerProps>(function Container(
   { as = 'div', size = 'lg', padded = true, className, children, ...rest },
   ref,

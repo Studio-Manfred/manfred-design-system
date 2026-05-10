@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Legend as RechartsLegend, type LegendProps } from 'recharts';
 import { cn } from '@/lib/utils';
 
+/** A single legend entry. Subset of Recharts' legend payload. */
 export type ChartLegendItem = {
   value?: string;
   color?: string;
@@ -9,11 +10,19 @@ export type ChartLegendItem = {
   id?: string;
 };
 
+/** Props for {@link ChartLegendContent}, the rendered legend body. */
 export interface ChartLegendContentProps {
+  /** Legend rows. Provided by Recharts when used as `content`. */
   payload?: ChartLegendItem[];
+  /** Extra classes merged onto the wrapping `<ul>`. */
   className?: string;
 }
 
+/**
+ * Default token-styled body for the chart legend. Renders a flexible,
+ * wrapping list of swatch + label rows below the chart. Inherits
+ * the foreground / muted text tokens so it flips with the theme.
+ */
 export const ChartLegendContent = React.forwardRef<HTMLUListElement, ChartLegendContentProps>(
   ({ payload, className }, ref) => {
     if (!payload || payload.length === 0) return null;
@@ -41,9 +50,15 @@ export const ChartLegendContent = React.forwardRef<HTMLUListElement, ChartLegend
 );
 ChartLegendContent.displayName = 'ChartLegendContent';
 
+/** Props for {@link ChartLegend}. Re-export of Recharts' `LegendProps`. */
 export type ChartLegendProps = LegendProps;
 
-/** Token-styled wrapper around Recharts' Legend. */
+/**
+ * Drop-in token-styled wrapper around Recharts' `Legend`. Mounts inside
+ * a Recharts chart and defaults to bottom-centre alignment; renders
+ * {@link ChartLegendContent} for the swatch + label rows so the legend
+ * follows the design-system tokens.
+ */
 export const ChartLegend = (props: ChartLegendProps): React.ReactElement => {
   const { content, ...rest } = props;
   return (

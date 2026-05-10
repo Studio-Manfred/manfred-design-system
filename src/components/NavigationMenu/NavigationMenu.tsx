@@ -5,33 +5,20 @@ import { cn } from '@/lib/utils';
 import { Icon } from '@/components/Icon';
 
 /**
- * NavigationMenu — token-styled wrapper around
- * `@radix-ui/react-navigation-menu`. Used for top-level navigation with
- * sub-menu dropdowns (e.g. the intranet's main top bar).
+ * Shared visual style for navigation triggers and link buttons. cva
+ * helper exported so consumers can apply the same look to plain
+ * `NavigationMenuLink`s that are not sub-menu triggers — keeps the
+ * top bar visually consistent across mixed link/dropdown items.
  *
- * Sub-parts: `NavigationMenu` (Root + Viewport composition),
- * `NavigationMenuList`, `NavigationMenuItem`, `NavigationMenuTrigger`,
- * `NavigationMenuContent`, `NavigationMenuLink`,
- * `NavigationMenuViewport`, `NavigationMenuIndicator`.
+ * Active / open state is driven by `data-active` and `data-state=open`
+ * (set by Radix on triggers, manual `data-active` on links).
  *
- * The root composes `<Root>` + `<Viewport>` so consumers can write a
- * flat structure and the dropdown viewport renders automatically below
- * the list.
- *
- * Animations (chevron rotation, content slide, viewport zoom, indicator
- * fade) are gated behind the `motion-safe:` Tailwind variant so users
- * with `prefers-reduced-motion` still get full open/close behaviour,
- * just without the transitions.
- *
- * Active-link styling is driven by the `data-active` attribute on
- * `NavigationMenuLink` — pair with the `navigationMenuTriggerStyle`
- * helper (or your own classes) to highlight the current page.
- */
-
-/**
- * Visual style for navigation triggers and link buttons. Exported so
- * consumers can apply the same look to plain `NavigationMenuLink`s that
- * aren't sub-menu triggers — keeps the top bar visually consistent.
+ * @example Apply the trigger look to a plain link
+ * ```tsx
+ * <NavigationMenuLink href="#docs" className={navigationMenuTriggerStyle()}>
+ *   Docs
+ * </NavigationMenuLink>
+ * ```
  */
 export const navigationMenuTriggerStyle = cva(
   cn(
@@ -53,9 +40,78 @@ export const navigationMenuTriggerStyle = cva(
 // Root
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for the {@link NavigationMenu} root.
+ *
+ * Inherits every prop from `@radix-ui/react-navigation-menu`'s `Root`
+ * (e.g. `defaultValue`, `value`, `onValueChange`, `delayDuration`,
+ * `skipDelayDuration`, `dir`, `orientation`).
+ */
 export interface NavigationMenuProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root> {}
 
+/**
+ * Top-level navigation with sub-menu dropdowns. Token-styled wrapper
+ * around `@radix-ui/react-navigation-menu` Root + Viewport.
+ *
+ * Use NavigationMenu when nav items need dropdown panels — for **flat**
+ * top-level navigation with no sub-menus, prefer `NavBar` instead. The
+ * root composes `<Root>` + `<Viewport>` so consumers can write a flat
+ * structure and the dropdown viewport renders automatically below the
+ * list.
+ *
+ * Sub-parts: {@link NavigationMenu}, {@link NavigationMenuList},
+ * {@link NavigationMenuItem}, {@link NavigationMenuTrigger},
+ * {@link NavigationMenuContent}, {@link NavigationMenuLink},
+ * {@link NavigationMenuViewport}, {@link NavigationMenuIndicator},
+ * plus the {@link navigationMenuTriggerStyle} cva helper.
+ *
+ * Accessibility:
+ * - All open/close, slide, fade, and chevron-rotation animations are
+ *   gated behind the `motion-safe:` Tailwind variant — users with
+ *   `prefers-reduced-motion: reduce` get the full state changes
+ *   without the transitions.
+ * - Active-link styling is driven by `data-active` on
+ *   `NavigationMenuLink` (or any element using
+ *   `navigationMenuTriggerStyle`) — pair with `aria-current="page"`
+ *   for the route's link.
+ * - Radix handles full keyboard support: Tab between triggers, Enter /
+ *   Space / Down to open, Esc to close, arrow keys inside content.
+ *
+ * @example Simple flat list of links
+ * ```tsx
+ * <NavigationMenu>
+ *   <NavigationMenuList>
+ *     <NavigationMenuItem>
+ *       <NavigationMenuLink href="#home" data-active className={navigationMenuTriggerStyle()}>
+ *         Home
+ *       </NavigationMenuLink>
+ *     </NavigationMenuItem>
+ *   </NavigationMenuList>
+ * </NavigationMenu>
+ * ```
+ *
+ * @example Trigger that opens a content panel
+ * ```tsx
+ * <NavigationMenuItem>
+ *   <NavigationMenuTrigger>Products</NavigationMenuTrigger>
+ *   <NavigationMenuContent>
+ *     <ul className="grid w-[420px] gap-2 p-4 md:grid-cols-2">{links}</ul>
+ *   </NavigationMenuContent>
+ * </NavigationMenuItem>
+ * ```
+ *
+ * @example With the indicator arrow
+ * ```tsx
+ * <NavigationMenu>
+ *   <NavigationMenuList>
+ *     <NavigationMenuItem>…</NavigationMenuItem>
+ *     <NavigationMenuItem>…</NavigationMenuItem>
+ *     <NavigationMenuIndicator />
+ *   </NavigationMenuList>
+ * </NavigationMenu>
+ * ```
+ */
 export const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
   NavigationMenuProps
@@ -80,9 +136,21 @@ NavigationMenu.displayName = NavigationMenuPrimitive.Root.displayName;
 // List
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for {@link NavigationMenuList}. Inherits from the Radix
+ * `List` primitive.
+ */
 export interface NavigationMenuListProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.List> {}
 
+/**
+ * Horizontal `<ul>` wrapper for the menu items. Required direct child
+ * of {@link NavigationMenu}; required parent of every
+ * {@link NavigationMenuItem}.
+ *
+ * Provides the flex layout, item spacing, and list-reset; pass
+ * `className` to extend.
+ */
 export const NavigationMenuList = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.List>,
   NavigationMenuListProps
@@ -104,6 +172,12 @@ NavigationMenuList.displayName = NavigationMenuPrimitive.List.displayName;
 // Item — direct passthrough
 // ---------------------------------------------------------------------------
 
+/**
+ * Single `<li>` slot inside {@link NavigationMenuList}. Direct
+ * passthrough to Radix's `Item` — wrap a {@link NavigationMenuLink}
+ * (plain link) or a {@link NavigationMenuTrigger} +
+ * {@link NavigationMenuContent} pair (dropdown) inside.
+ */
 export const NavigationMenuItem = NavigationMenuPrimitive.Item;
 export type NavigationMenuItemProps = React.ComponentPropsWithoutRef<
   typeof NavigationMenuPrimitive.Item
@@ -113,9 +187,23 @@ export type NavigationMenuItemProps = React.ComponentPropsWithoutRef<
 // Trigger
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for {@link NavigationMenuTrigger}. Inherits from the Radix
+ * `Trigger` primitive.
+ */
 export interface NavigationMenuTriggerProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Trigger> {}
 
+/**
+ * The button that opens a sub-menu. Wraps Radix's `Trigger`, applies
+ * {@link navigationMenuTriggerStyle}, and appends a chevron icon that
+ * rotates 180° when the menu is open.
+ *
+ * The chevron rotation transition is gated by `motion-safe:` so
+ * reduced-motion users still see the state change, just without the
+ * rotation animation. The chevron is `aria-hidden`; Radix manages
+ * `aria-expanded` on the trigger itself.
+ */
 export const NavigationMenuTrigger = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Trigger>,
   NavigationMenuTriggerProps
@@ -149,9 +237,23 @@ NavigationMenuTrigger.displayName = NavigationMenuPrimitive.Trigger.displayName;
 // Content
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for {@link NavigationMenuContent}. Inherits from the Radix
+ * `Content` primitive.
+ */
 export interface NavigationMenuContentProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Content> {}
 
+/**
+ * The panel that opens when its sibling {@link NavigationMenuTrigger}
+ * is activated. Renders into the parent {@link NavigationMenuViewport}.
+ *
+ * Holds whatever layout the sub-menu needs — a list, a grid of links,
+ * a hero card + link list, etc. Slide-in / slide-out animations are
+ * driven by Radix's `data-motion` attribute and gated behind
+ * `motion-safe:` so reduced-motion users get the open/close state
+ * without the slide.
+ */
 export const NavigationMenuContent = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Content>,
   NavigationMenuContentProps
@@ -181,6 +283,13 @@ NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName;
 // Link — direct passthrough
 // ---------------------------------------------------------------------------
 
+/**
+ * The link element inside the menu. Direct passthrough to Radix's
+ * `Link`. Use it both for plain top-level links (apply
+ * {@link navigationMenuTriggerStyle} and `data-active` on the current
+ * route) and for items inside a {@link NavigationMenuContent} panel
+ * (style as needed).
+ */
 export const NavigationMenuLink = NavigationMenuPrimitive.Link;
 export type NavigationMenuLinkProps = React.ComponentPropsWithoutRef<
   typeof NavigationMenuPrimitive.Link
@@ -190,9 +299,24 @@ export type NavigationMenuLinkProps = React.ComponentPropsWithoutRef<
 // Viewport
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for {@link NavigationMenuViewport}. Inherits from the Radix
+ * `Viewport` primitive.
+ */
 export interface NavigationMenuViewportProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Viewport> {}
 
+/**
+ * The single shared region that hosts the currently open
+ * {@link NavigationMenuContent}. Rendered automatically by
+ * {@link NavigationMenu} — consumers don't normally place this
+ * themselves. Exported so advanced compositions can decouple Root
+ * and Viewport when the layout requires it.
+ *
+ * Open/close zoom animations are gated behind `motion-safe:` and read
+ * the `--radix-navigation-menu-viewport-{width,height}` CSS variables
+ * Radix exposes so the viewport sizes itself to the active panel.
+ */
 export const NavigationMenuViewport = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Viewport>,
   NavigationMenuViewportProps
@@ -220,9 +344,21 @@ NavigationMenuViewport.displayName = NavigationMenuPrimitive.Viewport.displayNam
 // Indicator
 // ---------------------------------------------------------------------------
 
+/**
+ * Props for {@link NavigationMenuIndicator}. Inherits from the Radix
+ * `Indicator` primitive.
+ */
 export interface NavigationMenuIndicatorProps
   extends React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Indicator> {}
 
+/**
+ * Optional small arrow that tracks the active trigger. Place inside
+ * {@link NavigationMenuList} alongside the items.
+ *
+ * Visibility is driven by Radix via `data-state=visible|hidden`, with
+ * fade animations gated behind `motion-safe:` for reduced-motion
+ * users. Purely decorative — no ARIA role, no announcement.
+ */
 export const NavigationMenuIndicator = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Indicator>,
   NavigationMenuIndicatorProps

@@ -23,10 +23,31 @@ const alertVariants = cva(
 
 export type AlertVariant = NonNullable<VariantProps<typeof alertVariants>['variant']>;
 
+/**
+ * Props for the {@link Alert} component.
+ */
 export interface AlertProps extends VariantProps<typeof alertVariants> {
+  /**
+   * Optional bold heading rendered above the body. Use a short noun
+   * phrase ("Changes saved", "Something went wrong") rather than a
+   * sentence.
+   */
   title?: string;
+  /**
+   * Body content. Plain text or inline markup. Omit when the `title`
+   * alone is enough.
+   */
   children?: React.ReactNode;
+  /**
+   * When provided, renders a dismiss button in the trailing edge of the
+   * alert. The caller owns the dismissal — typically by removing the
+   * alert from state.
+   */
   onClose?: () => void;
+  /**
+   * Show the variant icon at the leading edge. Defaults to `true`. Turn
+   * off for compact alerts where the colour alone is enough.
+   */
   icon?: boolean;
   className?: string;
 }
@@ -38,6 +59,35 @@ const iconMap: Record<AlertVariant, IconName> = {
   error: 'alert-circle',
 };
 
+/**
+ * Inline feedback message — for status, validation, and one-off notices
+ * that should sit alongside content rather than overlay it.
+ *
+ * Four severity variants (`info` / `success` / `warning` / `error`),
+ * optional `title`, optional dismiss button, and a colour-and-icon
+ * pairing so severity is never communicated by colour alone.
+ *
+ * Accessibility:
+ * - Renders with `role="alert"` so screen readers announce the message
+ *   when it appears in the DOM.
+ * - The leading severity icon is `aria-hidden="true"`; meaning is carried
+ *   by the visible text. Keep `title` / `children` self-describing.
+ * - The dismiss button has an explicit `aria-label="Dismiss alert"`.
+ *
+ * @example Inline success notice
+ * ```tsx
+ * <Alert variant="success" title="Changes saved">
+ *   Your profile has been updated.
+ * </Alert>
+ * ```
+ *
+ * @example Dismissible warning
+ * ```tsx
+ * <Alert variant="warning" onClose={() => setShown(false)}>
+ *   Your subscription expires in 3 days.
+ * </Alert>
+ * ```
+ */
 export function Alert({
   variant = 'info',
   title,

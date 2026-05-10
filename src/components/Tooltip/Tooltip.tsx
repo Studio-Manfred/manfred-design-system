@@ -2,10 +2,45 @@ import * as React from 'react';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
 import { cn } from '@/lib/utils';
 
+/**
+ * Compound tooltip built on `@radix-ui/react-tooltip`.
+ *
+ * Mount one {@link TooltipProvider} near the root of the app to share
+ * a delay timer; then wrap each tooltip with `Tooltip`, point the
+ * trigger element with `TooltipTrigger asChild`, and render the bubble
+ * via `TooltipContent`. The bubble is portalled and animated; styling
+ * uses the inverse surface tokens so it sits crisp on any background.
+ *
+ * Accessibility: hover, focus-visible, and keyboard-dismiss are wired
+ * by Radix. The trigger receives the appropriate `aria-describedby`
+ * link when open.
+ *
+ * @example Inline icon-button label
+ * ```tsx
+ * <TooltipProvider>
+ *   <Tooltip>
+ *     <TooltipTrigger asChild><IconButton icon="info" /></TooltipTrigger>
+ *     <TooltipContent>Learn more</TooltipContent>
+ *   </Tooltip>
+ * </TooltipProvider>
+ * ```
+ */
+
+/**
+ * Shared delay-timer provider. Mount once near the root so multiple
+ * tooltips share the open / close delays. Re-export of Radix
+ * `Tooltip.Provider`.
+ */
 const TooltipProvider = TooltipPrimitive.Provider;
+/** Root of a single tooltip. Re-export of Radix `Tooltip.Root`. */
 const Tooltip = TooltipPrimitive.Root;
+/** Element that opens the tooltip on hover / focus. Use `asChild` to point at any focusable element. */
 const TooltipTrigger = TooltipPrimitive.Trigger;
 
+/**
+ * Floating bubble portalled to `body`. Renders the tooltip text with
+ * inverse surface tokens, slide-in animation, and 8px default offset.
+ */
 const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>

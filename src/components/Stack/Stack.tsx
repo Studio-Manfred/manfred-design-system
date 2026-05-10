@@ -68,14 +68,48 @@ export type StackJustify = NonNullable<
 
 export type StackElement = 'div' | 'section' | 'nav' | 'ul' | 'ol' | 'li';
 
+/**
+ * Props for the {@link Stack} component. Combines standard HTML
+ * attributes with the cva-derived `direction`, `gap`, `align`,
+ * `justify`, `wrap`, and `fullWidth` variants.
+ */
 export interface StackProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'children'>,
     VariantProps<typeof stackVariants> {
   /** Element to render as. Defaults to `div`. Use `ul`/`ol`/`li` for lists, `nav`/`section` for landmarks. */
   as?: StackElement;
+  /** The stacked items. */
   children?: React.ReactNode;
 }
 
+/**
+ * Sibling-spacing primitive built on flexbox.
+ *
+ * The Manfred design-system components carry no outer margin — they
+ * compose freely — so Stack (and its `VStack` / `HStack` aliases) owns
+ * the gap between siblings. The `gap` scale is locked to the spacing
+ * tokens; `align`, `justify`, `wrap`, and `fullWidth` map to the
+ * common flex controls.
+ *
+ * Defaults to vertical stacking. Pick `as="ul"` (with `as="li"`
+ * children) for lists, or `as="nav"` / `"section"` for landmarks.
+ *
+ * @example Vertical form section
+ * ```tsx
+ * <Stack gap={4}>
+ *   <FormField …>…</FormField>
+ *   <FormField …>…</FormField>
+ * </Stack>
+ * ```
+ *
+ * @example Horizontal action row
+ * ```tsx
+ * <Stack direction="horizontal" gap={3} justify="end">
+ *   <Button variant="ghost">Cancel</Button>
+ *   <Button>Save</Button>
+ * </Stack>
+ * ```
+ */
 export const Stack = React.forwardRef<HTMLElement, StackProps>(function Stack(
   {
     as = 'div',
@@ -106,9 +140,16 @@ export const Stack = React.forwardRef<HTMLElement, StackProps>(function Stack(
 });
 Stack.displayName = 'Stack';
 
+/** Props for {@link VStack}. Same as {@link StackProps} minus `direction`. */
 export type VStackProps = Omit<StackProps, 'direction'>;
+/** Props for {@link HStack}. Same as {@link StackProps} minus `direction`. */
 export type HStackProps = Omit<StackProps, 'direction'>;
 
+/**
+ * Pre-bound vertical {@link Stack}. Same API minus `direction`. Use at
+ * call sites where the vertical orientation should be obvious from the
+ * import (e.g. form bodies, card sections).
+ */
 export const VStack = React.forwardRef<HTMLElement, VStackProps>(function VStack(
   props,
   ref,
@@ -117,6 +158,11 @@ export const VStack = React.forwardRef<HTMLElement, VStackProps>(function VStack
 });
 VStack.displayName = 'VStack';
 
+/**
+ * Pre-bound horizontal {@link Stack}. Same API minus `direction`. Use
+ * at call sites where the row layout should be obvious from the
+ * import (e.g. toolbars, action rows, inline metadata).
+ */
 export const HStack = React.forwardRef<HTMLElement, HStackProps>(function HStack(
   props,
   ref,

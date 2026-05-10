@@ -47,13 +47,51 @@ const textareaVariants = cva(
 export type TextareaSize = NonNullable<VariantProps<typeof inputLikeVariants>['size']>;
 export type TextareaStatus = NonNullable<VariantProps<typeof inputLikeVariants>['status']>;
 
+/**
+ * Props for the {@link Textarea} component.
+ *
+ * Inherits every native `<textarea>` attribute (`value`, `defaultValue`,
+ * `rows`, `placeholder`, `onChange`, `name`, `required`, etc.) via
+ * `React.TextareaHTMLAttributes`, except for `size` which is replaced
+ * by the design-token-driven scale.
+ */
 export interface TextareaProps
   extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
+  /** Size scale shared with `TextInput` and `Select`. Defaults to `md`. */
   size?: TextareaSize;
+  /** Validation status; `error` flips `aria-invalid` and the danger border. */
   status?: TextareaStatus;
+  /** Stretch the textarea to fill the available container width. */
   fullWidth?: boolean;
 }
 
+/**
+ * Multi-line text input that mirrors `TextInput` visuals via the shared
+ * `inputLikeVariants`.
+ *
+ * Same three-step size scale (`sm` / `md` / `lg`), same focus / disabled /
+ * error treatments, but the wrapper grows with content and the inner
+ * `<textarea>` is vertically resizeable by default. Use `rows` to set
+ * the initial height; the user can drag-resize past it.
+ *
+ * Accessibility:
+ * - `status="error"` sets `aria-invalid="true"`. Pair with `FormField`
+ *   for an associated error message.
+ * - The native `<textarea>` keeps its keyboard / IME / autocomplete
+ *   behaviour intact.
+ *
+ * @example Default with a placeholder and 4 starting rows
+ * ```tsx
+ * <Textarea rows={4} placeholder="Tell us what changed…" />
+ * ```
+ *
+ * @example Error state inside a FormField
+ * ```tsx
+ * <FormField label="Bio" htmlFor="bio" status="error" message="Required field.">
+ *   <Textarea id="bio" status="error" />
+ * </FormField>
+ * ```
+ */
 export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {

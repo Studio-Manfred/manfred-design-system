@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { userEvent, within, expect } from 'storybook/test';
 import { Toaster, toast } from './Toast';
 import { Button } from '../Button';
 
@@ -33,6 +34,21 @@ export const Playground: Story = {
           '`toast(message, options)` signature with description and duration.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The trigger button must be keyboard-reachable before the toast can be fired.
+    const triggerBtn = canvas.getByRole('button', { name: 'Show Toast' });
+    expect(triggerBtn).toBeInTheDocument();
+    // Clicking the button fires the toast() call and Sonner mounts the notification.
+    await userEvent.click(triggerBtn);
+    // Sonner mounts toasts at document.body — query from there, not from canvasElement.
+    const toast = await within(document.body).findByRole('status');
+    expect(toast).toBeInTheDocument();
+    // Tab to the toast region to confirm keyboard users can reach and dismiss it.
+    await userEvent.tab();
+    // aria-live on the Sonner region announces new toasts to AT without stealing focus.
+    expect(toast).toHaveAttribute('aria-live');
   },
   render: () => (
     <>

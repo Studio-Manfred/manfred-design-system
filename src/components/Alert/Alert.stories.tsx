@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import React, { useState } from 'react';
+import { userEvent, within, expect } from 'storybook/test';
 import { Alert } from './Alert';
 
 const meta: Meta<typeof Alert> = {
@@ -73,6 +74,14 @@ export const Playground: Story = {
           'Interactive sandbox — toggle every prop via the Controls panel below.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Alert carries role="alert" so AT announces the message immediately on insertion.
+    expect(canvas.getByRole('alert')).toBeInTheDocument();
+    // Hovering the alert verifies the element is interactable (no pointer-events: none regression).
+    await userEvent.hover(canvas.getByRole('alert'));
+    expect(canvas.getByRole('alert')).toBeInTheDocument();
   },
 };
 

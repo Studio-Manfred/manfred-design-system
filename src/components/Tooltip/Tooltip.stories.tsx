@@ -166,9 +166,23 @@ export const KeyboardInteraction: Story = {
     // Wait for the portaled tooltip content to appear.
     const tooltip = await within(document.body).findByRole('tooltip', { name: 'Keyboard tooltip' });
     expect(tooltip).toBeVisible();
+    // Radix wires aria-describedby on the trigger to the tooltip's id when
+    // open — this is the contract assistive tech relies on. Guards against
+    // the screen-reader announcement regressing while the visual still works.
+    expect(trigger).toHaveAttribute('aria-describedby');
+
     // Press Escape — Radix closes the tooltip.
     await userEvent.keyboard('{Escape}');
     expect(within(document.body).queryByRole('tooltip')).toBeNull();
+
+    // Pointer-event parity — hover should also open the tooltip via the
+    // same Radix open-state machine. Guards against hover regressing
+    // independently of focus (e.g., delayDuration honored on focus but
+    // not pointer).
+    await userEvent.hover(trigger);
+    expect(
+      await within(document.body).findByRole('tooltip', { name: 'Keyboard tooltip' }),
+    ).toBeVisible();
   },
 };
 

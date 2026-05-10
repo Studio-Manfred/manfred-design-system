@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-05-10
+
+Hotfix release. Pure visual bug fix; no API changes.
+
+### Fixed
+
+- **`DatePicker` popover background was transparent** — the popover
+  content panel referenced `--color-bg-surface`, a token that does
+  not exist in `tokens.css`. Tailwind emitted
+  `background-color: var(--color-bg-surface)` → undefined → fell
+  back to the parent, so calendar cells, the underlying page, and
+  any sibling content bled through the popover. Bug pre-dated Wave 1
+  (introduced in commit `54396b3 refactor(date-picker)…`); surfaced
+  visually after v0.15.0 made the calendar more browseable.
+  Fix: swap to the canonical shadcn `bg-popover` Tailwind utility,
+  which sources from the `--popover` token at `tokens.css:271` and
+  flips correctly under dark mode. (STU-126)
+- **`Switch` story** had the same broken token reference in an
+  inline style — same fix applied (`var(--popover)`).
+
 ## [0.15.0] - 2026-05-10
 
 Wave 1 of the **AI/agent-friendly Storybook surface** epic (STU-113).

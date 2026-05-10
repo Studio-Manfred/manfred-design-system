@@ -390,7 +390,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
               aria-label={mode === 'range' ? 'Choose dates' : 'Choose a date'}
               className={cn(
                 'z-50 rounded-[var(--radius-md)] border border-[var(--color-border-strong)]',
-                'bg-[var(--color-bg-surface)] shadow-[var(--shadow-overlay)] p-2 pt-4',
+                'bg-popover shadow-[var(--shadow-overlay)] p-2 pt-4',
                 'data-[state=open]:motion-safe:animate-in data-[state=closed]:motion-safe:animate-out',
               )}
             >

@@ -167,6 +167,15 @@ export const KeyboardInteraction: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const checkbox = canvas.getByRole('checkbox', { name: 'Subscribe to updates' });
+
+    // Pointer click toggles checked — guards against onCheckedChange
+    // wiring regressing under Radix's button-with-aria-checked pattern.
+    await userEvent.click(checkbox);
+    await canvas.findByRole('checkbox', { name: 'Subscribe to updates', checked: true });
+    await userEvent.click(checkbox);
+    await canvas.findByRole('checkbox', { name: 'Subscribe to updates', checked: false });
+
+    // Keyboard parity — focus the checkbox and toggle via Space.
     await userEvent.tab();
     expect(checkbox).toHaveFocus();
     // Space on a focused role=checkbox button fires the native click; Radix

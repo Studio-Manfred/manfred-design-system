@@ -303,6 +303,14 @@ export const Opened: Story = {
   play: async ({ canvasElement }) => {
     await userEvent.click(within(canvasElement).getByRole('button', { name: /open right sheet/i }));
     const sheet = await within(document.body).findByRole('dialog');
+    // role="dialog" + visible — guards against the portal mounting in a
+    // hidden state (e.g., transition class stuck at 0 opacity).
     expect(sheet).toBeVisible();
+
+    // Escape closes the sheet via Radix's dismissable layer — guards
+    // against the keyboard handler regressing (Sheet shares Dialog's
+    // primitive, so the keyboard contract is the same).
+    await userEvent.keyboard('{Escape}');
+    expect(within(document.body).queryByRole('dialog')).toBeNull();
   },
 };

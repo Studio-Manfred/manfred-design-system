@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-05-10
+
+Wave 3 (final wave) of the **Storybook play functions** epic
+(STU-127 / STU-130). Brings the four below-tier components shipped in
+v0.18.0 up to spec, then flips `lint:play-tiers` from soft-fail to
+required in CI. **Closes the STU-127 epic.** All 37 components now
+meet their tier per `scripts/play-tiers.json`.
+
+### Changed
+
+- **Checkbox** (tier B) — added pointer-click toggle exercise alongside
+  the existing keyboard Space test. Guards against onCheckedChange
+  wiring regressing under Radix's button-with-aria-checked pattern.
+- **SearchBar** (tier B) — added explicit `expect(input).toBeInTheDocument()`
+  before the type/Enter sequence; the existing `findByText` assertion
+  remains as the implicit signal that Enter fires `onSearch`.
+- **Sheet** (tier C) — added Escape-closes-the-sheet keyboard
+  regression. Sheet shares Dialog's primitive, so the keyboard contract
+  is identical.
+- **Tooltip** (tier C) — added pointer-event parity (`userEvent.hover`
+  also opens the tooltip) plus an `aria-describedby` assertion on the
+  trigger — the screen-reader contract Radix wires when the tooltip
+  is open.
+- **`.github/workflows/ci.yml`** — `lint:play-tiers` is now a required
+  gate (`continue-on-error: true` removed). New components added to
+  `src/components/` must be assigned a tier in `scripts/play-tiers.json`
+  or added to the exclusion list, otherwise the PR fails CI.
+
+### Notes
+
+- **Closes STU-127 epic.** Three minor releases shipped on 2026-05-10:
+  v0.18.0 (foundation + lint + CI), v0.19.0 (23-component coverage
+  fill), v0.20.0 (4-component consistency sweep).
+- **Lint baseline:** ✓ 37 of 37 components pass.
+- **`test:storybook` CI gate is still deferred** to v0.18.1 — see
+  [docs/PLAY-FUNCTIONS.md](docs/PLAY-FUNCTIONS.md) "Troubleshooting"
+  for the open vitest-browser-mode hang.
+- **Spec:** `docs/superpowers/specs/2026-05-10-storybook-play-functions-design.md`.
+
 ## [0.19.0] - 2026-05-10
 
 Wave 2 of the **Storybook play functions** epic (STU-127 / STU-129). Adds

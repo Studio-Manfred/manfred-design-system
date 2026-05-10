@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { userEvent, within } from 'storybook/test';
+import { userEvent, within, expect } from 'storybook/test';
 import React, { useState } from 'react';
 import { SearchBar } from './SearchBar';
 
@@ -193,8 +193,14 @@ export const TypeAndSearch: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole('textbox', { name: 'Search' });
+    // Smoke — input is queryable as role=textbox with the right
+    // accessible name; guards against the SearchBar wrapping markup
+    // dropping the implicit "Search" label.
+    expect(input).toBeInTheDocument();
     await userEvent.type(input, 'hello world');
     await userEvent.keyboard('{Enter}');
+    // findByText waits for the parent's onSearch render to flush —
+    // implicit assertion that Enter fires onSearch.
     await canvas.findByText('Last: hello world');
   },
 };

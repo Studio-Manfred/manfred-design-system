@@ -93,7 +93,7 @@ Path alias `@/*` → `src/*` is wired in `tsconfig.json`, `vite.config.ts`, and 
 `vitest.config.ts` defines two projects run by the same runner:
 
 - **unit** — jsdom, `src/**/*.test.{ts,tsx}`, setup file at `src/test/setup.ts` which polyfills Radix-required browser APIs (`ResizeObserver`, `PointerEvent`, `hasPointerCapture`, `scrollIntoView`) that jsdom lacks.
-- **storybook** — real Chromium via `@vitest/browser-playwright`, driven by `@storybook/addon-vitest`, runs the `play` functions in `*.stories.tsx`.
+- **storybook** — real Chromium via `@vitest/browser-playwright`, driven by `@storybook/addon-vitest`, runs the `play` functions in `*.stories.tsx`. Loads `.storybook/vitest.setup.ts` via `setupFiles` so `setProjectAnnotations(preview)` runs explicitly — addon-vitest 10.3.5's auto-provisioning of preview annotations doesn't fully propagate `parameters.a11y.config.rules` to the runner, so the bridge is required for the rule disables in `preview.ts` to take effect.
 
 `npm run test` deliberately runs **only the unit project**. Storybook tests execute inside Storybook itself or via the runtime a11y scan. Do not try to run the storybook project from the CLI unless you need a browser-context smoke test.
 
@@ -113,7 +113,7 @@ Path alias `@/*` → `src/*` is wired in `tsconfig.json`, `vite.config.ts`, and 
 - **No CSS Modules.** The v0.1.x CSS Modules layer was removed in v0.2.0 (see README breaking-changes table).
 - **`components.json` is shadcn config** — it points at `src/tokens/tokens.css` as the Tailwind CSS file and sets `@/components`, `@/lib/utils` as aliases, so `npx shadcn@latest add …` drops components in the right place.
 - The unit test setup in `src/test/setup.ts` is required for any Radix-based component test to pass in jsdom — new tests pick this up automatically via the `unit` project config.
-- Storybook a11y rules `region`, `landmark-one-main`, and `page-has-heading-one` are disabled globally (see `.storybook/preview.ts`) because isolated component previews are not pages. Keep this in mind when interpreting a11y addon output.
+- Storybook a11y rules `region`, `landmark-one-main`, `page-has-heading-one`, and `bypass` are disabled globally (see `.storybook/preview.ts`) because isolated component previews are not pages. Keep this in mind when interpreting a11y addon output. Other axe violations **fail CI** since v0.20.2 (`a11y.test: 'error'` in `preview.ts`) — fix at the root per the project's a11y philosophy; only add a rule exemption with explicit justification, and mirror it in `scripts/a11y-runtime-scan.mjs`'s `GLOBAL_DISABLED_RULES`.
 
 ## Accessibility
 

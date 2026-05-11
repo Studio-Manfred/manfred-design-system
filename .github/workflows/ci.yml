@@ -33,11 +33,6 @@ jobs:
       - name: Unit tests
         run: npm run test
 
-      # NOTE: npm run test:storybook (headless Chromium play functions) is
-      # available locally but the CI gate is deferred to v0.18.1 pending
-      # vitest browser-mode setup verification. See docs/PLAY-FUNCTIONS.md
-      # "Troubleshooting" section.
-
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:
@@ -48,6 +43,12 @@ jobs:
 
       - name: Install Playwright Chromium
         run: npx playwright install chromium --with-deps
+
+      - name: Storybook play functions (headless)
+        # Required PR gate since v0.20.1. Workaround for upstream
+        # https://github.com/storybookjs/storybook/issues/33347 is applied
+        # via fileParallelism: false in vitest.config.ts.
+        run: npm run test:storybook
 
       - name: Build Storybook
         run: npm run build-storybook

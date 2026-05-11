@@ -39,10 +39,10 @@ const preview: Preview = {
     },
 
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
-      test: 'todo',
+      // 'error' - fail CI on a11y violations (STU-131, v0.20.x)
+      // 'todo'  - show violations in the test UI only (legacy, do not regress)
+      // 'off'   - skip a11y checks entirely
+      test: 'error',
       config: {
         rules: [
           // Stories render in isolation (no <main>, no <h1>, no landmark wrapping).

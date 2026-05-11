@@ -122,6 +122,30 @@ export const WithSubmenus: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Radix NavigationMenuTrigger renders a real <button>; default state is
+    // collapsed so aria-expanded must read "false" before activation. This
+    // is the tier-C contract that the Simple story cannot cover — Simple has
+    // no dropdown.
+    const productsTrigger = canvas.getByRole('button', { name: 'Products' });
+    expect(productsTrigger).toHaveAttribute('aria-expanded', 'false');
+    // Click opens the panel — verifies the Radix dropdown machinery is wired,
+    // not just the link styling.
+    await userEvent.click(productsTrigger);
+    expect(productsTrigger).toHaveAttribute('aria-expanded', 'true');
+    // Panel content becomes reachable after open. Search document.body so the
+    // assertion survives a future Radix viewport-portal change.
+    const analytics = await within(document.body).findByText('Analytics');
+    expect(analytics).toBeInTheDocument();
+    // Keyboard reachability: tab from the open trigger moves focus off it
+    // (Radix uses arrow keys to traverse menu items; tab exits the menu).
+    // Asserting focus left the trigger guards against a future regression
+    // that traps focus on the trigger when the panel is open.
+    productsTrigger.focus();
+    await userEvent.tab();
+    expect(productsTrigger).not.toHaveFocus();
+  },
   render: () => (
     <NavigationMenu>
       <NavigationMenuList>

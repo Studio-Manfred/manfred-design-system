@@ -140,6 +140,25 @@ export const InteractiveAsButton: Story = {
       },
     },
   },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The Card surface itself is the interactive control — role="button" +
+    // aria-label make it the named target, separate from any inner Button.
+    // This is the contract the Default story can't cover; Default clicks an
+    // inner Button, not the Card surface.
+    const card = canvas.getByRole('button', { name: 'Open performance details' });
+    expect(card).toBeInTheDocument();
+    // tabIndex={0} makes the card keyboard-reachable. Focusing then asserting
+    // covers the contract without relying on the surrounding tab order of the
+    // Storybook iframe (which can vary between runs).
+    card.focus();
+    expect(card).toHaveFocus();
+    // Click activates the caller-supplied onClick handler. The handler logs
+    // to the console; the assertion here is that the click reaches the card
+    // (no overlay or pointer-events:none regression in the interactive style).
+    await userEvent.click(card);
+    expect(card).toBeInTheDocument();
+  },
   render: () => (
     // Plain div + role="button" — axe rejects role="button" overlaid on
     // landmark elements like <article>. For native semantics, wrap a Card

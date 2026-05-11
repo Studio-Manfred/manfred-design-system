@@ -63,10 +63,16 @@ export const Playground: Story = {
     const canvas = within(canvasElement);
     // Breadcrumb wraps in <nav aria-label="Breadcrumb"> so it appears as a named navigation landmark.
     expect(canvas.getByRole('navigation', { name: 'Breadcrumb' })).toBeInTheDocument();
-    // Clicking the first ancestor link verifies it is pointer-accessible.
+    // Verify the first ancestor link is reachable. Avoid userEvent.click on
+    // the anchor: clicking <a href="#"> changes the iframe URL hash and
+    // aborts vitest browser-mode with `[birpc] rpc is closed`.
     const homeLink = canvas.getByRole('link', { name: 'Home' });
-    await userEvent.click(homeLink);
-    // Tab through the breadcrumb links to confirm all are keyboard-reachable in order.
+    // Hover exercises pointer reachability without firing the anchor's
+    // navigation handler.
+    await userEvent.hover(homeLink);
+    homeLink.focus();
+    expect(homeLink).toHaveFocus();
+    // Tab to the next breadcrumb link to confirm keyboard navigation order.
     await userEvent.tab();
     // The current page item carries aria-current="page" so AT announces which crumb is active.
     const currentItem = canvas.getByText('Shoes');

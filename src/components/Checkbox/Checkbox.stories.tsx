@@ -176,7 +176,11 @@ export const KeyboardInteraction: Story = {
     await canvas.findByRole('checkbox', { name: 'Subscribe to updates', checked: false });
 
     // Keyboard parity — focus the checkbox and toggle via Space.
-    await userEvent.tab();
+    // Use direct focus() here: tab() from a post-click state lands on the
+    // next focusable rather than the checkbox we just clicked. The intent
+    // is "checkbox is keyboard-toggleable when focused", which focus() +
+    // toHaveFocus expresses precisely.
+    checkbox.focus();
     expect(checkbox).toHaveFocus();
     // Space on a focused role=checkbox button fires the native click; Radix
     // toggles on click. Raw ' ' is the user-event keymap entry — '{Space}'

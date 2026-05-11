@@ -1,8 +1,6 @@
 # Storybook Play Functions
 
-Play functions are the design system's interaction tests. They run inside Storybook (visible in the UI) and headlessly under `npm run test:storybook` (Chromium via Playwright). The `lint:play-tiers` script enforces presence + tier compliance on every PR.
-
-> **CI status (v0.18.0):** the `lint:play-tiers` check is wired into the PR pipeline (soft-fail until Wave 2 fills coverage gaps). The `test:storybook` headless run is available locally but not yet in CI — gate deferred to v0.18.1 pending vitest browser-mode setup.
+Play functions are the design system's interaction tests. They run inside Storybook (visible in the UI) and headlessly under `npm run test:storybook` (Chromium via Playwright). Both `lint:play-tiers` (regex tier compliance) and `test:storybook` (runtime execution) are required PR gates as of v0.20.1.
 
 ## Tier contract
 
@@ -112,7 +110,7 @@ export const Default: Story = {
 # Inside Storybook UI (preferred during dev — fast feedback, retry-able):
 npm run storybook
 
-# Headless Chromium, all stories (local; CI gate deferred to v0.18.1):
+# Headless Chromium, all stories (CI-gated since v0.20.1):
 npm run test:storybook
 
 # One component:
@@ -148,4 +146,10 @@ Likely a race against an animation. Replace `getByRole` with `findByRole` to wai
 The unit project (`src/**/*.test.tsx`) runs in jsdom with polyfills from `src/test/setup.ts` (`ResizeObserver`, `PointerEvent`, etc.). The storybook project runs in real Chromium without those polyfills — but Chromium has the real APIs natively. If something breaks here, it's usually because the jsdom test was relying on a polyfill stub instead of the real behavior.
 
 ### `npm run test:storybook` hangs or fails with "Browser connection was closed"
-Known issue on some local setups (Node 25 + vitest browser-mode). The CI gate is currently disabled for this reason. Use the Storybook UI for play debugging until v0.18.1 lands the CI integration.
+Resolved in v0.20.1 via `fileParallelism: false` on the storybook test project in `vitest.config.ts` — see [Storybook #33347](https://github.com/storybookjs/storybook/issues/33347). If the hang reappears with a future vitest upgrade, confirm the workaround is still in place; if so, check the upstream issue for a maintainer fix and remove the workaround once a vitest-side RPC fix is shipped.
+
+### Anchor clicks abort vitest with `[birpc] rpc is closed`
+Clicking `<a href="#whatever">` in a play function changes the iframe URL hash, which under vitest browser-mode aborts the file. Replace `userEvent.click(link)` with `link.focus(); expect(link).toHaveFocus()` to verify reachability without navigating. See NavBar/NavigationMenu/Breadcrumb plays for the pattern.
+
+### `getByRole('generic')` finds multiple elements
+Decorative wrappers stack `aria-hidden="true"` spans; `getByRole('generic')` is ambiguous when multiple match. Prefer `getByText` against visible content for smoke assertions on decorative components (Kbd, Separator).

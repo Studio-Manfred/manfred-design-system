@@ -43,12 +43,18 @@ export const Playground: Story = {
     // Clicking the button fires the toast() call and Sonner mounts the notification.
     await userEvent.click(triggerBtn);
     // Sonner mounts toasts at document.body — query from there, not from canvasElement.
-    const toast = await within(document.body).findByRole('status');
+    // Use findByText against the toast message: Sonner's region uses aria-live
+    // on a <section>/<ol> but not role="status" on the wrapper, so a role
+    // query won't resolve. Text query is the stable contract.
+    const toast = await within(document.body).findByText('This is a toast notification!');
     expect(toast).toBeInTheDocument();
-    // Tab to the toast region to confirm keyboard users can reach and dismiss it.
+    // The Sonner region announces new toasts to AT via aria-live —
+    // walk up from the toast text to find the live-region ancestor.
+    const liveRegion = toast.closest('[aria-live]');
+    expect(liveRegion).not.toBeNull();
+    // Tab from the trigger to confirm keyboard users can reach the toast
+    // region — Sonner's wrapper is in the page's natural tab order.
     await userEvent.tab();
-    // aria-live on the Sonner region announces new toasts to AT without stealing focus.
-    expect(toast).toHaveAttribute('aria-live');
   },
   render: () => (
     <>

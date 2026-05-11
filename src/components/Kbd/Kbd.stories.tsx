@@ -51,10 +51,18 @@ export const Default: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Kbd wrapper is aria-hidden by default (decorative shortcut hint); assert the chip text is visible in the DOM.
+    // Kbd wrapper is aria-hidden by default (decorative shortcut hint);
+    // assert each chip text is visible in the DOM.
     expect(canvas.getByText('⌘')).toBeInTheDocument();
-    // Confirm the outer wrapper span is present as the keyboard shortcut container.
-    expect(canvas.getByRole('generic')).toBeInTheDocument();
+    expect(canvas.getByText('K')).toBeInTheDocument();
+    // The chord renders a wrapper <span> plus inner <span> separators,
+    // all aria-hidden. <kbd> elements have no implicit ARIA role so only
+    // span descendants count as generic. Use getAllByRole + hidden:true
+    // to bypass aria-hidden filtering; assert at least 2 (wrapper +
+    // separator) without depending on accessible names (none exist by
+    // design on decorative shortcut hints).
+    const generics = canvas.getAllByRole('generic', { hidden: true });
+    expect(generics.length).toBeGreaterThanOrEqual(2);
   },
 };
 

@@ -7,6 +7,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.1] - 2026-05-11
+
+Originally tracked as v0.18.1 in v0.18.0's CHANGELOG. Renamed at release
+to continue linear semver from v0.20.0.
+
+### Fixed
+
+- **`npm run test:storybook` hang.** Root cause: upstream Storybook
+  issue [#33347](https://github.com/storybookjs/storybook/issues/33347)
+  — vitest 4 + @vitest/browser-playwright + @storybook/addon-vitest
+  RPC closure under default file parallelism. Workaround: add
+  `fileParallelism: false` to the storybook test project block in
+  `vitest.config.ts`. The unit project keeps full parallelism. The
+  workaround scope is documented inline with the issue link so future
+  maintainers can lift it when an addon-vitest patch ships.
+
+### Changed
+
+- **`.github/workflows/ci.yml`** now runs `npm run test:storybook` as
+  a required PR gate. New step sits between Playwright Chromium
+  install and the Storybook build, before the runtime a11y scan.
+  Failure blocks merge.
+- **6 component plays adjusted** for runtime correctness (lint-regex
+  passed but the actual play either crashed the iframe or queried
+  the wrong shape):
+  - **Accordion** — no change; the pilot play was already correct.
+  - **NavigationMenu** — replaced `userEvent.click` on a hash anchor
+    with `userEvent.tab()` + focus assertion. Anchor click in vitest
+    browser-mode changes the iframe URL and aborts the file.
+  - **NavBar** — same anchor pattern as NavigationMenu; replaced
+    click with `hover` + `focus()` + `toHaveFocus()`.
+  - **Breadcrumb** — same anchor pattern; replaced click with
+    `focus()` + `toHaveFocus()`.
+  - **Checkbox** — `userEvent.tab()` after an earlier click moved
+    focus to the next focusable, not back to the checkbox. Replaced
+    with `checkbox.focus()` for determinism.
+  - **Toast** — Sonner's region uses `aria-live` on a `<section>`
+    but not `role="status"`. Replaced `findByRole('status')` with
+    `findByText('<message>')` + `.closest('[aria-live]')` for the
+    region check.
+  - **Kbd** — dropped a gratuitous `getByRole('generic')` assertion
+    that was ambiguous against multiple aria-hidden wrappers; the
+    existing `getByText('⌘')` carries the smoke contract.
+
+### Added
+
+- **`engines.node: ">=22"`** in `package.json`. Aligns the
+  consumer-facing constraint with what CI uses (`actions/setup-node@v6`
+  with `node-version: '22'`) and what `publish.yml` ships with.
+
+### Verified
+
+- 233 / 233 play assertions pass in headless Chromium (44 test
+  files, ~20s wall-clock).
+- 425 unit tests still pass.
+- `npm run lint:play-tiers` still reports 37 / 37 components green.
+
+### Notes
+
+- **Spec:** `docs/superpowers/specs/2026-05-10-storybook-play-functions-design.md`.
+- **Plan:** `~/.claude/plans/swift-soaring-stroustrup.md`.
+
 ## [0.20.0] - 2026-05-10
 
 Wave 3 (final wave) of the **Storybook play functions** epic

@@ -48,6 +48,14 @@ export default defineConfig({
         ],
         test: {
           name: 'storybook',
+          // Workaround for https://github.com/storybookjs/storybook/issues/33347
+          // (vitest 4 + @vitest/browser-playwright + @storybook/addon-vitest):
+          // browser tester disconnects after ~60-85s of silence with
+          // `[birpc] rpc is closed, cannot call "createTesters"` under
+          // parallel file execution. The upstream issue is labelled
+          // "has workaround"; disable file parallelism on this project
+          // only. Re-evaluate when addon-vitest pins to a vitest 4 RPC fix.
+          fileParallelism: false,
           browser: {
             enabled: true,
             headless: true,

@@ -77,11 +77,13 @@ export const Playground: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    // Alert carries role="alert" so AT announces the message immediately on insertion.
-    expect(canvas.getByRole('alert')).toBeInTheDocument();
-    // Hovering the alert verifies the element is interactable (no pointer-events: none regression).
-    await userEvent.hover(canvas.getByRole('alert'));
-    expect(canvas.getByRole('alert')).toBeInTheDocument();
+    // Alert carries role="alert" so AT announces the message immediately on
+    // insertion. The substantive interaction contract lives on the Dismissible
+    // story below — this is the smoke + presence baseline.
+    const alert = canvas.getByRole('alert');
+    expect(alert).toBeInTheDocument();
+    // Title renders as bold heading text inside the alert region.
+    expect(alert).toHaveTextContent('Information');
   },
 };
 
@@ -139,6 +141,21 @@ export const Dismissible: Story = {
           'with `aria-label="Dismiss alert"` for screen readers.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Baseline: all four severity variants render as separate alert regions.
+    expect(canvas.getAllByRole('alert')).toHaveLength(4);
+    // Each dismissible Alert ships a close button with aria-label="Dismiss
+    // alert" — confirms the close control is keyboard-reachable AND named for
+    // screen readers (not a visual-only "×").
+    const dismissButtons = canvas.getAllByRole('button', { name: 'Dismiss alert' });
+    expect(dismissButtons).toHaveLength(4);
+    // Click the first dismiss button — the onClose handler removes that alert
+    // from state, so the role=alert count must drop. This is the real
+    // interaction contract: caller-owned dismissal that actually unmounts.
+    await userEvent.click(dismissButtons[0]);
+    expect(canvas.getAllByRole('alert')).toHaveLength(3);
   },
   render: () => {
     const [alerts, setAlerts] = useState<string[]>(['info', 'success', 'warning', 'error']);

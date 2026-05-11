@@ -62,10 +62,18 @@ export const Simple: Story = {
     // The Home link is the first keyboard tab stop — verify it is reachable.
     const homeLink = canvas.getByRole('link', { name: 'Home' });
     expect(homeLink).toBeInTheDocument();
-    // Tab through links to confirm keyboard navigation order across menu items.
+    // Hover exercises pointer reachability without firing the anchor's
+    // navigation handler. Avoid userEvent.click on the anchor here:
+    // clicking <a href="#home"> changes the iframe URL hash, which under
+    // vitest browser-mode confuses tester-iframe tracking and aborts the
+    // file with `[birpc] rpc is closed`.
+    await userEvent.hover(homeLink);
+    // Tab moves focus to the first link — guards against the cva
+    // trigger-style stealing keyboard reachability under future refactors.
     await userEvent.tab();
-    await userEvent.click(homeLink);
-    // data-active on the current link signals the active state in the DOM.
+    expect(homeLink).toHaveFocus();
+    // data-active is set statically in JSX — verifies the cva active branch
+    // renders the marker, not that interaction toggles it.
     expect(homeLink).toHaveAttribute('data-active');
     // Plain NavigationMenuLink elements are not buttons and have no aria-haspopup — confirm absence.
     expect(homeLink).not.toHaveAttribute('aria-haspopup');

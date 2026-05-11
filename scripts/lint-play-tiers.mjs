@@ -7,7 +7,11 @@
 // Accepted approximation; documented in docs/PLAY-FUNCTIONS.md.
 const ARIA_ATTR_RE = /\baria-[a-z]+\b/;
 const PLAY_BLOCK_RE = /play\s*:\s*async\s*\([^)]*\)\s*=>\s*\{/;
-const ROLE_QUERY_RE = /(?:get|find|query)ByRole\s*\(/;
+// Accepts both single-match (getByRole) and multi-match (getAllByRole)
+// testing-library queries. Multi-match is required for decorative components
+// like Kbd whose wrappers stack aria-hidden spans — `getByRole` is ambiguous
+// when several matches exist.
+const ROLE_QUERY_RE = /(?:get|find|query)(?:All)?ByRole\s*\(/;
 const USER_EVENT_INTERACTION_RE = /userEvent\.(click|type|selectOptions|hover|paste|clear)\b/;
 const USER_EVENT_KEYBOARD_RE = /userEvent\.(keyboard|tab)\b/;
 const EXPECT_RE = /\bexpect\s*\(/;

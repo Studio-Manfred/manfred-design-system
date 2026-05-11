@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.2] - 2026-05-11
+
+Closes [STU-131](https://linear.app/studio-manfred/issue/STU-131). The
+last outstanding follow-up from the STU-127 play-functions epic.
+
+### Changed
+
+- **addon-a11y posture flipped to `'error'`.** `.storybook/preview.ts`
+  was `a11y.test: 'todo'` — axe violations surfaced in the test UI but
+  didn't block CI. Now they fail `test:storybook` per-story. Strongest
+  a11y posture this repo has had; the standalone runtime scan
+  (`scripts/a11y-runtime-scan.mjs`) was already green so no rules
+  needed tightening.
+
+### Added
+
+- **`.storybook/vitest.setup.ts`** — explicit
+  `setProjectAnnotations(preview)` bridge. Without it,
+  `@storybook/addon-vitest@10.3.5`'s auto-provisioning of preview
+  annotations propagates the top-level `parameters.a11y.test` flag but
+  drops `parameters.a11y.config.rules` — leaving `region` /
+  `landmark-one-main` rules firing against component-in-iframe
+  previews where they don't apply. With the bridge, all 233 plays pass
+  under the new error posture without modifying a single story.
+
+### Verified
+
+- 233 of 233 component plays pass `npm run test:storybook` in headless
+  Chromium with `a11y.test: 'error'`.
+- 425 of 425 unit tests pass `npm run test`.
+- 37 of 37 components pass `npm run lint:play-tiers`.
+
 ## [0.20.1] - 2026-05-11
 
 Originally tracked as v0.18.1 in v0.18.0's CHANGELOG. Renamed at release

@@ -56,6 +56,11 @@ export default defineConfig({
           // "has workaround"; disable file parallelism on this project
           // only. Re-evaluate when addon-vitest pins to a vitest 4 RPC fix.
           fileParallelism: false,
+          // Load preview.ts via setProjectAnnotations so addon-a11y receives
+          // the full `parameters.a11y.config.rules` set when running in
+          // 'error' mode. STU-131. Without this, only the top-level a11y
+          // `test` parameter composes through; the rule disables get lost.
+          setupFiles: ['./.storybook/vitest.setup.ts'],
           browser: {
             enabled: true,
             headless: true,

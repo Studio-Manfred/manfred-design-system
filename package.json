@@ -25,13 +25,15 @@
         "default": "./dist/index.cjs"
       }
     },
-    "./styles": "./dist/style.css"
+    "./styles": "./dist/style.css",
+    "./tokens.css": "./dist/tokens.css"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "vite build",
+    "postbuild": "node scripts/build-tokens-export.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "test": "vitest run --project unit",

@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-05-15
+
+Closes [STU-266](https://linear.app/studio-manfred/issue/STU-266). Fixes shadcn-shape Tailwind utilities being dead classes in downstream consumers.
+
+### Added
+
+- **New `./tokens.css` export** for Tailwind v4 consumers. Add
+  `@import "@studio-manfred/manfred-design-system/tokens.css";` to your
+  Tailwind input CSS (alongside `@import "tailwindcss";`) to make
+  `bg-muted`, `text-muted-foreground`, `bg-accent`, `bg-card`,
+  `bg-popover`, `bg-destructive`, `border-border`, `ring-ring`, and the
+  rest of the shadcn-shape contract emit real utility rules in your
+  build. The bundled `./styles` stylesheet is the compiled component
+  CSS; `./tokens.css` is the source of `@theme inline` declarations your
+  Tailwind generator needs to see.
+- **`scripts/build-tokens-export.mjs`** runs as a `postbuild` step,
+  copies `src/tokens/tokens.css` → `dist/tokens.css`, and strips the
+  DS-internal `@import "tailwindcss"` and `@import "tw-animate-css"`
+  lines so consumers don't inherit those peer requirements.
+
+### Why this fix
+
+The DS source CSS has always declared the shadcn-shape names inside
+`@theme inline { … }`, but `@tailwindcss/vite` consumes that block at
+DS build time — it uses the names to generate utilities for the DS's
+own source and removes the directive from `dist/style.css`. Downstream
+consumers' Tailwind never saw `@theme`, so `bg-muted` and friends
+compiled to nothing. The new `./tokens.css` export carries the
+`@theme` block into the consumer's Tailwind input untouched.
+
+### Verified
+
+- Clean Tailwind v4 consumer (`tailwindcss` only — no `tw-animate-css`
+  installed) compiles `bg-muted`, `text-muted-foreground`, `bg-accent`,
+  `bg-card`, `bg-popover`, `bg-destructive`, `text-destructive-foreground`,
+  `border-border`, `ring-ring`, `bg-primary`, `bg-secondary`,
+  `hover:bg-accent` to real rules referencing the correct `var(--*)`
+  custom properties.
+- 425 of 425 unit tests pass `npm run test`.
+
 ## [0.20.2] - 2026-05-11
 
 Closes [STU-131](https://linear.app/studio-manfred/issue/STU-131). The

@@ -72,6 +72,12 @@ A Tailwind v4 `@theme inline { … }` block at the bottom exposes these as utili
 
 When adding a new color or spacing value, add it at the primitive layer first, alias it semantically, and only then expose it in `@theme`. Never hardcode hex in components.
 
+#### Consumer-facing `tokens.css` export (STU-266)
+
+The library build runs Tailwind, which consumes the `@theme inline` block from `tokens.css` and removes it from `dist/style.css`. That means shadcn-shape utilities (`bg-muted`, `text-muted-foreground`, `bg-accent`, `border-border`, `ring-ring`, etc.) are dead in downstream Tailwind v4 consumers unless we hand them the `@theme` block separately.
+
+`scripts/build-tokens-export.mjs` runs as a `postbuild` step, copies `src/tokens/tokens.css` to `dist/tokens.css`, and strips the DS-internal `@import "tailwindcss"` and `@import "tw-animate-css"` lines so the file is a clean Tailwind v4 input. It's exported as `./tokens.css` in `package.json`; consumers `@import "@studio-manfred/manfred-design-system/tokens.css";` from their Tailwind input alongside `@import "tailwindcss";`. Don't add anything to that file that requires DS-only dependencies — if you do, either add it to `STRIP_IMPORTS` in the build script or accept that consumers will need that peer.
+
 ### Dark mode rebinding
 
 Dark mode is activated by `<html class="dark">` or by `prefers-color-scheme: dark` when no explicit class is set. `<html class="light">` forces light.

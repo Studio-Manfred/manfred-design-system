@@ -58,10 +58,32 @@ export function Example() {
 }
 ```
 
-The stylesheet bundles Tailwind v4 utilities, design tokens, and the
-themed baseline — nothing else to wire up. Browse every component with
-live examples at the [public Storybook](https://studio-manfred.github.io/manfred-design-system/),
+The stylesheet bundles the compiled component CSS, design tokens, and
+the themed baseline — nothing else to wire up to render DS components.
+Browse every component with live examples at the
+[public Storybook](https://studio-manfred.github.io/manfred-design-system/),
 or run it locally with `npm run storybook` (see below).
+
+### Tailwind v4 utilities in your own code
+
+If your app uses Tailwind v4 and you want to write
+`bg-muted`, `text-muted-foreground`, `bg-accent`, `bg-card`,
+`bg-popover`, `bg-destructive`, `border-border`, `ring-ring`, etc.
+in your own components, add a second import to your Tailwind input CSS:
+
+```css
+/* app/globals.css (or wherever you @import "tailwindcss") */
+@import "tailwindcss";
+@import "@studio-manfred/manfred-design-system/tokens.css";
+```
+
+This exposes the shadcn-shape token contract to your Tailwind utility
+generator. Without it, those utilities compile to nothing in your build
+(the `@theme` block lives in the DS source CSS but is consumed at our
+build time, so it doesn't reach your Tailwind from the bundled stylesheet).
+Keep `import '@studio-manfred/manfred-design-system/styles';` at the app
+entry too — `tokens.css` is the Tailwind-input side; `styles` is the
+runtime component CSS.
 
 ### Components
 

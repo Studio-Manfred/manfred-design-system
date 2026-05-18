@@ -124,3 +124,56 @@ export const ColorVariants: Story = {
     }
   },
 };
+
+export const LiveRegion: Story = {
+  name: 'Accessibility — live region (inline form error)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Typography forwards every native HTML attribute (`role`, ' +
+          '`aria-live`, `id`, `data-*`, …) to the rendered element. The ' +
+          'natural place for live-region attributes is the text element ' +
+          'itself when the message *is* the alert — no wrapping `<div>` ' +
+          'needed. Use `role="alert"` for assertive errors and ' +
+          '`role="status"` with `aria-live="polite"` for success or ' +
+          'progress text. Added in v0.20.3 (STU-168).',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The error message renders with role="alert" so AT announces it on
+    // insertion — same DOM node carries both the visual and semantic.
+    const alert = canvas.getByRole('alert');
+    expect(alert).toBeInTheDocument();
+    expect(alert).toHaveTextContent('Email is required');
+    // The success message uses role="status" + aria-live="polite" so it
+    // announces without interrupting the user.
+    const status = canvas.getByRole('status');
+    expect(status).toBeInTheDocument();
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    // Data-* attributes flow through too — useful for test selectors.
+    expect(alert).toHaveAttribute('data-testid', 'email-error');
+  },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <Typography
+        variant="bodySmall"
+        color="brand"
+        role="alert"
+        data-testid="email-error"
+      >
+        Email is required
+      </Typography>
+      <Typography
+        variant="bodySmall"
+        color="muted"
+        role="status"
+        aria-live="polite"
+      >
+        Saving your draft…
+      </Typography>
+    </div>
+  ),
+};

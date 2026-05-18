@@ -55,3 +55,11 @@ jobs:
           # re-snapshotting stories whose dependency graph hasn't changed.
           # Comment out for the first run to capture every story.
           onlyChanged: true
+          # Auto-accept new snapshots on main so the baseline advances
+          # on every merge. PR branches still surface diffs in the
+          # Chromatic UI for review — they are NOT auto-accepted. Without
+          # this, baselines never update past the initial accept and
+          # every PR shows "no baseline yet" until someone clicks Accept
+          # in the Chromatic UI. Standard pattern for trunk-based
+          # workflows. See reference_chromatic_tuning.md.
+          autoAcceptChanges: main

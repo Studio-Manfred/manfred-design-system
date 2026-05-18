@@ -38,6 +38,14 @@ jobs:
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Dedicated build script that runs ONLY `storybook build` (no
+          # registry post-step). The default `build-storybook` script
+          # chains `build-registry.mjs` with `&&`, and Chromatic's
+          # `--output-dir` flag gets injected by npm into the wrong
+          # command — Storybook ends up building to its default
+          # `storybook-static/` and Chromatic finds an empty tmp dir.
+          # See package.json scripts for the split.
+          buildScriptName: build-storybook:chromatic
           # Soft gate — workflow stays green even when stories diff.
           # See reference_chromatic_tuning.md for when to flip this.
           exitZeroOnChanges: true

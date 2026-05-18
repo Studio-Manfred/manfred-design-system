@@ -17,8 +17,16 @@ const spinnerVariants = cva('inline-flex items-center justify-center text-[var(-
 
 export type SpinnerSize = NonNullable<VariantProps<typeof spinnerVariants>['size']>;
 
-/** Props for the {@link Spinner} component. */
-export interface SpinnerProps {
+/**
+ * Props for the {@link Spinner} component.
+ *
+ * Inherits every native `<span>` attribute except `role` (which is
+ * fixed at `"status"` to make AT announcements correct without
+ * caller wiring). Pass `id`, `aria-live`, `aria-describedby`,
+ * `data-*`, etc. directly.
+ */
+export interface SpinnerProps
+  extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'role'> {
   /** Size scale (`sm` = 16px, `md` = 24px, `lg` = 40px). Defaults to `md`. */
   size?: SpinnerSize;
   /**
@@ -27,8 +35,6 @@ export interface SpinnerProps {
    * sits next to a known operation (e.g. `"Saving"`).
    */
   label?: string;
-  /** Extra classes merged onto the wrapping `<span>`. */
-  className?: string;
 }
 
 /**
@@ -59,12 +65,21 @@ export interface SpinnerProps {
  * </div>
  * ```
  */
-export function Spinner({ size = 'md', label = 'Loading', className }: SpinnerProps) {
+export function Spinner({
+  size = 'md',
+  label = 'Loading',
+  className,
+  ...rest
+}: SpinnerProps) {
   const radius = 9;
   const circumference = 2 * Math.PI * radius;
 
   return (
-    <span className={cn(spinnerVariants({ size }), className)} role="status">
+    <span
+      {...rest}
+      className={cn(spinnerVariants({ size }), className)}
+      role="status"
+    >
       <svg viewBox="0 0 24 24" fill="none" className="w-full h-full" aria-hidden="true">
         <circle
           cx="12"

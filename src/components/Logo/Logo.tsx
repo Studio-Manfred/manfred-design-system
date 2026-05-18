@@ -11,7 +11,8 @@ export type LogoColor = 'blue' | 'black' | 'white';
  * `color` is a brand-literal — see the component JSDoc for why these
  * values do not flip with theme.
  */
-export interface LogoProps {
+export interface LogoProps
+  extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'role'> {
   /**
    * Wordmark (full "Manfred" lockup) or monogram (single `M`). Default
    * `wordmark`. Use the monogram when horizontal space is tight or when
@@ -26,8 +27,6 @@ export interface LogoProps {
   color?: LogoColor;
   /** Height in pixels — width scales proportionally via viewBox. Default `48`. */
   height?: number;
-  /** Optional class names appended to the wrapper `<span>`. */
-  className?: string;
   /**
    * Accessible name for the inline image. Defaults to `"Manfred"` for
    * wordmark and `"M"` for monogram. Override when the logo carries a
@@ -117,14 +116,17 @@ export function Logo({
   height = 48,
   className,
   'aria-label': ariaLabel,
+  style,
+  ...rest
 }: LogoProps) {
   const fill = colorMap[color];
   const label = ariaLabel ?? (variant === 'wordmark' ? 'Manfred' : 'M');
 
   return (
     <span
+      {...rest}
       className={cn('inline-flex items-center shrink-0', className)}
-      style={{ height: `${height}px` }}
+      style={{ height: `${height}px`, ...style }}
       role="img"
       aria-label={label}
     >

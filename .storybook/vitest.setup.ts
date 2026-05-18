@@ -11,6 +11,12 @@
 //
 // Added in STU-131 alongside the `a11y.test: 'error'` flip. If you remove
 // this file, the addon-a11y rule disables in preview.ts stop applying.
+//
+// NOTE: do NOT pass an array form with `@storybook/addon-a11y/preview`
+// prepended. Under @storybook/addon-vitest@10.4.x, that re-introduces the
+// addon's default `parameters.a11y = { test: 'todo' }` and shallow-merges
+// over our `config.rules` — region / landmark-one-main start firing again.
+// The single-arg form below is what works in 10.4.x.
 import { setProjectAnnotations } from '@storybook/react-vite';
 import * as projectAnnotations from './preview';
 

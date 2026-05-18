@@ -39,4 +39,16 @@ describe('Badge', () => {
     render(<Badge className="custom-y">X</Badge>);
     expect(screen.getByText('X').className).toContain('custom-y');
   });
+
+  it('forwards native HTML attributes to the rendered span (STU-168)', () => {
+    render(
+      <Badge id="status-pill" data-testid="status-pill" title="Active session">
+        Active
+      </Badge>,
+    );
+    const el = screen.getByTestId('status-pill');
+    expect(el).toHaveAttribute('id', 'status-pill');
+    expect(el).toHaveAttribute('title', 'Active session');
+    expect(el.tagName).toBe('SPAN');
+  });
 });

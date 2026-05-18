@@ -31,11 +31,16 @@ export type BadgeSize = NonNullable<VariantProps<typeof badgeVariants>['size']>;
 
 /**
  * Props for the {@link Badge} component.
+ *
+ * Inherits every native `<span>` attribute via
+ * `React.HTMLAttributes<HTMLSpanElement>` — pass `id`, `role`,
+ * `aria-*`, `data-*`, `title`, `onClick`, etc. directly.
  */
-export interface BadgeProps extends VariantProps<typeof badgeVariants> {
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLSpanElement>,
+    VariantProps<typeof badgeVariants> {
   /** Badge label. Keep short — typically one or two words, or a count. */
   children: React.ReactNode;
-  className?: string;
 }
 
 const STATUS_VARIANTS: BadgeVariant[] = ['success', 'warning', 'error', 'info'];
@@ -65,11 +70,17 @@ const STATUS_VARIANTS: BadgeVariant[] = ['success', 'warning', 'error', 'info'];
  * <Badge variant="error" size="sm">3</Badge>
  * ```
  */
-export function Badge({ variant = 'neutral', size = 'md', children, className }: BadgeProps) {
+export function Badge({
+  variant = 'neutral',
+  size = 'md',
+  children,
+  className,
+  ...rest
+}: BadgeProps) {
   const hasStatusPrefix = STATUS_VARIANTS.includes(variant!);
 
   return (
-    <span className={cn(badgeVariants({ variant, size }), className)}>
+    <span {...rest} className={cn(badgeVariants({ variant, size }), className)}>
       {hasStatusPrefix && <span className="sr-only">{variant}: </span>}
       {children}
     </span>

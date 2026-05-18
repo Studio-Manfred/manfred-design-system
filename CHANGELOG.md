@@ -7,6 +7,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.1] - 2026-05-18
+
+Closes [STU-168](https://linear.app/studio-manfred/issue/STU-168).
+
+### Changed
+
+- **10 components now forward native HTML attributes.** `TypographyProps`,
+  `BadgeProps`, `LogoProps`, `SpinnerProps`, `IconProps`, `ProgressBarProps`,
+  `AlertProps`, `BreadcrumbProps`, `FormFieldProps`, and `SearchBarProps` now
+  extend the appropriate `React.HTMLAttributes<…>` (or `SVGAttributes` for
+  Icon). Consumers can now pass `role`, `aria-*`, `id`, `data-*`, `onClick`,
+  `title`, etc. directly to these components.
+  - **Headline use case**: `<Typography role="alert" aria-live="polite">…
+    </Typography>` for inline form errors — no more wrapping `<div
+    role="alert">`. The text element itself can carry the live-region.
+  - **Curated ARIA semantics preserved.** Logo (`role="img"`), Spinner
+    (`role="status"`), Icon (`role`/`aria-label`/`aria-hidden` derived from
+    `label`), and Alert (`role="alert"`) `Omit` the props the component owns
+    by contract — consumers can't accidentally break the semantic contract.
+  - Already-extended (no change): Button, Label, Kbd, Avatar, Separator,
+    Accordion, Card, Checkbox, Dialog, NavBar, NavigationMenu, Radio,
+    Select, Sheet, Switch, Tabs, Textarea, TextInput, Toast (sonner-backed).
+  - Out of scope: Chart sub-components and DatePicker — both already
+    expose curated ARIA props (`ariaLabel`, `aria-labelledby`, etc.) via
+    explicit API; widening to HTMLAttributes would conflict with that
+    contract.
+
+### Fixed
+
+- **`.storybook/vitest.setup.ts`** reverted to the single-arg
+  `setProjectAnnotations(projectAnnotations)` form. The array form
+  (`[a11yAddonAnnotations, projectAnnotations]`) double-loads addon-a11y
+  under `@storybook/addon-vitest@^10.4.0` and shallow-merges its default
+  `parameters.a11y = { test: 'todo' }` over our `preview.ts` config,
+  causing `region` / `landmark-one-main` / `color-contrast` rules to fire
+  on stories where they're meant to be disabled. The single-arg form
+  relies on Storybook's auto-composition of addon previews — same path
+  established in STU-131. Inline NOTE comment now warns future maintainers
+  not to re-introduce the array form.
+
+### Added
+
+- **`Typography` "Live region (inline form error)" story** under the
+  Accessibility section — demonstrates the new pattern with a play
+  function asserting `role`, `aria-live`, and `data-*` reach the rendered
+  `<p>`.
+- **Unit tests** asserting attribute forwarding on Typography (role +
+  aria-live + id + data-testid + onClick) and Badge (id + title +
+  data-testid).
+
+### Verified
+
+- 234/234 component plays pass `npm run test:storybook`.
+- 428/428 unit tests pass `npm run test`.
+- 37/37 components pass `npm run lint:play-tiers`.
+- Library build clean (`vite build` + `vite-plugin-dts`).
+- Resolves 2 pre-existing tsc errors in `Landing.stories.tsx` (the exact
+  bug STU-168 was filed for — `id` prop not accepted on Typography).
+
 ## [0.21.0] - 2026-05-15
 
 Closes [STU-266](https://linear.app/studio-manfred/issue/STU-266). Fixes shadcn-shape Tailwind utilities being dead classes in downstream consumers.

@@ -49,4 +49,35 @@ describe('Typography', () => {
     );
     expect(screen.getByText('X').className).toContain('custom-x');
   });
+
+  it('forwards native HTML attributes to the rendered element (STU-168)', () => {
+    render(
+      <Typography
+        variant="bodySmall"
+        role="alert"
+        aria-live="assertive"
+        id="email-error"
+        data-testid="email-error"
+      >
+        Email is required
+      </Typography>,
+    );
+    const el = screen.getByRole('alert');
+    expect(el).toHaveAttribute('aria-live', 'assertive');
+    expect(el).toHaveAttribute('id', 'email-error');
+    expect(el).toHaveAttribute('data-testid', 'email-error');
+    // The role lands on the rendered <p>, not on a wrapper.
+    expect(el.tagName).toBe('P');
+  });
+
+  it('lets onClick handlers reach the rendered element', () => {
+    let clicks = 0;
+    render(
+      <Typography variant="label" onClick={() => clicks++}>
+        Click me
+      </Typography>,
+    );
+    screen.getByText('Click me').click();
+    expect(clicks).toBe(1);
+  });
 });

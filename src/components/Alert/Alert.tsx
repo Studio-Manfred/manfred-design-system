@@ -25,8 +25,14 @@ export type AlertVariant = NonNullable<VariantProps<typeof alertVariants>['varia
 
 /**
  * Props for the {@link Alert} component.
+ *
+ * Inherits every native `<div>` attribute except `role` (fixed at
+ * `"alert"` to keep the live-region contract). Pass `id`,
+ * `aria-labelledby`, `aria-describedby`, `data-*`, etc. directly.
  */
-export interface AlertProps extends VariantProps<typeof alertVariants> {
+export interface AlertProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'role'>,
+    VariantProps<typeof alertVariants> {
   /**
    * Optional bold heading rendered above the body. Use a short noun
    * phrase ("Changes saved", "Something went wrong") rather than a
@@ -49,7 +55,6 @@ export interface AlertProps extends VariantProps<typeof alertVariants> {
    * off for compact alerts where the colour alone is enough.
    */
   icon?: boolean;
-  className?: string;
 }
 
 const iconMap: Record<AlertVariant, IconName> = {
@@ -95,9 +100,14 @@ export function Alert({
   onClose,
   icon = true,
   className,
+  ...rest
 }: AlertProps) {
   return (
-    <div role="alert" className={cn(alertVariants({ variant }), className)}>
+    <div
+      {...rest}
+      role="alert"
+      className={cn(alertVariants({ variant }), className)}
+    >
       {icon && (
         <span className="shrink-0 mt-0.5" aria-hidden="true">
           <Icon name={iconMap[variant!]} size="md" />

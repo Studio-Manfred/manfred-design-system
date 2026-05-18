@@ -36,12 +36,14 @@
     "postbuild": "node scripts/build-tokens-export.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
+    "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
     "test:storybook": "vitest run --project storybook",
     "test:all": "npm run test && npm run test:storybook",
-    "lint:play-tiers": "node scripts/lint-play-tiers.mjs"
+    "lint:play-tiers": "node scripts/lint-play-tiers.mjs",
+    "chromatic": "chromatic --exit-zero-on-changes"
   },
   "keywords": [
     "design-system",
@@ -101,6 +103,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
+    "chromatic": "^16.10.1",
     "date-fns": "^4.0.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "jsdom": "^29.0.2",

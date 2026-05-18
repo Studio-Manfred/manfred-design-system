@@ -47,7 +47,8 @@ export type ProgressBarSize = NonNullable<VariantProps<typeof trackVariants>['si
  * default. The component is determinate-only; for indeterminate
  * progress, render an animated track separately.
  */
-export interface ProgressBarProps {
+export interface ProgressBarProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   /**
    * Current progress as a number between 0 and 100. Values outside the
    * range are clamped. Required.
@@ -78,8 +79,6 @@ export interface ProgressBarProps {
    * the underlying value still drives the fill width.
    */
   animated?: boolean;
-  /** Optional class names appended to the outer wrapper. */
-  className?: string;
 }
 
 /**
@@ -117,11 +116,12 @@ export function ProgressBar({
   showValue = false,
   animated = false,
   className,
+  ...rest
 }: ProgressBarProps) {
   const clamped = Math.min(100, Math.max(0, value));
 
   return (
-    <div className={cn('flex flex-col gap-2 w-full', className)}>
+    <div {...rest} className={cn('flex flex-col gap-2 w-full', className)}>
       {(label || showValue) && (
         <div className="flex justify-between items-center font-sans">
           {label && <span className="text-sm font-medium text-foreground">{label}</span>}

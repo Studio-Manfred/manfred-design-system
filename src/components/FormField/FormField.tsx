@@ -27,7 +27,7 @@ export type FormFieldStatus = NonNullable<VariantProps<typeof messageVariants>['
  * to wrap form controls (`TextInput`, `Checkbox`, `DatePicker`, etc.)
  * to keep label, input, and feedback consistent across the system.
  */
-export interface FormFieldProps {
+export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Visible label text. Required — every field must have a label. */
   label: string;
   /**
@@ -56,7 +56,6 @@ export interface FormFieldProps {
   required?: boolean;
   /** The form control to wrap (one input per field is the convention). */
   children: React.ReactNode;
-  className?: string;
 }
 
 const statusIconMap = {
@@ -104,6 +103,7 @@ export function FormField({
   required = false,
   children,
   className,
+  ...rest
 }: FormFieldProps) {
   const iconName =
     status === 'error' || status === 'success' || status === 'hint'
@@ -111,7 +111,7 @@ export function FormField({
       : undefined;
 
   return (
-    <div className={cn('flex flex-col gap-2', className)}>
+    <div {...rest} className={cn('flex flex-col gap-2', className)}>
       <label
         className="font-sans text-sm font-semibold text-foreground leading-[1.5]"
         htmlFor={htmlFor}

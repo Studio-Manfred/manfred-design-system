@@ -52,8 +52,17 @@ export type IconSize = NonNullable<VariantProps<typeof iconVariants>['size']>;
 
 /**
  * Props for the {@link Icon} component.
+ *
+ * Inherits every native `<svg>` attribute except `role` / `aria-label` /
+ * `aria-hidden` (which the component derives from the `label` prop —
+ * pass `label` to flip from decorative to meaningful). Use `id`,
+ * `data-*`, `focusable`, etc. as normal.
  */
-export interface IconProps {
+export interface IconProps
+  extends Omit<
+    React.SVGAttributes<SVGSVGElement>,
+    'role' | 'aria-label' | 'aria-hidden' | 'children'
+  > {
   /**
    * Glyph to render. Restricted to the {@link IconName} union — not
    * an arbitrary string — so consumers can't drift from the curated
@@ -73,7 +82,6 @@ export interface IconProps {
    * `aria-hidden="true"` and ignored by AT.
    */
   label?: string;
-  className?: string;
 }
 
 /**
@@ -103,11 +111,18 @@ export interface IconProps {
  * <Icon name="bell" label="Notifications" size="lg" />
  * ```
  */
-export function Icon({ name, size = 'md', label, className }: IconProps) {
+export function Icon({
+  name,
+  size = 'md',
+  label,
+  className,
+  ...rest
+}: IconProps) {
   const path = iconPaths[name];
 
   return (
     <svg
+      {...rest}
       className={cn(iconVariants({ size }), className)}
       viewBox="0 0 24 24"
       fill="none"

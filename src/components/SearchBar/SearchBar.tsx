@@ -15,7 +15,8 @@ export type SearchBarSize = TextInputSize;
  * `trailing` slot for shortcut hints. Works in both controlled and
  * uncontrolled modes.
  */
-export interface SearchBarProps {
+export interface SearchBarProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'children'> {
   /** Size scale, inherited from `TextInput` (`sm` / `md` / `lg`). Defaults to `md`. */
   size?: SearchBarSize;
   /** Placeholder rendered while the input is empty. Defaults to `Search…`. */
@@ -37,10 +38,6 @@ export interface SearchBarProps {
   disabled?: boolean;
   /** Stretch the input to fill the available container width. */
   fullWidth?: boolean;
-  /** Extra classes merged onto the wrapping `<div>`. */
-  className?: string;
-  /** Inline style passthrough for the wrapping `<div>`. */
-  style?: React.CSSProperties;
   /**
    * Optional trailing-edge content (e.g. a `<Kbd>` shortcut hint).
    * Sits inside the input's right edge. When the input has a value,
@@ -99,6 +96,7 @@ export function SearchBar({
   className,
   style,
   trailing,
+  ...rest
 }: SearchBarProps) {
   const isControlled = value !== undefined;
   const [internalValue, setInternalValue] = useState(defaultValue ?? '');
@@ -126,6 +124,7 @@ export function SearchBar({
 
   return (
     <div
+      {...rest}
       className={cn('relative inline-flex items-center', fullWidth && 'w-full', className)}
       style={style}
     >

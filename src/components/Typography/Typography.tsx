@@ -35,8 +35,16 @@ type TypographyAs =
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   | 'p' | 'span' | 'div' | 'label';
 
-/** Props for the {@link Typography} component. */
-export interface TypographyProps {
+/**
+ * Props for the {@link Typography} component.
+ *
+ * Inherits every native HTML attribute via `React.HTMLAttributes<HTMLElement>` —
+ * pass `role`, `aria-live`, `id`, `data-*`, `onClick`, etc. directly. This is
+ * the natural place for live-region attributes when the text *is* the alert
+ * (e.g. inline form errors), so the message can carry `role="alert"` without
+ * a wrapping `<div>`.
+ */
+export interface TypographyProps extends React.HTMLAttributes<HTMLElement> {
   /**
    * Required visual variant. Each variant pairs a size, weight, and
    * line-height from the type system; pick by role rather than by
@@ -53,8 +61,6 @@ export interface TypographyProps {
   color?: TypographyColor;
   /** The text or inline content. Required. */
   children: React.ReactNode;
-  /** Extra classes merged onto the rendered tag. */
-  className?: string;
 }
 
 const defaultElement: Record<TypographyVariant, TypographyAs> = {
@@ -100,11 +106,15 @@ export function Typography({
   color = 'default',
   children,
   className,
+  ...rest
 }: TypographyProps) {
   const Tag = as ?? defaultElement[variant];
 
   return (
-    <Tag className={cn(typographyVariants({ variant, color }), className)}>
+    <Tag
+      {...rest}
+      className={cn(typographyVariants({ variant, color }), className)}
+    >
       {children}
     </Tag>
   );

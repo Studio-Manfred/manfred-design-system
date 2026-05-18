@@ -20,8 +20,13 @@ export interface BreadcrumbItem {
 
 /**
  * Props for the {@link Breadcrumb} component.
+ *
+ * Inherits every native `<nav>` attribute via
+ * `React.HTMLAttributes<HTMLElement>`. The component defaults
+ * `aria-label="Breadcrumb"`; pass `aria-label` explicitly when more
+ * than one breadcrumb exists on a page to give each a distinct name.
  */
-export interface BreadcrumbProps {
+export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
   /**
    * Ordered list of breadcrumb entries from root to current page. The
    * last item is treated as the current page and gets `aria-current`.
@@ -32,7 +37,6 @@ export interface BreadcrumbProps {
    * shells; `slash` for a denser, text-only treatment.
    */
   separator?: 'chevron' | 'slash';
-  className?: string;
 }
 
 /**
@@ -61,9 +65,15 @@ export interface BreadcrumbProps {
  * />
  * ```
  */
-export function Breadcrumb({ items, separator = 'chevron', className }: BreadcrumbProps) {
+export function Breadcrumb({
+  items,
+  separator = 'chevron',
+  className,
+  'aria-label': ariaLabel = 'Breadcrumb',
+  ...rest
+}: BreadcrumbProps) {
   return (
-    <nav aria-label="Breadcrumb" className={cn('text-sm', className)}>
+    <nav {...rest} aria-label={ariaLabel} className={cn('text-sm', className)}>
       <ol className="flex flex-wrap items-center gap-2">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;

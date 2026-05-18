@@ -19,6 +19,7 @@ npm run test:coverage       # v8 coverage over src/components and src/lib
 npm run test:storybook      # play functions, headless Chromium (CI-gated since v0.20.1)
 npm run test:all            # unit + storybook, sequential
 npm run lint:play-tiers     # regex tier compliance (required CI gate)
+npm run chromatic           # local visual-regression upload (needs CHROMATIC_PROJECT_TOKEN)
 ```
 
 Run a single unit test file:
@@ -27,6 +28,14 @@ npx vitest run --project unit src/components/Button/Button.test.tsx
 ```
 
 There is **no `lint` or `dev` script**. The parent `/Users/jens.wedin/Sandbox/Code/CLAUDE.md` lists generic npm commands that do not apply here — use the ones above.
+
+### Visual regression (Chromatic)
+
+`.github/workflows/chromatic.yml` uploads every Storybook story to [Chromatic](https://www.chromatic.com/) on every PR and main push. The first run on main sets the baseline; subsequent PRs render diffs in the Chromatic UI for review. **Soft gate initially** (`exitZeroOnChanges: true`) — visual diffs surface in the UI but don't fail the PR. See [memory/reference_chromatic_tuning.md](../../.claude/projects/-Users-jens-wedin-Sandbox-Code-manfred-design-system/memory/reference_chromatic_tuning.md) for when to flip to a hard gate and other tuning knobs.
+
+TurboSnap (`onlyChanged: true`) is on — Chromatic only re-snapshots stories whose dependency graph changed between commits. Cuts ~80% of snapshot usage on a typical PR. Disable briefly when changing core build pipeline (a Vite plugin that affects all bundles) and let main re-baseline before re-enabling.
+
+Locally: `npm run chromatic` uploads from your workstation against your branch. Requires `CHROMATIC_PROJECT_TOKEN` in env.
 
 ### Runtime a11y scan
 

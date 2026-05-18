@@ -131,6 +131,22 @@ The mapping lives in `scripts/play-tiers.json`. To add a new component, place it
 
 The lint matches assertion patterns via regex on the comment-stripped story source. False positives in JSX render bodies (e.g., a static `aria-hidden` attribute satisfying tier C's ARIA check) are a known approximation — see the inline comment on `ARIA_ATTR_RE` in `scripts/lint-play-tiers.mjs`. The intent is captured by the tier contract; the lint is the cheap automation, not the truth.
 
+## Visual regression (Chromatic)
+
+Play functions cover *behaviour* (role queries, ARIA, keyboard, interaction). They do **not** catch unintended *visual* changes — a token rebind that shifts a 4px to 8px gap, a stray Tailwind class that breaks vertical alignment, or a dark-mode override that lands on a non-dark-aware element. That's [Chromatic](https://www.chromatic.com/)'s job.
+
+`.github/workflows/chromatic.yml` uploads every story on each PR. Diffs render in the Chromatic UI for review. Initial posture is **soft gate** (`exitZeroOnChanges: true`) — diffs are flagged for review, but the PR doesn't fail. Flip to hard gate once the team is comfortable with the diff UX.
+
+Local upload (rare — mostly for branch previews ahead of a PR):
+
+```bash
+CHROMATIC_PROJECT_TOKEN=<token> npm run chromatic
+```
+
+Snapshot strategy:
+- **Light mode** is the implicit baseline — most stories omit `globals`, so the addon-themes default fires.
+- Add a **dark-mode variant** (`globals: { backgrounds: { value: 'dark' } }`) only when the component renders differently in dark (custom shadows, gradients, fixed brand colours that don't rebind), OR when the story is a known theme-behaviour showcase.
+
 ## Troubleshooting
 
 ### "Cannot find module 'storybook/test'"

@@ -1,0 +1,49 @@
+name: Chromatic
+
+# Visual regression + UI review for Storybook.
+# Soft gate initially (exitZeroOnChanges: true) — visual changes show up
+# in the Chromatic UI for review but don't fail the PR. Flip to false
+# once the team is comfortable approving changes there.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # TurboSnap needs the full history to compare story dependencies
+          # across commits. Without fetch-depth: 0 it falls back to full
+          # snapshot every time.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Soft gate — workflow stays green even when stories diff.
+          # See reference_chromatic_tuning.md for when to flip this.
+          exitZeroOnChanges: true
+          # Wait only for upload, not for diff results. Keeps CI fast.
+          exitOnceUploaded: true
+          # Enable once the first baseline is captured on main. Skips
+          # re-snapshotting stories whose dependency graph hasn't changed.
+          # Comment out for the first run to capture every story.
+          onlyChanged: true

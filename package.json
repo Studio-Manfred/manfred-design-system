@@ -36,7 +36,7 @@
     "postbuild": "node scripts/build-tokens-export.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
-    "build-storybook:chromatic": "storybook build",
+    "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",

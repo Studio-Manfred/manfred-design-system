@@ -147,6 +147,13 @@
   --color-text-brand:     var(--blue-500);
   --color-text-on-brand:  var(--white);
 
+  /* Links — on white/cream surfaces and on brand-blue surfaces.
+     Underline + offset live in `.manfred-prose`; tokens carry colour. */
+  --color-text-link:                var(--color-business-blue);
+  --color-text-link-hover:          var(--blue-600);
+  --color-text-link-on-brand:       var(--pink);
+  --color-text-link-on-brand-hover: var(--white);
+
   --color-bg-default:    var(--white);
   --color-bg-subtle:     var(--neutral-50);
   --color-bg-muted:      var(--neutral-100);
@@ -342,6 +349,11 @@
     --color-text-brand:     var(--blue-300);
     --color-text-on-brand:  var(--white);
 
+    /* Links rebind to the lighter brand-blue scale; on-brand peach/white
+       stay identity-fixed since the brand surface itself doesn't theme-flip. */
+    --color-text-link:       var(--blue-300);
+    --color-text-link-hover: var(--blue-200);
+
     --color-bg-default:    var(--neutral-900);
     --color-bg-subtle:     var(--neutral-800);
     --color-bg-muted:      var(--neutral-700);
@@ -404,6 +416,11 @@
   --color-text-inverse:   var(--neutral-900);
   --color-text-brand:     var(--blue-300);
   --color-text-on-brand:  var(--white);
+
+  /* Links rebind to the lighter brand-blue scale; on-brand peach/white
+     stay identity-fixed since the brand surface itself doesn't theme-flip. */
+  --color-text-link:       var(--blue-300);
+  --color-text-link-hover: var(--blue-200);
 
   --color-bg-default:    var(--neutral-900);
   --color-bg-subtle:     var(--neutral-800);

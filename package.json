@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "vite build",
-    "postbuild": "node scripts/build-tokens-export.mjs",
+    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",

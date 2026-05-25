@@ -42,6 +42,10 @@ export default defineConfig({
         /^@radix-ui\//,
       ],
       output: {
+        // Mark the whole library client-side so Next 16 / RSC consumers
+        // can import from Server Components without the createContext crash.
+        // Per STU-169 — applied to every emitted JS chunk (mjs + cjs).
+        banner: '"use client";',
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',

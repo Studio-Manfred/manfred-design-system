@@ -544,3 +544,29 @@
     to { background-position: 200% 0; }
   }
 }
+
+/* ==========================================
+   PROSE WRAPPER
+   Restores brand link styling inside content the
+   DS can't reach as JSX — typically CMS HTML
+   injected via React's raw-HTML escape hatch.
+   Scoped to <a> for v1; expand later if/when
+   headings/lists need DS-owned defaults too.
+   Add `manfred-prose--on-brand` on brand-blue
+   surfaces to switch the palette.
+   ========================================== */
+.manfred-prose a {
+  color: var(--color-text-link);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.manfred-prose a:hover {
+  color: var(--color-text-link-hover);
+}
+
+.manfred-prose--on-brand a {
+  color: var(--color-text-link-on-brand);
+}
+.manfred-prose--on-brand a:hover {
+  color: var(--color-text-link-on-brand-hover);
+}

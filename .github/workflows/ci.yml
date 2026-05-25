@@ -33,6 +33,14 @@ jobs:
       - name: Unit tests
         run: npm run test
 
+      - name: Build library and verify RSC "use client" banner
+        # Builds dist/ and runs scripts/verify-use-client-directive.mjs
+        # via the postbuild chain. Regression guard for STU-169 —
+        # both dist/index.mjs and dist/index.cjs must lead with the
+        # "use client"; directive so Next 16 RSC consumers can import
+        # from Server Components.
+        run: npm run build
+
       - name: Cache Playwright browsers
         uses: actions/cache@v4
         with:

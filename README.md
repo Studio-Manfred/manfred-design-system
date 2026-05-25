@@ -64,6 +64,27 @@ Browse every component with live examples at the
 [public Storybook](https://studio-manfred.github.io/manfred-design-system/),
 or run it locally with `npm run storybook` (see below).
 
+### Next.js App Router (RSC)
+
+From v0.23.0 the bundled dist entry ships with a `"use client"`
+directive at the top, so you can import DS exports directly from
+Server Components in a Next 16 App Router project:
+
+```tsx
+// app/page.tsx — Server Component by default
+import { Button } from '@studio-manfred/manfred-design-system';
+
+export default function Home() {
+  return <Button>OK</Button>;
+}
+```
+
+No consumer-side client-boundary shim required. Existing client
+components (anywhere you already write `"use client"` at the top of
+the file) keep working unchanged. The whole library is marked
+client-side — the convention used by shadcn/ui, MUI, and Mantine — so
+every DS import contributes to the consumer's client bundle.
+
 ### Tailwind v4 utilities in your own code
 
 If your app uses Tailwind v4 and you want to write

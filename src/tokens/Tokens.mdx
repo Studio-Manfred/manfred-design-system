@@ -1,5 +1,6 @@
 import { Meta, Canvas } from '@storybook/addon-docs/blocks';
 import * as TokensStories from './tokens.stories';
+import * as LinksStories from './Links.stories';
 
 <Meta of={TokensStories} />
 
@@ -42,6 +43,24 @@ Aliases named after **what they do**: `--color-text-primary`, `--color-interacti
 <Canvas of={TokensStories.SemanticTokens} />
 <Canvas of={TokensStories.EffectTokens} />
 <Canvas of={TokensStories.ChartPalette} />
+
+### Links
+
+Tailwind v4 Preflight strips the browser's default underline and link colour from `<a>`, so every consumer was re-deriving the same Manfred treatment by hand. The DS now owns it: four `--color-text-link*` tokens carry the colour (default + hover, on-white + on-brand), and a small `.manfred-prose` wrapper class applies them — plus an underline and 4px offset — to every nested `<a>`. Add `manfred-prose--on-brand` alongside it on brand-blue surfaces.
+
+```css
+--color-text-link:                /* brand-blue, hover: --blue-600 */
+--color-text-link-hover:
+--color-text-link-on-brand:       /* peach (--pink), hover: white */
+--color-text-link-on-brand-hover:
+```
+
+The on-brand tokens are identity-fixed — the brand surface itself doesn't theme-flip, so the peach-on-blue pair is the same in light and dark. The default link rebinds to the lighter brand-blue scale (`--blue-300` / `--blue-200`) under dark mode.
+
+`.manfred-prose` is scoped to `<a>` for now (anchor-only). It's the only solution that reaches `<a>` tags inside CMS HTML rendered through React's raw-HTML escape hatch — a `<Link>` JSX primitive can't touch that content.
+
+<Canvas of={LinksStories.OnWhite} />
+<Canvas of={LinksStories.OnBrand} />
 
 ---
 

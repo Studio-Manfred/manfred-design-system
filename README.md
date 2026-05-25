@@ -127,6 +127,39 @@ the theme. Named-colour utilities (`bg-business-blue`, `bg-beige`, …)
 are brand primitives that stay constant in both themes; use them only
 when the colour itself is the intent.
 
+### Links and prose
+
+Tailwind v4 Preflight strips the browser's default underline and
+link colour from `<a>`, so the DS owns the brand link decision via
+four Layer 2 tokens plus a small wrapper class:
+
+```css
+--color-text-link                /* brand-blue on white/cream (--blue-300 dark) */
+--color-text-link-hover          /* --blue-600 (--blue-200 dark) */
+--color-text-link-on-brand       /* --pink on brand-blue (identity-fixed) */
+--color-text-link-on-brand-hover /* --white on brand-blue (identity-fixed) */
+```
+
+Wrap any prose surface in `<div className="manfred-prose">…</div>`
+and every nested `<a>` picks up the brand colour, underline, and 4px
+offset automatically. Add `manfred-prose--on-brand` alongside it on
+brand-blue surfaces to switch the palette to peach.
+
+```jsx
+<div className="manfred-prose">
+  <p>Read more about <a href="/mission">our mission</a>.</p>
+</div>
+
+<div className="manfred-prose manfred-prose--on-brand bg-business-blue">
+  <p>Say hi to <a href="mailto:hi@studiomanfred.com">the team</a>.</p>
+</div>
+```
+
+This is the only path that reaches `<a>` tags inside CMS HTML
+rendered through React's raw-HTML escape hatch — a JSX `<Link>`
+primitive can't touch that content. Anchor-only for v1 (no heading
+or list styling yet).
+
 ## AI agents
 
 This repo is built to be consumed by AI coding agents — Claude, Cursor,

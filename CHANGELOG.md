@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-05-25
+
+Closes [STU-443](https://linear.app/studio-manfred/issue/STU-443).
+
+### Added
+
+- **Link tokens** (Layer 2 semantic). Four new tokens carry the brand link
+  treatment so consumers stop re-deriving it surface by surface:
+  - `--color-text-link` — default link colour on white/cream surfaces
+    (brand-blue; rebinds to `--blue-300` under dark mode).
+  - `--color-text-link-hover` — hover (`--blue-600`; `--blue-200` dark).
+  - `--color-text-link-on-brand` — link colour on brand-blue surfaces
+    (peach, identity-fixed across themes).
+  - `--color-text-link-on-brand-hover` — on-brand hover (white).
+- **`.manfred-prose` wrapper class.** Plain-CSS class shipped in
+  `dist/style.css`. Applied to any wrapper, it gives every nested `<a>` the
+  brand link colour + underline + 4px offset. Add `manfred-prose--on-brand`
+  alongside it on brand-blue surfaces to switch the palette.
+  - Scoped to `<a>` for v1 (anchor-only — YAGNI on headings/lists).
+  - The only solution that reaches `<a>` tags inside CMS HTML rendered
+    through React's raw-HTML escape hatch; a JSX `<Link>` primitive cannot
+    touch that content.
+- Storybook stories under **Foundation / Tokens / Links** demonstrating both
+  surfaces with computed-style `play` assertions. Tokens.mdx grows a new
+  "Links" subsection in the Layer 2 walk-through.
+
+### Notes
+
+- Additive change — no consumer migration required to retain current
+  behaviour. Existing consumers can opt in by wrapping prose surfaces with
+  `manfred-prose` and replacing hex literals with the new tokens.
+
 ## [0.21.1] - 2026-05-18
 
 Closes [STU-168](https://linear.app/studio-manfred/issue/STU-168).

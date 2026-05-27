@@ -3,6 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import { Icon } from '@/components/Icon';
 import { Logo, type LogoColor } from '@/components/Logo';
 import { NavBar, NavItem } from '@/components/NavBar';
 import {
@@ -14,6 +15,7 @@ import {
   NavigationMenuLink,
   navigationMenuTriggerStyle,
 } from '@/components/NavigationMenu';
+import { useThemeToggle } from './useThemeToggle';
 
 const appHeaderVariants = cva(
   cn(
@@ -177,6 +179,32 @@ function renderUser(u: AppHeaderUser): React.ReactNode {
   );
 }
 
+function ThemeToggleButton(): React.ReactElement {
+  const { resolved, toggle } = useThemeToggle();
+  const nextLabel = resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={nextLabel}
+      aria-pressed={resolved === 'dark'}
+      className={cn(
+        'inline-flex items-center justify-center',
+        'h-8 w-8 rounded-full',
+        'text-foreground/80 hover:bg-accent hover:text-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'motion-safe:transition-colors',
+      )}
+    >
+      <Icon
+        name={resolved === 'dark' ? 'sun' : 'moon'}
+        size="sm"
+        aria-hidden
+      />
+    </button>
+  );
+}
+
 /**
  * Props for the {@link AppHeader} component. See the design spec at
  * `docs/superpowers/specs/2026-05-27-appheader-design.md` for the full
@@ -225,6 +253,12 @@ export interface AppHeaderProps
    * `user` and pass your own dropdown via `actions`.
    */
   user?: AppHeaderUser;
+  /**
+   * Render a built-in light/dark theme toggle (Icon button) on the
+   * right edge of the desktop cluster. Uses `useThemeToggle` internally.
+   * Default `false`.
+   */
+  themeToggle?: boolean;
   /**
    * Visual tone:
    * - `default` (default) — `bg-background` + `border-b border-border`.
@@ -284,6 +318,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       search,
       actions,
       user,
+      themeToggle = false,
       tone = 'default',
       sticky = true,
       ariaLabel = 'Primary',
@@ -348,6 +383,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}
+          {themeToggle ? <ThemeToggleButton /> : null}
         </div>
         {children}
       </header>

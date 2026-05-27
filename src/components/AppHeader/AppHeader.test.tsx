@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
@@ -183,5 +183,33 @@ describe('AppHeader — right cluster', () => {
       <AppHeader user={{ email: 'jens@studiomanfred.com', onSignOut: () => {}, signOutLabel: 'Log out' }} />,
     );
     expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — theme toggle', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  it('does not render the theme toggle by default', () => {
+    render(<AppHeader />);
+    expect(screen.queryByRole('button', { name: /switch to (light|dark) mode/i })).not.toBeInTheDocument();
+  });
+
+  it('renders a theme toggle button when themeToggle={true}', () => {
+    render(<AppHeader themeToggle />);
+    // Initial resolved is light (jsdom matchMedia stub returns matches=false),
+    // so the toggle offers to switch to dark.
+    expect(screen.getByRole('button', { name: /switch to dark mode/i })).toBeInTheDocument();
+  });
+
+  it('flips aria-label after clicking the theme toggle', async () => {
+    const user = userEvent.setup();
+    render(<AppHeader themeToggle />);
+    const btn = screen.getByRole('button', { name: /switch to dark mode/i });
+    await user.click(btn);
+    expect(screen.getByRole('button', { name: /switch to light mode/i })).toBeInTheDocument();
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 });

@@ -407,7 +407,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
         className={cn(appHeaderVariants({ tone, sticky }), className)}
         {...rest}
       >
-        <div className="flex items-center gap-6 min-w-0 flex-1">
+        <div className="flex items-center gap-8 min-w-0 flex-1">
           <div className="flex items-center gap-3 min-w-0">
             {logoNode &&
               (hasLogoLink ? (
@@ -426,7 +426,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           </div>
           {navNode ? <div className={BREAKPOINT_HIDDEN[mobileBreakpoint]}>{navNode}</div> : null}
         </div>
-        <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3')}>
+        <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3 ml-6 shrink-0')}>
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-05-27
+
+Closes [STU-482](https://linear.app/studio-manfred/issue/STU-482).
+
 ### Added
 
 - **`Button` gains a `destructive` variant** for delete / remove /
@@ -20,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   through, locking the contract in CI.
 - Consumers (e.g. `manfred-up`) can drop the Tailwind className overlay
   on top of `variant="primary"` and use `variant="destructive"`
-  directly. Closes [STU-482](https://linear.app/studio-manfred/issue/STU-482).
+  directly.
 
 ### Fixed
 

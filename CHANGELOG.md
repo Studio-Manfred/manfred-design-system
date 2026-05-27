@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`Button` gains a `destructive` variant** for delete / remove /
+  cancel-with-consequence actions. Routes through the existing
+  shadcn-contract `--destructive` and `--destructive-foreground`
+  tokens. Same shape as `primary` / `brand` (matching focus ring +
+  hover/active behaviour); only the colour tokens swap.
+- Storybook gains a dedicated `Destructive` story under
+  `Components/Button` and the variant joins the existing `All variants`
+  showcase. The play function asserts the named-utility tokens compile
+  through, locking the contract in CI.
+- Consumers (e.g. `manfred-up`) can drop the Tailwind className overlay
+  on top of `variant="primary"` and use `variant="destructive"`
+  directly. Closes [STU-482](https://linear.app/studio-manfred/issue/STU-482).
+
+### Fixed
+
+- **Dark-mode `--destructive-foreground` now uses `--neutral-900`** so
+  destructive surfaces meet WCAG AA contrast in dark mode. The
+  contract's dark `--destructive` (`#fca5a5`, soft pink) failed
+  contrast against white text (~1.6:1) — surfaced by the new Button
+  variant and confirmed by the runtime axe scan. Matches the
+  shadcn/UI dark-mode destructive convention (soft red surface, dark
+  text). No light-mode visual change.
+
 ## [0.23.0] - 2026-05-25
 
 Closes [STU-169](https://linear.app/studio-manfred/issue/STU-169) — Next 16 RSC compatibility.

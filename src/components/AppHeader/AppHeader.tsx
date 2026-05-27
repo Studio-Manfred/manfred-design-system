@@ -15,6 +15,13 @@ import {
   NavigationMenuLink,
   navigationMenuTriggerStyle,
 } from '@/components/NavigationMenu';
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/Sheet';
 import { useThemeToggle } from './useThemeToggle';
 
 const appHeaderVariants = cva(
@@ -51,6 +58,7 @@ const appHeaderVariants = cva(
 );
 
 export type AppHeaderTone = NonNullable<VariantProps<typeof appHeaderVariants>['tone']>;
+export type AppHeaderBreakpoint = 'sm' | 'md' | 'lg';
 export type AppHeaderLogo = 'wordmark' | 'monogram' | React.ReactNode;
 
 export interface AppHeaderNavItem {
@@ -86,6 +94,22 @@ export interface AppHeaderUser {
 function logoColorForTone(tone: AppHeaderTone): LogoColor {
   return tone === 'default' ? 'black' : 'white';
 }
+
+// Tailwind v4 doesn't see through string concatenation, so we map the
+// breakpoint key to literal class strings. Hidden-below at the chosen
+// breakpoint flips visibility — the desktop clusters use `BREAKPOINT_HIDDEN`,
+// the mobile hamburger uses `BREAKPOINT_VISIBLE_BELOW`.
+const BREAKPOINT_HIDDEN: Record<AppHeaderBreakpoint, string> = {
+  sm: 'hidden sm:flex',
+  md: 'hidden md:flex',
+  lg: 'hidden lg:flex',
+};
+
+const BREAKPOINT_VISIBLE_BELOW: Record<AppHeaderBreakpoint, string> = {
+  sm: 'sm:hidden',
+  md: 'md:hidden',
+  lg: 'lg:hidden',
+};
 
 function hasDropdowns(items: AppHeaderNavItem[]): boolean {
   return items.some((item) => Array.isArray(item.items) && item.items.length > 0);
@@ -260,6 +284,11 @@ export interface AppHeaderProps
    */
   themeToggle?: boolean;
   /**
+   * Tailwind breakpoint at which the desktop nav + right cluster
+   * collapse into a hamburger Sheet. Default `'md'` (768px).
+   */
+  mobileBreakpoint?: AppHeaderBreakpoint;
+  /**
    * Visual tone:
    * - `default` (default) — `bg-background` + `border-b border-border`.
    *   Flips with the OS / explicit theme via existing token rebinds.
@@ -319,6 +348,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       actions,
       user,
       themeToggle = false,
+      mobileBreakpoint = 'md',
       tone = 'default',
       sticky = true,
       ariaLabel = 'Primary',
@@ -377,13 +407,43 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
               <span className="font-semibold text-base truncate">{appName}</span>
             ) : null}
           </div>
-          {navNode ? <div className="hidden md:flex">{navNode}</div> : null}
+          {navNode ? <div className={BREAKPOINT_HIDDEN[mobileBreakpoint]}>{navNode}</div> : null}
         </div>
-        <div className="hidden md:flex items-center gap-3">
+        <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3')}>
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}
           {themeToggle ? <ThemeToggleButton /> : null}
+        </div>
+        <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Open menu"
+                className={cn(
+                  'inline-flex items-center justify-center',
+                  'h-10 w-10 rounded-full',
+                  'text-foreground hover:bg-accent',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                )}
+              >
+                <Icon name="menu" size="md" aria-hidden />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72 sm:w-80">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-4">
+                {search ? <div>{search}</div> : null}
+                {navItems && navItems.length > 0 ? renderFlatNav(navItems) : navNode}
+                {actions ? <div className="flex flex-col gap-2">{actions}</div> : null}
+                {user ? renderUser(user) : null}
+                {themeToggle ? <ThemeToggleButton /> : null}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
         {children}
       </header>

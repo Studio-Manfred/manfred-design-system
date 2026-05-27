@@ -213,3 +213,29 @@ describe('AppHeader — theme toggle', () => {
     expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
 });
+
+describe('AppHeader — mobile drawer', () => {
+  it('renders a hamburger trigger labelled "Open menu"', () => {
+    render(<AppHeader navItems={[{ label: 'Home', href: '/' }]} />);
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument();
+  });
+
+  it('opens the drawer with nav items when the hamburger is clicked', async () => {
+    const user = userEvent.setup();
+    render(
+      <AppHeader
+        navItems={[
+          { label: 'Home', href: '/' },
+          { label: 'Boards', href: '/boards', active: true },
+        ]}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    // Sheet renders content in a portal; testing-library scans the whole
+    // document by default but we can be explicit.
+    const dialog = await screen.findByRole('dialog');
+    expect(dialog).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Home' }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByRole('link', { name: 'Boards' }).length).toBeGreaterThanOrEqual(1);
+  });
+});

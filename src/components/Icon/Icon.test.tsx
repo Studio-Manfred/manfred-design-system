@@ -33,4 +33,16 @@ describe('Icon', () => {
     const { container } = render(<Icon name="x" size={size} />);
     expect(container.querySelector('svg')!.className.baseVal).toContain(cls);
   });
+
+  it.each([
+    'sun',
+    'moon',
+    'menu',
+    'log-out',
+  ] as const)('renders %s icon with valid path', (name) => {
+    const { container } = render(<Icon name={name} />);
+    const svg = container.querySelector('svg');
+    expect(svg).toBeInTheDocument();
+    expect(svg?.querySelector('path')).toBeInTheDocument();
+  });
 });

@@ -1,0 +1,93 @@
+import { Meta, Canvas, Controls } from '@storybook/addon-docs/blocks';
+import * as AppHeaderStories from './AppHeader.stories';
+
+<Meta of={AppHeaderStories} />
+
+# AppHeader
+
+Opinionated, configurable application header. Renders a single `<header>` landmark with logo, app name, top navigation, search, actions, typed user block, and a built-in theme toggle. Composes existing DS pieces (`NavBar`, `NavigationMenu`, `Logo`, `Avatar`, `Button`, `Sheet`, `SearchBar`, `Icon`) into one configured shape — covers the per-app archetypes captured in the spec without per-app boilerplate.
+
+`AppHeader` IS the `<header>` landmark. Use it inside `PageShell` directly — don't nest inside the unopinionated `PageHeader` slot.
+
+```tsx
+<PageShell>
+  <AppHeader appName="Intranet" navItems={…} user={…} themeToggle />
+  <PageBody>…</PageBody>
+</PageShell>
+```
+
+## Archetypes
+
+### Default — minimal header with app name
+
+<Canvas of={AppHeaderStories.Default} />
+
+### Intranet — logo + nav + search + theme toggle + user
+
+<Canvas of={AppHeaderStories.WithFlatNav} />
+
+### Dropdown nav — for apps with section sub-menus
+
+<Canvas of={AppHeaderStories.WithDropdownNav} />
+
+### Custom nav slot — escape hatch for router-aware nav
+
+<Canvas of={AppHeaderStories.WithNavSlot} />
+
+### Brand tone — landing-page header on brand-blue
+
+<Canvas of={AppHeaderStories.BrandTone} />
+
+### Dark tone — always-dark surface
+
+<Canvas of={AppHeaderStories.DarkTone} />
+
+### With theme toggle
+
+<Canvas of={AppHeaderStories.WithThemeToggle} />
+
+### With typed user — email + sign-out shorthand
+
+<Canvas of={AppHeaderStories.WithUserMenu} />
+
+### Plain-text title — no logo, app name only
+
+<Canvas of={AppHeaderStories.PlainTextTitle} />
+
+### Mobile drawer — below the breakpoint
+
+<Canvas of={AppHeaderStories.MobileDrawer} />
+
+## Props
+
+<Controls of={AppHeaderStories.Default} />
+
+## `useThemeToggle`
+
+`AppHeader` exports its theme-preference hook so consumers can render a custom theme switcher elsewhere on the page. Reads `localStorage('manfred-theme')` and flips `<html>` between `light` / `dark` / system.
+
+```tsx
+import { useThemeToggle } from '@studio-manfred/manfred-design-system';
+
+function MyToggle() {
+  const { resolved, toggle } = useThemeToggle();
+  return <button onClick={toggle}>{resolved === 'dark' ? '☀️' : '🌙'}</button>;
+}
+```
+
+## SSR / theme flash
+
+For SSR consumers (Next.js App Router with the `"use client"` banner shipped in v0.23.0), add an inline script that sets the class before React hydrates:
+
+```html
+<script>
+  (function() {
+    var stored = localStorage.getItem('manfred-theme');
+    if (stored === 'light' || stored === 'dark') {
+      document.documentElement.classList.add(stored);
+    }
+  })();
+</script>
+```
+
+Place it in `<head>`. Avoids the light-to-dark flicker on the first paint.

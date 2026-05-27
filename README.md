@@ -108,7 +108,7 @@ runtime component CSS.
 
 ### Components
 
-Accordion · Alert · Avatar · Badge · Breadcrumb · Button · Card ·
+Accordion · Alert · AppHeader · Avatar · Badge · Breadcrumb · Button · Card ·
 Chart (Donut / Bar / Line / Legend / Tooltip) · Checkbox · DatePicker ·
 Dialog · FormField · Icon · Kbd · Label · Logo · NavBar · NavigationMenu ·
 ProgressBar · RadioGroup · SearchBar · Select · Separator · Sheet ·
@@ -138,6 +138,21 @@ theme with a class on `<html>`:
 
 All components adapt through the token system — no per-component
 configuration needed.
+
+For consumers who want a custom theme switcher outside of `AppHeader`,
+the DS exports a `useThemeToggle` hook from the same module:
+
+```tsx
+import { useThemeToggle } from '@studio-manfred/manfred-design-system';
+
+function MyToggle() {
+  const { resolved, toggle } = useThemeToggle();
+  return <button onClick={toggle}>{resolved === 'dark' ? '☀️' : '🌙'}</button>;
+}
+```
+
+It persists the preference to `localStorage('manfred-theme')` and applies
+the class on `<html>`. SSR-safe.
 
 ### Tokens
 

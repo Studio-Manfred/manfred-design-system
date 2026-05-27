@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-05-27
+
+Closes [STU-495](https://linear.app/studio-manfred/issue/STU-495).
+
+### Added
+
+- **`AppHeader` component** — opinionated, configurable application
+  header that composes existing DS pieces (NavBar, NavigationMenu,
+  Logo, Avatar, Button, Sheet, SearchBar, Icon) into one configured
+  shape. Nine archetypes covered (intranet flat nav, dropdown nav,
+  custom nav slot, brand-tone landing, always-dark surface, theme
+  toggle, typed user menu, plain-text title, monogram, mobile drawer)
+  with no per-app boilerplate.
+- **`useThemeToggle` hook** — co-shipped with `AppHeader`. Reads
+  `localStorage('manfred-theme')`, applies the light/dark class on
+  `<html>`, resolves 'system' against the OS preference query.
+  SSR-safe. Available for consumers building custom theme switchers.
+- **Four icons** added to `Icon`: `sun`, `moon`, `menu`, `log-out` —
+  required by `AppHeader`'s theme toggle, mobile hamburger, and
+  sign-out button respectively.
+
+### Design notes
+
+- Logo color picks per surface: brand-blue on the default (light)
+  tone, white in dark mode, white on brand and dark tones. The Logo
+  component is brand-literal (not theme-reactive), so AppHeader uses
+  `useThemeToggle()`'s `resolved` value to pick the right variant per
+  render.
+- Mobile drawer redesign: full-width tappable nav items, full-width
+  sign-out button, divider, and a footer row pinned to the bottom —
+  identity (avatar + name + email stacked) on the left, theme toggle
+  on the right.
+- Logo, nav, and right-cluster all get explicit whitespace separators
+  (`gap-8` + `ml-6 shrink-0`) so the surfaces never visually crowd
+  each other.
+
+### Fixed
+
+- `scripts/lint-play-tiers.mjs` walker now honours the `excluded`
+  list BEFORE requiring a stories file. Previously, an excluded
+  component without a stories file silently failed the lint with
+  "No stories file at …" — the exclusion was inert.
+
+### Notes
+
+- `AppHeader` is the new opinionated header; the existing `PageHeader`
+  slot inside `PageShell` is unchanged and remains the escape hatch
+  for marketing-site / custom-layout pages. No breaking change.
+
 ## [0.23.1] - 2026-05-27
 
 Closes [STU-482](https://linear.app/studio-manfred/issue/STU-482).

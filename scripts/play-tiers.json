@@ -15,6 +15,7 @@
     ],
     "B": [
       "Alert",
+      "AppHeader",
       "Button",
       "Card",
       "Checkbox",

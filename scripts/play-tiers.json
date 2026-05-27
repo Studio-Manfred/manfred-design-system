@@ -41,6 +41,7 @@
     ]
   },
   "excluded": [
+    "AppHeader",
     "Container",
     "Grid",
     "PageBackground",

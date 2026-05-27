@@ -33,6 +33,12 @@ export default defineConfig({
         test: {
           name: 'unit',
           environment: 'jsdom',
+          environmentOptions: {
+            jsdom: {
+              // Required for jsdom to provide window.localStorage
+              url: 'http://localhost',
+            },
+          },
           globals: true,
           include: ['src/**/*.test.{ts,tsx}', 'scripts/**/*.test.mjs'],
           setupFiles: ['./src/test/setup.ts'],

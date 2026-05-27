@@ -448,16 +448,93 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                 <Icon name="menu" size="md" aria-hidden />
               </button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72 sm:w-80">
+            <SheetContent side="right" className="w-80">
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <div className="flex flex-col gap-4 mt-4">
-                {search ? <div>{search}</div> : null}
-                {navItems && navItems.length > 0 ? renderFlatNav(navItems) : navNode}
-                {actions ? <div className="flex flex-col gap-2">{actions}</div> : null}
-                {user ? renderUser(user) : null}
-                {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+
+              <div className="flex flex-col h-full mt-4">
+                {/* Optional search at top */}
+                {search ? <div className="mb-4">{search}</div> : null}
+
+                {/* Nav items — full-width, larger touch targets. When only the
+                    'nav' ReactNode escape hatch is provided (no structured navItems),
+                    render that as-is — consumer owns the layout. */}
+                {navItems && navItems.length > 0 ? (
+                  <nav aria-label="Primary nav" className="flex flex-col gap-1">
+                    {navItems.map((item) => {
+                      const Comp = (item.as ?? 'a') as React.ElementType;
+                      return (
+                        <Comp
+                          key={item.label}
+                          href={item.href}
+                          {...(item.active ? { 'aria-current': 'page' } : {})}
+                          className={cn(
+                            'block w-full px-3 py-3 text-base rounded-[var(--radius-md)]',
+                            'text-foreground hover:bg-accent',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                            item.active && 'bg-accent font-semibold',
+                          )}
+                        >
+                          {item.label}
+                        </Comp>
+                      );
+                    })}
+                  </nav>
+                ) : (
+                  navNode
+                )}
+
+                {/* Optional actions stacked */}
+                {actions ? <div className="flex flex-col gap-2 mt-4">{actions}</div> : null}
+
+                {/* Footer pinned to bottom of the drawer */}
+                <div className="mt-auto">
+                  {/* Full-width sign-out */}
+                  {user?.onSignOut ? (
+                    <Button
+                      variant="outline"
+                      onClick={user.onSignOut}
+                      className="w-full mt-4"
+                    >
+                      {user.signOutLabel ?? 'Sign out'}
+                    </Button>
+                  ) : null}
+
+                  {/* Divider — only when there's user info OR a theme toggle below */}
+                  {(user || themeToggle) ? (
+                    <hr className="my-4 border-border" />
+                  ) : null}
+
+                  {/* Bottom row: identity info on the left, theme toggle on the right */}
+                  {(user || themeToggle) ? (
+                    <div className="flex items-center justify-between gap-3">
+                      {user ? (
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {(user.avatarUrl || user.name) ? (
+                            <Avatar
+                              alt={user.name ?? user.email ?? 'Account'}
+                              src={user.avatarUrl}
+                              name={user.name ?? user.email?.split('@')[0] ?? ''}
+                              size="sm"
+                            />
+                          ) : null}
+                          <div className="flex flex-col min-w-0 leading-tight">
+                            {user.name ? (
+                              <span className="text-sm font-medium truncate">{user.name}</span>
+                            ) : null}
+                            {user.email ? (
+                              <span className="text-xs text-muted-foreground truncate">{user.email}</span>
+                            ) : null}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex-1" />
+                      )}
+                      {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </SheetContent>
           </Sheet>

@@ -254,22 +254,42 @@ describe('AppHeader — mobile drawer', () => {
     expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument();
   });
 
-  it('opens the drawer with nav items when the hamburger is clicked', async () => {
+  it('opens the drawer with full-width nav items + full-width sign-out + footer row', async () => {
     const user = userEvent.setup();
+    const onSignOut = vi.fn();
     render(
       <AppHeader
         navItems={[
           { label: 'Home', href: '/' },
           { label: 'Boards', href: '/boards', active: true },
         ]}
+        themeToggle
+        user={{ name: 'Jens', email: 'jens@studiomanfred.com', onSignOut }}
       />,
     );
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
-    // Sheet renders content in a portal; testing-library scans the whole
-    // document by default but we can be explicit.
+
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Home' }).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByRole('link', { name: 'Boards' }).length).toBeGreaterThanOrEqual(1);
+
+    // Nav items are full-width block anchors inside the drawer's nav.
+    const homeLinks = screen.getAllByRole('link', { name: 'Home' });
+    const drawerHome = homeLinks.find((el) => el.className.includes('w-full'));
+    expect(drawerHome).toBeTruthy();
+
+    // Active item has aria-current.
+    const boardsLinks = screen.getAllByRole('link', { name: 'Boards' });
+    const drawerBoards = boardsLinks.find((el) => el.className.includes('w-full'));
+    expect(drawerBoards).toHaveAttribute('aria-current', 'page');
+
+    // Sign-out button is full-width.
+    const signOutBtns = screen.getAllByRole('button', { name: 'Sign out' });
+    const drawerSignOut = signOutBtns.find((el) => el.className.includes('w-full'));
+    expect(drawerSignOut).toBeInTheDocument();
+
+    // Footer row contains both user identity AND a theme toggle.
+    expect(screen.getByText('Jens')).toBeInTheDocument();
+    expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /switch to (light|dark) mode/i })).toBeInTheDocument();
   });
 });

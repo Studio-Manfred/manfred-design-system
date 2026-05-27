@@ -10,23 +10,24 @@ const meta: Meta<typeof Button> = {
     docs: {
       description: {
         component:
-          'Primary call-to-action button. Five visual variants ' +
-          '(`primary` / `brand` / `outline` / `ghost` / `inverse`), three sizes, ' +
-          'optional loading state, and `asChild` to render the button as a ' +
-          'different element (e.g. an `<a>`) while keeping the visual treatment. ' +
-          'Built on a `cva` variant system bound to design tokens — flips with ' +
-          'theme automatically.',
+          'Primary call-to-action button. Six visual variants ' +
+          '(`primary` / `brand` / `destructive` / `outline` / `ghost` / ' +
+          '`inverse`), three sizes, optional loading state, and `asChild` to ' +
+          'render the button as a different element (e.g. an `<a>`) while ' +
+          'keeping the visual treatment. Built on a `cva` variant system ' +
+          'bound to design tokens — flips with theme automatically.',
       },
     },
   },
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'brand', 'outline', 'ghost', 'inverse'],
+      options: ['primary', 'brand', 'destructive', 'outline', 'ghost', 'inverse'],
       description:
         'Visual style. `primary` is the default neutral button; `brand` is the ' +
-        'high-contrast CTA used sparingly; `outline` and `ghost` are quieter; ' +
-        '`inverse` is for use on the brand-blue background.',
+        'high-contrast CTA used sparingly; `destructive` signals delete / ' +
+        'remove / cancel-with-consequence actions; `outline` and `ghost` are ' +
+        'quieter; `inverse` is for use on the brand-blue background.',
       table: { defaultValue: { summary: 'primary' } },
     },
     size: {
@@ -116,6 +117,7 @@ export const AllVariants: Story = {
       <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
         <Button variant="primary">Primary</Button>
         <Button variant="brand">Brand</Button>
+        <Button variant="destructive">Destructive</Button>
         <Button variant="outline">Outline</Button>
         <Button variant="ghost">Ghost</Button>
       </div>
@@ -134,6 +136,41 @@ export const AllVariants: Story = {
       </div>
     </div>
   ),
+};
+
+export const Destructive: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Destructive action variant. Routes through the `--destructive` / ' +
+          '`--destructive-foreground` shadcn-contract tokens, so dark-mode ' +
+          'rebinding is automatic. Use for delete / remove / ' +
+          'cancel-with-consequence actions — pair with a confirmation flow ' +
+          '(`Dialog`) rather than firing the destructive action on first click.',
+      },
+    },
+  },
+  render: () => (
+    <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <Button variant="destructive">Delete</Button>
+      <Button variant="destructive" disabled>
+        Delete
+      </Button>
+      <Button variant="destructive" size="sm">
+        Remove
+      </Button>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [primaryDelete] = canvas.getAllByRole('button', { name: 'Delete' });
+    // Variant is reachable and labelled — the bare minimum AllVariants
+    // doesn't enforce per-button. Spot-check that the destructive bg
+    // utility actually compiled, locking the token plumbing in CI.
+    expect(primaryDelete).toBeInTheDocument();
+    expect(primaryDelete.className).toContain('bg-destructive');
+  },
 };
 
 export const AllSizes: Story = {

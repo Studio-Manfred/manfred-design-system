@@ -31,6 +31,18 @@ export type {
 export { Alert } from './components/Alert';
 export type { AlertProps, AlertVariant } from './components/Alert';
 
+export { AppHeader, useThemeToggle } from './components/AppHeader';
+export type {
+  AppHeaderProps,
+  AppHeaderNavItem,
+  AppHeaderUser,
+  AppHeaderTone,
+  AppHeaderLogo,
+  AppHeaderBreakpoint,
+  ThemePreference,
+  UseThemeToggleResult,
+} from './components/AppHeader';
+
 export { Avatar } from './components/Avatar';
 export type { AvatarProps, AvatarSize, AvatarVariant } from './components/Avatar';
 

@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-05-25
+
+Closes [STU-169](https://linear.app/studio-manfred/issue/STU-169) — Next 16 RSC compatibility.
+
+### Fixed
+
+- **Next 16 App Router consumers can now import DS exports from Server
+  Components.** Before this release, a fresh Next 16 project that did
+  `import { Button } from "@studio-manfred/manfred-design-system"` from a
+  Server Component crashed at runtime with `TypeError: createContext only
+  works in Client Components`. Several components inside the bundle
+  (Tabs, Tooltip, Toaster, Dialog, Select, Popover, Sheet, …) call
+  `React.createContext` at module load, and the bundled entry shipped
+  without a `"use client"` directive.
+- The Vite build now prepends `"use client";` to every emitted JS chunk
+  via `rollupOptions.output.banner`. Both `dist/index.mjs` and
+  `dist/index.cjs` lead with the directive; sourcemaps adjust
+  automatically. Consumers can drop their thin client-boundary
+  re-export shims (`"use client"; export { … } from "…";`).
+
+### Added
+
+- `scripts/verify-use-client-directive.mjs` — postbuild regression
+  guard that asserts both dist entry points start with `"use client";`.
+  Wired into the `postbuild` chain locally and a dedicated CI step
+  (`Build library and verify RSC "use client" banner`) so a future
+  config drift fails the PR, not the publish.
+
+### Notes
+
+- This marks the whole library client-side (Option 1 in STU-169 —
+  matching the shadcn/ui, MUI, Mantine convention). Every DS import
+  contributes to the consumer's client bundle even when the imported
+  component has no client behaviour; the simplicity trade-off is
+  acceptable for a UI component library where most exports already use
+  Radix and need the boundary anyway.
+- Additive — no consumer migration required. Existing client-component
+  consumers (anywhere `"use client"` is already declared at the
+  call-site) continue to work unchanged.
+
 ## [0.22.0] - 2026-05-25
 
 Closes [STU-443](https://linear.app/studio-manfred/issue/STU-443).

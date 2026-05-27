@@ -1,6 +1,6 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "engines": {
     "node": ">=22"
@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "vite build",
-    "postbuild": "node scripts/build-tokens-export.mjs",
+    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",

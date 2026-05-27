@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`AppHeader` component** — opinionated, configurable application
+  header that composes existing DS pieces (NavBar, NavigationMenu,
+  Logo, Avatar, Button, Sheet, SearchBar, Icon) into one configured
+  shape. Eight archetypes covered (intranet flat nav, dropdown nav,
+  custom nav slot, brand-tone landing, always-dark surface, theme
+  toggle, typed user menu, plain-text title, mobile drawer) with no
+  per-app boilerplate. Closes [STU-495](https://linear.app/studio-manfred/issue/STU-495).
+- **`useThemeToggle` hook** — co-shipped with `AppHeader`. Reads
+  `localStorage('manfred-theme')`, applies the light/dark class on
+  `<html>`, resolves 'system' against the OS preference query.
+  SSR-safe. Available for consumers building custom theme switchers.
+- **Four icons** added to `Icon`: `sun`, `moon`, `menu`, `log-out` —
+  required by `AppHeader`'s theme toggle, mobile hamburger, and
+  sign-out button respectively.
+
+### Fixed
+
+- `scripts/lint-play-tiers.mjs` walker now honours the `excluded`
+  list BEFORE requiring a stories file. Previously, an excluded
+  component without a stories file silently failed the lint with
+  "No stories file at …" — the exclusion was inert.
+
+### Notes
+
+- `AppHeader` is the new opinionated header; the existing `PageHeader`
+  slot inside `PageShell` is unchanged and remains the escape hatch
+  for marketing-site / custom-layout pages. No breaking change.
+
 ## [0.23.1] - 2026-05-27
 
 Closes [STU-482](https://linear.app/studio-manfred/issue/STU-482).

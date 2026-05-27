@@ -424,7 +424,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
               <span className="font-semibold text-base truncate">{appName}</span>
             ) : null}
           </div>
-          {navNode ? <div className={BREAKPOINT_HIDDEN[mobileBreakpoint]}>{navNode}</div> : null}
+          {navNode ? <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'text-sm')}>{navNode}</div> : null}
         </div>
         <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3 ml-6 shrink-0')}>
           {search ? <div>{search}</div> : null}

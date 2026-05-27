@@ -158,6 +158,25 @@ export const PlainTextTitle: Story = {
   },
 };
 
+export const Monogram: Story = {
+  name: 'Monogram logo (narrow surfaces)',
+  args: {
+    logo: 'monogram',
+    appName: 'Intranet',
+    navItems: NAV,
+    themeToggle: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Switch to the monogram via `logo="monogram"` when the wordmark + appName ' +
+          'combination would crowd the header on narrow surfaces.',
+      },
+    },
+  },
+};
+
 export const MobileDrawer: Story = {
   name: 'Mobile drawer (small viewport)',
   parameters: {

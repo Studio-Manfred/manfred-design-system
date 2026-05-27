@@ -145,6 +145,10 @@ export async function lintAll() {
   const components = entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
   const results = [];
   for (const component of components) {
+    if (mapping.excluded.includes(component)) {
+      results.push({ component, ok: true, tier: 'excluded' });
+      continue;
+    }
     const storyPath = resolve(COMPONENTS_DIR, component, `${component}.stories.tsx`);
     let storySource = '';
     try {

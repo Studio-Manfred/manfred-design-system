@@ -83,3 +83,58 @@ describe('AppHeader — left cluster', () => {
     expect(screen.getByText('Intranet')).toBeInTheDocument();
   });
 });
+
+describe('AppHeader — nav slot', () => {
+  it('renders a flat NavBar when navItems is provided without sub-items', () => {
+    render(
+      <AppHeader
+        navItems={[
+          { label: 'Home', href: '/' },
+          { label: 'Boards', href: '/boards', active: true },
+        ]}
+      />,
+    );
+    // Inner NavBar carries aria-label="Primary nav" to disambiguate from
+    // AppHeader's own <header aria-label="Primary"> landmark.
+    expect(screen.getByRole('navigation', { name: 'Primary nav' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    const active = screen.getByRole('link', { name: 'Boards' });
+    expect(active).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('renders a NavigationMenu when any navItem has nested items', () => {
+    render(
+      <AppHeader
+        navItems={[
+          {
+            label: 'Products',
+            items: [
+              { label: 'Alpha', href: '/p/alpha' },
+              { label: 'Beta', href: '/p/beta' },
+            ],
+          },
+          { label: 'About', href: '/about' },
+        ]}
+      />,
+    );
+    // NavigationMenu renders a button (dropdown trigger) for "Products".
+    expect(screen.getByRole('button', { name: 'Products' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'About' })).toBeInTheDocument();
+  });
+
+  it('uses the nav slot when provided, ignoring navItems', () => {
+    render(
+      <AppHeader
+        navItems={[{ label: 'Ignored', href: '/x' }]}
+        nav={<nav aria-label="Custom"><a href="/custom">Custom</a></nav>}
+      />,
+    );
+    expect(screen.getByRole('navigation', { name: 'Custom' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Ignored' })).not.toBeInTheDocument();
+  });
+
+  it('renders nothing when neither nav nor navItems is provided', () => {
+    render(<AppHeader />);
+    expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+});

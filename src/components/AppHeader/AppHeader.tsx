@@ -2,6 +2,16 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Logo, type LogoColor } from '@/components/Logo';
+import { NavBar, NavItem } from '@/components/NavBar';
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from '@/components/NavigationMenu';
 
 const appHeaderVariants = cva(
   cn(
@@ -39,12 +49,90 @@ const appHeaderVariants = cva(
 export type AppHeaderTone = NonNullable<VariantProps<typeof appHeaderVariants>['tone']>;
 export type AppHeaderLogo = 'wordmark' | 'monogram' | React.ReactNode;
 
+export interface AppHeaderNavItem {
+  /** Visible label. */
+  label: string;
+  /** Link target. Omit if the item is a parent of `items` (renders as a dropdown trigger). */
+  href?: string;
+  /** Mark the current item; sets aria-current="page" on the rendered link. */
+  active?: boolean;
+  /** When present, the parent renders as a NavigationMenu dropdown trigger and `items` becomes the panel content. */
+  items?: AppHeaderNavItem[];
+  /** Render-prop for router integration (e.g. `as={Link}` for Next/Remix/React-Router). */
+  as?: React.ElementType;
+}
+
 /**
  * Logo `color` is brand-literal and does NOT rebind under dark mode.
  * AppHeader picks per surface — black on default; white on brand and dark.
  */
 function logoColorForTone(tone: AppHeaderTone): LogoColor {
   return tone === 'default' ? 'black' : 'white';
+}
+
+function hasDropdowns(items: AppHeaderNavItem[]): boolean {
+  return items.some((item) => Array.isArray(item.items) && item.items.length > 0);
+}
+
+function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
+  return (
+    <NavBar aria-label="Primary nav">
+      {items.map((item) => (
+        <NavItem
+          key={item.label}
+          href={item.href}
+          active={item.active}
+          as={item.as}
+        >
+          {item.label}
+        </NavItem>
+      ))}
+    </NavBar>
+  );
+}
+
+function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
+  return (
+    <NavigationMenu aria-label="Primary nav">
+      <NavigationMenuList>
+        {items.map((item) => {
+          if (item.items && item.items.length > 0) {
+            return (
+              <NavigationMenuItem key={item.label}>
+                <NavigationMenuTrigger>{item.label}</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <ul className="grid gap-1 p-2 min-w-[200px]">
+                    {item.items.map((sub) => (
+                      <li key={sub.label}>
+                        <NavigationMenuLink
+                          href={sub.href}
+                          {...(sub.active ? { 'data-active': '' } : {})}
+                          className={navigationMenuTriggerStyle()}
+                        >
+                          {sub.label}
+                        </NavigationMenuLink>
+                      </li>
+                    ))}
+                  </ul>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            );
+          }
+          return (
+            <NavigationMenuItem key={item.label}>
+              <NavigationMenuLink
+                href={item.href}
+                {...(item.active ? { 'data-active': '' } : {})}
+                className={navigationMenuTriggerStyle()}
+              >
+                {item.label}
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          );
+        })}
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
 }
 
 /**
@@ -66,6 +154,18 @@ export interface AppHeaderProps
   logoHref?: string;
   /** Sub-label rendered after the logo, e.g. "Intranet". */
   appName?: string;
+  /**
+   * Structured nav data. Picks `NavBar` when every item is flat; picks
+   * `NavigationMenu` when any item has nested `items`. Renders nothing
+   * when both `nav` and `navItems` are omitted.
+   */
+  navItems?: AppHeaderNavItem[];
+  /**
+   * Escape-hatch slot. When provided, this ReactNode is rendered as
+   * the nav and `navItems` is ignored. Use for fully custom nav
+   * surfaces (router-aware, etc.).
+   */
+  nav?: React.ReactNode;
   /**
    * Visual tone:
    * - `default` (default) — `bg-background` + `border-b border-border`.
@@ -120,6 +220,8 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       logo = 'wordmark',
       logoHref = '/',
       appName,
+      navItems,
+      nav,
       tone = 'default',
       sticky = true,
       ariaLabel = 'Primary',
@@ -146,6 +248,14 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     const logoNode = renderLogo();
     const hasLogoLink = logoNode !== null && (logo === 'wordmark' || logo === 'monogram');
 
+    const navNode: React.ReactNode | null = nav
+      ? nav
+      : navItems && navItems.length > 0
+      ? hasDropdowns(navItems)
+        ? renderDropdownNav(navItems)
+        : renderFlatNav(navItems)
+      : null;
+
     return (
       <header
         ref={ref}
@@ -153,21 +263,24 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
         className={cn(appHeaderVariants({ tone, sticky }), className)}
         {...rest}
       >
-        <div className="flex items-center gap-3 min-w-0">
-          {logoNode &&
-            (hasLogoLink ? (
-              <a
-                href={logoHref}
-                className="inline-flex items-center rounded-[var(--radius-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {logoNode}
-              </a>
-            ) : (
-              logoNode
-            ))}
-          {appName ? (
-            <span className="font-semibold text-base truncate">{appName}</span>
-          ) : null}
+        <div className="flex items-center gap-6 min-w-0 flex-1">
+          <div className="flex items-center gap-3 min-w-0">
+            {logoNode &&
+              (hasLogoLink ? (
+                <a
+                  href={logoHref}
+                  className="inline-flex items-center rounded-[var(--radius-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {logoNode}
+                </a>
+              ) : (
+                logoNode
+              ))}
+            {appName ? (
+              <span className="font-semibold text-base truncate">{appName}</span>
+            ) : null}
+          </div>
+          {navNode ? <div className="hidden md:flex">{navNode}</div> : null}
         </div>
         {children}
       </header>

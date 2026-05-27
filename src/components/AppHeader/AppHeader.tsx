@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
+import { Logo, type LogoColor } from '@/components/Logo';
 
 const appHeaderVariants = cva(
   cn(
@@ -36,16 +37,35 @@ const appHeaderVariants = cva(
 );
 
 export type AppHeaderTone = NonNullable<VariantProps<typeof appHeaderVariants>['tone']>;
+export type AppHeaderLogo = 'wordmark' | 'monogram' | React.ReactNode;
+
+/**
+ * Logo `color` is brand-literal and does NOT rebind under dark mode.
+ * AppHeader picks per surface — black on default; white on brand and dark.
+ */
+function logoColorForTone(tone: AppHeaderTone): LogoColor {
+  return tone === 'default' ? 'black' : 'white';
+}
 
 /**
  * Props for the {@link AppHeader} component. See the design spec at
  * `docs/superpowers/specs/2026-05-27-appheader-design.md` for the full
- * surface; this shell defines only layout-level props (tone, sticky,
- * ariaLabel). Subsequent commits add logo/appName, nav slot, right
- * cluster, theme toggle, and mobile drawer.
+ * surface; subsequent commits add the nav slot, right cluster, theme
+ * toggle, and mobile drawer.
  */
 export interface AppHeaderProps
   extends Omit<React.HTMLAttributes<HTMLElement>, 'aria-label'> {
+  /**
+   * Brand mark. `'wordmark'` (default) / `'monogram'` use the DS
+   * `Logo` component with tone-appropriate color. A ReactNode is
+   * rendered bare (no auto-link). `null` suppresses the logo entirely
+   * (use with `appName` for plain-text app titles).
+   */
+  logo?: AppHeaderLogo | null;
+  /** Href for the logo anchor. Defaults to `'/'`. */
+  logoHref?: string;
+  /** Sub-label rendered after the logo, e.g. "Intranet". */
+  appName?: string;
   /**
    * Visual tone:
    * - `default` (default) — `bg-background` + `border-b border-border`.
@@ -81,22 +101,51 @@ export interface AppHeaderProps
  * - Single `<header>` landmark per page (`aria-label="Primary"` by default).
  * - Sticky-top sits at `z-50` so dropdown / overlay content below the
  *   header doesn't render over it.
+ * - Built-in logo link is labelled `"Manfred home"` for AT.
  *
  * @example Default app header
  * ```tsx
  * <AppHeader />
  * ```
  *
- * @example Brand-tone landing
+ * @example With appName + brand tone
  * ```tsx
- * <AppHeader tone="brand" />
+ * <AppHeader tone="brand" appName="Intranet" />
  * ```
  */
 export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
   function AppHeader(
-    { className, tone = 'default', sticky = true, ariaLabel = 'Primary', children, ...rest },
+    {
+      className,
+      logo = 'wordmark',
+      logoHref = '/',
+      appName,
+      tone = 'default',
+      sticky = true,
+      ariaLabel = 'Primary',
+      children,
+      ...rest
+    },
     ref,
   ) {
+    const renderLogo = (): React.ReactNode => {
+      if (logo === null) return null;
+      if (logo === 'wordmark' || logo === 'monogram') {
+        return (
+          <Logo
+            variant={logo}
+            color={logoColorForTone(tone)}
+            height={logo === 'monogram' ? 28 : 24}
+            aria-label="Manfred home"
+          />
+        );
+      }
+      return logo;
+    };
+
+    const logoNode = renderLogo();
+    const hasLogoLink = logoNode !== null && (logo === 'wordmark' || logo === 'monogram');
+
     return (
       <header
         ref={ref}
@@ -104,6 +153,22 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
         className={cn(appHeaderVariants({ tone, sticky }), className)}
         {...rest}
       >
+        <div className="flex items-center gap-3 min-w-0">
+          {logoNode &&
+            (hasLogoLink ? (
+              <a
+                href={logoHref}
+                className="inline-flex items-center rounded-[var(--radius-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {logoNode}
+              </a>
+            ) : (
+              logoNode
+            ))}
+          {appName ? (
+            <span className="font-semibold text-base truncate">{appName}</span>
+          ) : null}
+        </div>
         {children}
       </header>
     );

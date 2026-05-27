@@ -44,3 +44,42 @@ describe('AppHeader (shell)', () => {
     expect(ref.current?.tagName).toBe('HEADER');
   });
 });
+
+describe('AppHeader — left cluster', () => {
+  it('renders the wordmark logo by default, wrapped in a link to "/"', () => {
+    render(<AppHeader />);
+    const link = screen.getByRole('link', { name: 'Manfred home' });
+    expect(link).toHaveAttribute('href', '/');
+    expect(link.querySelector('[role="img"]')).toBeTruthy();
+  });
+
+  it('honours a custom logoHref', () => {
+    render(<AppHeader logoHref="/dashboard" />);
+    expect(screen.getByRole('link', { name: 'Manfred home' })).toHaveAttribute('href', '/dashboard');
+  });
+
+  it('renders the monogram when logo="monogram"', () => {
+    render(<AppHeader logo="monogram" />);
+    // Logo's monogram variant defaults aria-label to 'M' unless overridden;
+    // AppHeader overrides to 'Manfred home' for both variants for link consistency.
+    expect(screen.getByRole('link', { name: 'Manfred home' })).toBeInTheDocument();
+  });
+
+  it('renders a custom ReactNode logo when provided', () => {
+    render(<AppHeader logo={<span data-testid="custom-logo">CL</span>} />);
+    expect(screen.getByTestId('custom-logo')).toBeInTheDocument();
+    // Custom logos render bare — no auto-link.
+    expect(screen.queryByRole('link', { name: /home/i })).not.toBeInTheDocument();
+  });
+
+  it('renders no logo (and no logo link) when logo={null}', () => {
+    render(<AppHeader logo={null} />);
+    expect(screen.queryByRole('link', { name: /home/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('renders appName next to the logo when provided', () => {
+    render(<AppHeader appName="Intranet" />);
+    expect(screen.getByText('Intranet')).toBeInTheDocument();
+  });
+});

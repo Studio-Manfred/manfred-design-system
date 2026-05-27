@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
+import { Avatar } from '@/components/Avatar';
+import { Button } from '@/components/Button';
 import { Logo, type LogoColor } from '@/components/Logo';
 import { NavBar, NavItem } from '@/components/NavBar';
 import {
@@ -60,6 +62,19 @@ export interface AppHeaderNavItem {
   items?: AppHeaderNavItem[];
   /** Render-prop for router integration (e.g. `as={Link}` for Next/Remix/React-Router). */
   as?: React.ElementType;
+}
+
+export interface AppHeaderUser {
+  /** Display name, e.g. "Jens Wedin". Used as the Avatar's accessible alt. */
+  name?: string;
+  /** Email, e.g. "jens@studiomanfred.com". Rendered next to the sign-out button when provided and no name is set. */
+  email?: string;
+  /** Avatar image URL. Falls back to initials derived from `name` (or email-local-part) when absent. */
+  avatarUrl?: string;
+  /** Sign-out handler. Required to render the sign-out button. */
+  onSignOut?: () => void;
+  /** Button label. Defaults to "Sign out". */
+  signOutLabel?: string;
 }
 
 /**
@@ -135,6 +150,33 @@ function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
+function renderUser(u: AppHeaderUser): React.ReactNode {
+  const label = u.name ?? u.email ?? 'Account';
+  const initialsSource = u.name ?? u.email?.split('@')[0] ?? '';
+  return (
+    <div className="flex items-center gap-3">
+      {(u.avatarUrl || u.name) ? (
+        <Avatar
+          alt={label}
+          src={u.avatarUrl}
+          name={initialsSource}
+          size="sm"
+        />
+      ) : null}
+      {u.email && !u.name ? (
+        <span className="text-sm text-muted-foreground hidden lg:inline">
+          {u.email}
+        </span>
+      ) : null}
+      {u.onSignOut ? (
+        <Button variant="outline" size="sm" onClick={u.onSignOut}>
+          {u.signOutLabel ?? 'Sign out'}
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
 /**
  * Props for the {@link AppHeader} component. See the design spec at
  * `docs/superpowers/specs/2026-05-27-appheader-design.md` for the full
@@ -166,6 +208,23 @@ export interface AppHeaderProps
    * surfaces (router-aware, etc.).
    */
   nav?: React.ReactNode;
+  /**
+   * Search slot. Typically `<SearchBar size="sm" />`. Hidden on mobile
+   * (mobile drawer in Task 8 picks it up). Pass `null` to omit entirely.
+   */
+  search?: React.ReactNode;
+  /**
+   * Arbitrary right-aligned content rendered after `search` and before
+   * `user`. Use for CTAs (e.g. `<Button variant="inverse">Get in touch</Button>`)
+   * or custom menus that replace the typed `user` prop.
+   */
+  actions?: React.ReactNode;
+  /**
+   * Typed convenience for the common pattern (email/name + avatar +
+   * sign-out button). To render a fully custom user menu instead, omit
+   * `user` and pass your own dropdown via `actions`.
+   */
+  user?: AppHeaderUser;
   /**
    * Visual tone:
    * - `default` (default) — `bg-background` + `border-b border-border`.
@@ -222,6 +281,9 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       appName,
       navItems,
       nav,
+      search,
+      actions,
+      user,
       tone = 'default',
       sticky = true,
       ariaLabel = 'Primary',
@@ -281,6 +343,11 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
             ) : null}
           </div>
           {navNode ? <div className="hidden md:flex">{navNode}</div> : null}
+        </div>
+        <div className="hidden md:flex items-center gap-3">
+          {search ? <div>{search}</div> : null}
+          {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+          {user ? renderUser(user) : null}
         </div>
         {children}
       </header>

@@ -1,5 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
 
 describe('AppHeader (shell)', () => {
@@ -136,5 +137,51 @@ describe('AppHeader — nav slot', () => {
   it('renders nothing when neither nav nor navItems is provided', () => {
     render(<AppHeader />);
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — right cluster', () => {
+  it('renders the search slot when provided', () => {
+    render(<AppHeader search={<div data-testid="search">SEARCH</div>} />);
+    expect(screen.getByTestId('search')).toBeInTheDocument();
+  });
+
+  it('renders the actions slot when provided', () => {
+    render(<AppHeader actions={<button data-testid="cta">Contact</button>} />);
+    expect(screen.getByTestId('cta')).toBeInTheDocument();
+  });
+
+  it('renders the typed user block: email + sign-out button', () => {
+    const onSignOut = vi.fn();
+    render(
+      <AppHeader user={{ email: 'jens@studiomanfred.com', onSignOut }} />,
+    );
+    expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
+  });
+
+  it('fires user.onSignOut when the sign-out button is clicked', async () => {
+    const onSignOut = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <AppHeader user={{ email: 'jens@studiomanfred.com', onSignOut }} />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+    expect(onSignOut).toHaveBeenCalledOnce();
+  });
+
+  it('renders the avatar when user.avatarUrl is provided', () => {
+    render(
+      <AppHeader user={{ name: 'Jens Wedin', avatarUrl: '/me.jpg', onSignOut: () => {} }} />,
+    );
+    // Avatar renders role="img" with aria-label = alt; AppHeader passes `name` as alt.
+    expect(screen.getByRole('img', { name: 'Jens Wedin' })).toBeInTheDocument();
+  });
+
+  it('honours a custom signOutLabel', () => {
+    render(
+      <AppHeader user={{ email: 'jens@studiomanfred.com', onSignOut: () => {}, signOutLabel: 'Log out' }} />,
+    );
+    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
   });
 });

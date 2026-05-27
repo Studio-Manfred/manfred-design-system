@@ -402,6 +402,12 @@
     --color-feedback-info-bg:    var(--blue-800);
     --color-feedback-info-fg:    var(--blue-200);
 
+    /* Destructive surfaces flip to dark text in dark mode — the soft pink
+       --destructive (#fca5a5) shipped by the contract has insufficient
+       contrast with white. WCAG AA: dark-on-pink ~11:1, white-on-pink ~1.6:1.
+       Matches the shadcn/UI dark-mode destructive convention. */
+    --destructive-foreground: var(--neutral-900);
+
     --color-chart-1: var(--blue-400);
     --color-chart-4: var(--neutral-300);
     --color-chart-5: var(--blue-300);
@@ -469,6 +475,12 @@
   --color-feedback-error-fg:   #fca5a5;
   --color-feedback-info-bg:    var(--blue-800);
   --color-feedback-info-fg:    var(--blue-200);
+
+  /* Destructive surfaces flip to dark text in dark mode — the soft pink
+     --destructive (#fca5a5) shipped by the contract has insufficient
+     contrast with white. WCAG AA: dark-on-pink ~11:1, white-on-pink ~1.6:1.
+     Matches the shadcn/UI dark-mode destructive convention. */
+  --destructive-foreground: var(--neutral-900);
 
   --color-chart-1: var(--blue-400);
   --color-chart-4: var(--neutral-300);

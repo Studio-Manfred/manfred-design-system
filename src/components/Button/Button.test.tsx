@@ -26,6 +26,18 @@ describe('Button', () => {
     },
   );
 
+  it('applies destructive variant classes', () => {
+    render(<Button variant="destructive">Delete</Button>);
+    const btn = screen.getByRole('button', { name: 'Delete' });
+    // Destructive uses the shadcn-contract --destructive / --destructive-foreground
+    // tokens via named Tailwind utilities (not the bracketed [var(...)] pattern
+    // the legacy variants use). Memory guards against phantom bracketed refs;
+    // named utilities are the safer choice for contract tokens.
+    expect(btn.className).toContain('bg-destructive');
+    expect(btn.className).toContain('text-destructive-foreground');
+    expect(btn.className).toContain('border-destructive');
+  });
+
   it.each(['sm', 'md', 'lg'] as const)('applies %s size', (size) => {
     render(<Button size={size}>X</Button>);
     const map = { sm: 'h-8', md: 'h-10', lg: 'h-12' };

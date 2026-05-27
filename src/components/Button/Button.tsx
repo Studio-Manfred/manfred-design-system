@@ -26,6 +26,11 @@ const buttonVariants = cva(
           '[&:hover:not(:disabled)]:bg-[var(--color-interactive-brand-bg-hover)] [&:hover:not(:disabled)]:border-[var(--color-interactive-brand-bg-hover)]',
           '[&:active:not(:disabled)]:bg-[var(--color-interactive-brand-bg-active)] [&:active:not(:disabled)]:border-[var(--color-interactive-brand-bg-active)]',
         ].join(' '),
+        destructive: [
+          'bg-destructive text-destructive-foreground border-destructive',
+          '[&:hover:not(:disabled)]:bg-destructive/90 [&:hover:not(:disabled)]:border-destructive/90',
+          '[&:active:not(:disabled)]:bg-destructive/80 [&:active:not(:disabled)]:border-destructive/80',
+        ].join(' '),
         outline: [
           'bg-transparent text-foreground border-[var(--color-interactive-outline-border)]',
           '[&:hover:not(:disabled)]:bg-[var(--color-interactive-outline-bg-hover)] [&:hover:not(:disabled)]:border-[var(--color-interactive-outline-border-hover)]',
@@ -95,10 +100,14 @@ export interface ButtonProps
 /**
  * Brand button. Primary call-to-action component.
  *
- * Five visual variants (`primary` / `brand` / `outline` / `ghost` /
- * `inverse`), three sizes (`sm` / `md` / `lg`), optional loading
- * state, and an `asChild` escape hatch for rendering as a link or
- * other element while keeping the visual treatment.
+ * Six visual variants (`primary` / `brand` / `destructive` / `outline` /
+ * `ghost` / `inverse`), three sizes (`sm` / `md` / `lg`), optional
+ * loading state, and an `asChild` escape hatch for rendering as a
+ * link or other element while keeping the visual treatment.
+ *
+ * Use `destructive` for delete / remove / cancel-with-consequence
+ * actions — it routes through the shadcn-contract `--destructive`
+ * tokens, so the dark-mode rebind is automatic.
  *
  * Accessibility:
  * - Loading state announces via `aria-busy="true"` and disables interaction.

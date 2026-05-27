@@ -31,7 +31,11 @@ export type IconName =
   | 'bell'
   | 'external-link'
   | 'loader'
-  | 'calendar';
+  | 'calendar'
+  | 'sun'
+  | 'moon'
+  | 'menu'
+  | 'log-out';
 
 const iconVariants = cva('inline-block shrink-0', {
   variants: {

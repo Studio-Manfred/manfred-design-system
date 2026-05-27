@@ -76,4 +76,31 @@ describe('useThemeToggle', () => {
     expect(result.current.preference).toBe('light');
     expect(result.current.resolved).toBe('light');
   });
+
+  it('toggle from preference="system" commits to an explicit value', () => {
+    // Lock the OS pref to 'light' so the test is deterministic regardless of
+    // the polyfill's default or earlier-test matchMedia mock state.
+    vi.spyOn(window, 'matchMedia').mockImplementation((q: string) => ({
+      matches: false,
+      media: q,
+      onchange: null,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }) as MediaQueryList);
+
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+    expect(result.current.resolved).toBe('light');
+
+    act(() => result.current.toggle());
+
+    // Toggling from 'system' commits the preference to an explicit value
+    // (the opposite of the resolved theme): light → dark here.
+    expect(result.current.preference).toBe('dark');
+    expect(result.current.preference).not.toBe('system');
+    expect(result.current.resolved).toBe('dark');
+  });
 });

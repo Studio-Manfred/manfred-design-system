@@ -186,6 +186,40 @@ describe('AppHeader — right cluster', () => {
   });
 });
 
+describe('AppHeader — logo color per tone + theme', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  it('default tone: logo renders blue in light mode', () => {
+    const { container } = render(<AppHeader />);
+    const path = container.querySelector('a[href="/"] svg path');
+    expect(path?.getAttribute('fill')).toBe('var(--color-brand-logo-blue)');
+  });
+
+  it('default tone: logo flips to white when dark theme is stored', async () => {
+    window.localStorage.setItem('manfred-theme', 'dark');
+    const { container } = render(<AppHeader />);
+    // useThemeToggle reads localStorage in useEffect; after render the
+    // resolved theme is 'dark' and the logo re-renders with color='white'.
+    const path = container.querySelector('a[href="/"] svg path');
+    expect(path?.getAttribute('fill')).toBe('var(--color-brand-logo-paper)');
+  });
+
+  it('brand tone: logo stays white in light mode', () => {
+    const { container } = render(<AppHeader tone="brand" />);
+    const path = container.querySelector('a[href="/"] svg path');
+    expect(path?.getAttribute('fill')).toBe('var(--color-brand-logo-paper)');
+  });
+
+  it('dark tone: logo stays white', () => {
+    const { container } = render(<AppHeader tone="dark" />);
+    const path = container.querySelector('a[href="/"] svg path');
+    expect(path?.getAttribute('fill')).toBe('var(--color-brand-logo-paper)');
+  });
+});
+
 describe('AppHeader — theme toggle', () => {
   beforeEach(() => {
     window.localStorage.clear();

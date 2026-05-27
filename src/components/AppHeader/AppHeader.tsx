@@ -89,10 +89,21 @@ export interface AppHeaderUser {
 
 /**
  * Logo `color` is brand-literal and does NOT rebind under dark mode.
- * AppHeader picks per surface — black on default; white on brand and dark.
+ * AppHeader picks per surface:
+ * - default tone: blue on light, white on dark (resolved from useThemeToggle).
+ * - brand + dark tones: always white (identity-fixed surfaces).
  */
-function logoColorForTone(tone: AppHeaderTone): LogoColor {
-  return tone === 'default' ? 'black' : 'white';
+function logoColorForTone(
+  tone: AppHeaderTone,
+  resolvedTheme: 'light' | 'dark',
+): LogoColor {
+  if (tone === 'default') {
+    // Light surface → brand blue. Dark surface → white. Logo component
+    // is brand-literal; AppHeader picks the variant per resolved theme.
+    return resolvedTheme === 'dark' ? 'white' : 'blue';
+  }
+  // brand + dark tones are identity-fixed (white).
+  return 'white';
 }
 
 // Tailwind v4 doesn't see through string concatenation, so we map the
@@ -203,8 +214,12 @@ function renderUser(u: AppHeaderUser): React.ReactNode {
   );
 }
 
-function ThemeToggleButton(): React.ReactElement {
-  const { resolved, toggle } = useThemeToggle();
+interface ThemeToggleButtonProps {
+  resolved: 'light' | 'dark';
+  toggle: () => void;
+}
+
+function ThemeToggleButton({ resolved, toggle }: ThemeToggleButtonProps): React.ReactElement {
   const nextLabel = resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
   return (
     <button
@@ -357,13 +372,15 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     },
     ref,
   ) {
+    const { resolved, toggle } = useThemeToggle();
+
     const renderLogo = (): React.ReactNode => {
       if (logo === null) return null;
       if (logo === 'wordmark' || logo === 'monogram') {
         return (
           <Logo
             variant={logo}
-            color={logoColorForTone(tone)}
+            color={logoColorForTone(tone, resolved)}
             height={logo === 'monogram' ? 28 : 24}
             aria-label="Manfred home"
           />
@@ -413,7 +430,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}
-          {themeToggle ? <ThemeToggleButton /> : null}
+          {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
         </div>
         <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
           <Sheet>
@@ -440,7 +457,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                 {navItems && navItems.length > 0 ? renderFlatNav(navItems) : navNode}
                 {actions ? <div className="flex flex-col gap-2">{actions}</div> : null}
                 {user ? renderUser(user) : null}
-                {themeToggle ? <ThemeToggleButton /> : null}
+                {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
               </div>
             </SheetContent>
           </Sheet>

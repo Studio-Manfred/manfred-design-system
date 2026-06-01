@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-06-01
+
+### Added
+
+- **`library` icon** added to `Icon` — a stacked-layers (Heroicons
+  outline "rectangle-stack") glyph for prompt-library / saved-collection
+  controls. Union (`IconName`) and `iconPaths` updated together.
+
 ## [0.24.0] - 2026-05-27
 
 Closes [STU-495](https://linear.app/studio-manfred/issue/STU-495).

@@ -6,6 +6,7 @@ import { Badge } from './components/Badge';
 import { HStack, VStack } from './components/Stack';
 import { Grid } from './components/Grid';
 import { Icon } from './components/Icon';
+import { version } from '../package.json';
 
 const meta: Meta = {
   title: 'Welcome',
@@ -58,7 +59,7 @@ export const Default: Story = {
           <HStack gap={4} align="center" wrap>
             <Logo variant="wordmark" color="blue" height={56} />
             <Badge variant="secondary" size="sm">
-              v0.16.0
+              v{version}
             </Badge>
           </HStack>
 

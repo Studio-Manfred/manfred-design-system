@@ -151,6 +151,19 @@ export {
 } from './components/Popover';
 export type { PopoverContentProps } from './components/Popover';
 
+export {
+  SplitButton,
+  SplitButtonAction,
+  SplitButtonTrigger,
+  SplitButtonContent,
+} from './components/SplitButton';
+export type {
+  SplitButtonProps,
+  SplitButtonActionProps,
+  SplitButtonTriggerProps,
+  SplitButtonContentProps,
+} from './components/SplitButton';
+
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-06-02
+
+### Added
+
+- **`SplitButton` component** — a primary action joined to a dropdown toggle
+  (`[ Play │ ▾ ]`). Compose `SplitButton` (root, sets `variant` / `size` for
+  both segments) with `SplitButtonAction` (left), `SplitButtonTrigger` (chevron,
+  requires `aria-label`), and `SplitButtonContent` (the panel). Built on
+  `Button` (theming) and the DS `Popover` (focus, outside-click / Escape,
+  `aria-expanded`); the chevron rotates when open. Stories + unit tests.
+
+### Changed
+
+- The Welcome (Storybook front page) version badge now reads from
+  `package.json` instead of a hardcoded value, so it can't drift.
+
 ## [0.26.0] - 2026-06-02
 
 ### Added

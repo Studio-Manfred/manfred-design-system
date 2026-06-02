@@ -36,7 +36,8 @@ export type IconName =
   | 'moon'
   | 'menu'
   | 'log-out'
-  | 'library';
+  | 'library'
+  | 'settings';
 
 const iconVariants = cva('inline-block shrink-0', {
   variants: {

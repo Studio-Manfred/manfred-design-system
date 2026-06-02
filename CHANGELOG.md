@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.0] - 2026-06-02
+
+### Added
+
+- **`Popover` component** — a compound popover built on
+  `@radix-ui/react-popover` (`Popover`, `PopoverTrigger`, `PopoverContent`,
+  `PopoverAnchor`, `PopoverClose`). The `asChild` trigger opens the panel from
+  any element (button, link, icon, …); the content portals to `body`, animates
+  via `data-state`, and uses the `--popover` surface tokens. Radix handles
+  focus, outside-click / Escape dismissal, and `aria-expanded` / `aria-controls`.
+- **`settings` icon** added to `Icon` — a cog / gear (Heroicons outline
+  "cog-6-tooth") glyph for settings / options triggers. `IconName` union and
+  `iconPaths` updated together.
+
 ## [0.25.0] - 2026-06-01
 
 ### Added

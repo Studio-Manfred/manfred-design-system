@@ -142,6 +142,15 @@ export type {
   PageFooterProps,
 } from './components/PageShell';
 
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverAnchor,
+  PopoverClose,
+} from './components/Popover';
+export type { PopoverContentProps } from './components/Popover';
+
 export { Kbd } from './components/Kbd';
 export type { KbdProps, KbdSize } from './components/Kbd';
 

@@ -45,7 +45,7 @@ export interface BarChartProps {
  * Vertical bar chart wrapping Recharts' `BarChart`.
  *
  * Renders one bar series per `series[]` entry, with colours cycling
- * through the `--chart-1` … `--chart-5` token slots via
+ * through the `--chart-1` … `--chart-6` token slots via
  * {@link chartSeriesColor}. Wraps everything in {@link ChartContainer}
  * so the chart inherits the standard a11y contract (role, aria-label,
  * sr-only data table) and reduced-motion handling.

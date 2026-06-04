@@ -896,6 +896,7 @@ const chartTokens = [
   '--color-chart-3',
   '--color-chart-4',
   '--color-chart-5',
+  '--color-chart-6',
 ] as const;
 
 export const ChartPalette: Story = {
@@ -904,10 +905,11 @@ export const ChartPalette: Story = {
     docs: {
       description: {
         story:
-          'Categorical chart colours. Tuned for ≥3:1 contrast against the surface ' +
-          '(WCAG 1.4.11) and avoid red/green pairings for CVD safety. `chart-2` and ' +
-          '`chart-3` alias the feedback success/warning foregrounds so they flip under ' +
-          'dark mode automatically; `chart-1`, `-4`, and `-5` rebind explicitly. ' +
+          "Manfred's six-colour categorical chart palette (chart-1..6), explicit hex " +
+          'in light + dark — each light hue has a lightened / softened dark-mode ' +
+          'counterpart so the darker hues (indigo, red) stay legible on the dark surface. ' +
+          'Note: includes a red/green pairing (chart-3 / chart-6), so it is not CVD-safe ' +
+          'on colour alone — pair colour with labels / direct annotation. ' +
           '`--color-chart-axis` and `--color-chart-grid` alias the standard text-muted / ' +
           'bg-muted tokens for axis labels and gridlines.',
       },

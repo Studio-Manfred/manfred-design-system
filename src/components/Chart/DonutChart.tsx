@@ -49,7 +49,7 @@ export interface DonutChartProps {
 /**
  * Donut (ring) chart wrapping Recharts' `PieChart` + `Pie`.
  *
- * One slice per row, coloured through the `--chart-1` … `--chart-5`
+ * One slice per row, coloured through the `--chart-1` … `--chart-6`
  * tokens via {@link chartSeriesColor}. Throws if `series` is empty
  * (the first entry's `key` selects the numeric value field). Wraps in
  * {@link ChartContainer} for consistent a11y + reduced-motion handling.

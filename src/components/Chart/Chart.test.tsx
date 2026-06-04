@@ -126,15 +126,16 @@ describe('ChartContainer', () => {
 });
 
 describe('chartSeriesColor', () => {
-  it('cycles through chart-1..5 by index, wrapping after 5', () => {
+  it('cycles through chart-1..6 by index, wrapping after 6', () => {
     expect(chartSeriesColor(0)).toBe('var(--chart-1)');
     expect(chartSeriesColor(1)).toBe('var(--chart-2)');
     expect(chartSeriesColor(2)).toBe('var(--chart-3)');
     expect(chartSeriesColor(3)).toBe('var(--chart-4)');
     expect(chartSeriesColor(4)).toBe('var(--chart-5)');
-    expect(chartSeriesColor(5)).toBe('var(--chart-1)');
-    expect(chartSeriesColor(9)).toBe('var(--chart-5)');
-    expect(chartSeriesColor(10)).toBe('var(--chart-1)');
+    expect(chartSeriesColor(5)).toBe('var(--chart-6)');
+    expect(chartSeriesColor(6)).toBe('var(--chart-1)');
+    expect(chartSeriesColor(11)).toBe('var(--chart-6)');
+    expect(chartSeriesColor(12)).toBe('var(--chart-1)');
   });
 });
 

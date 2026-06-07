@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
 
@@ -291,5 +291,36 @@ describe('AppHeader — mobile drawer', () => {
     expect(screen.getByText('Jens')).toBeInTheDocument();
     expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /switch to (light|dark) mode/i })).toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — button/onClick nav (SPA)', () => {
+  it('fires onClick when a button navItem is activated (desktop)', async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(<AppHeader navItems={[{ label: 'Home', as: 'button', onClick, active: true }]} />);
+    // Drawer is closed, so only the desktop nav button is in the DOM.
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it('closes the drawer after a SPA nav item is clicked', async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(<AppHeader navItems={[{ label: 'Home', as: 'button', onClick }]} />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // The drawer renders a full-width copy of the nav button.
+    const drawerHome = screen
+      .getAllByRole('button', { name: 'Home' })
+      .find((el) => el.className.includes('w-full'));
+    expect(drawerHome).toBeTruthy();
+
+    await user.click(drawerHome!);
+    expect(onClick).toHaveBeenCalled();
+    // Controlled Sheet closes → dialog removed from the DOM.
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });

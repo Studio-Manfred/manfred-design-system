@@ -72,6 +72,10 @@ export interface AppHeaderNavItem {
   items?: AppHeaderNavItem[];
   /** Render-prop for router integration (e.g. `as={Link}` for Next/Remix/React-Router). */
   as?: React.ElementType;
+  /** Click handler — required for SPA / button-driven nav (use with `as="button"`). */
+  onClick?: React.MouseEventHandler;
+  /** Button type when `as="button"`. Defaults to `'button'`. */
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export interface AppHeaderUser {
@@ -135,6 +139,8 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
           href={item.href}
           active={item.active}
           as={item.as}
+          onClick={item.onClick}
+          {...(item.as === 'button' ? { type: item.type ?? 'button' } : {})}
         >
           {item.label}
         </NavItem>
@@ -373,6 +379,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     ref,
   ) {
     const { resolved, toggle } = useThemeToggle();
+    const [menuOpen, setMenuOpen] = React.useState(false);
 
     const renderLogo = (): React.ReactNode => {
       if (logo === null) return null;
@@ -433,7 +440,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
         </div>
         <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <button
                 type="button"
@@ -464,10 +471,16 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                   <nav aria-label="Primary nav" className="flex flex-col gap-1">
                     {navItems.map((item) => {
                       const Comp = (item.as ?? 'a') as React.ElementType;
+                      const handleClick: React.MouseEventHandler = (e) => {
+                        item.onClick?.(e);
+                        setMenuOpen(false);
+                      };
                       return (
                         <Comp
                           key={item.label}
                           href={item.href}
+                          {...(item.as === 'button' ? { type: item.type ?? 'button' } : {})}
+                          onClick={handleClick}
                           {...(item.active ? { 'aria-current': 'page' } : {})}
                           className={cn(
                             'block w-full px-3 py-3 text-base rounded-[var(--radius-md)]',

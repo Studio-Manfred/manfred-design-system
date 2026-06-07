@@ -48,6 +48,12 @@ const NAV_WITH_DROPDOWN = [
   { label: 'About', href: '#about' },
 ];
 
+const SPA_NAV = [
+  { label: 'Home', as: 'button' as const, active: true, onClick: () => {} },
+  { label: 'Boards', as: 'button' as const, onClick: () => {} },
+  { label: 'Information', as: 'button' as const, onClick: () => {} },
+];
+
 export const Default: Story = {
   name: 'Default (sandbox)',
   args: {
@@ -195,5 +201,55 @@ export const MobileDrawer: Story = {
     // Sheet renders in a portal — search the whole document.
     const dialog = await within(document.body).findByRole('dialog');
     expect(dialog).toBeInTheDocument();
+  },
+};
+
+export const SpaNav: Story = {
+  name: 'SPA button nav (onClick)',
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: { name: 'Jens Wedin', onSignOut: () => {} },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The active item carries aria-current even though it is a <button>.
+    const active = canvas.getByRole('button', { name: 'Home' });
+    expect(active).toHaveAttribute('aria-current', 'page');
+  },
+};
+
+export const ThemeCycle: Story = {
+  name: 'Theme cycle (light/dark/system)',
+  args: {
+    appName: 'Intranet',
+    themeToggle: 'cycle',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const btn = canvas.getByRole('button', { name: /theme:/i });
+    const before = btn.getAttribute('aria-label');
+    await userEvent.click(btn);
+    const after = canvas.getByRole('button', { name: /theme:/i });
+    expect(after.getAttribute('aria-label')).not.toBe(before);
+  },
+};
+
+export const ProfileAvatar: Story = {
+  name: 'Clickable profile avatar',
+  args: {
+    appName: 'Intranet',
+    navItems: NAV,
+    user: {
+      name: 'Jens Wedin',
+      avatarLabel: 'Edit your profile',
+      onAvatarClick: () => {},
+      onSignOut: () => {},
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: 'Edit your profile' })).toBeInTheDocument();
   },
 };

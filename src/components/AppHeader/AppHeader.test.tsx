@@ -349,3 +349,41 @@ describe('AppHeader — theme cycle', () => {
     ).toBeInTheDocument();
   });
 });
+
+describe('AppHeader — clickable profile avatar', () => {
+  it('renders the avatar as a button when onAvatarClick is set, firing on click', async () => {
+    const onAvatarClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <AppHeader
+        user={{ name: 'Jens Wedin', onAvatarClick, avatarLabel: 'Edit your profile', onSignOut: () => {} }}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Edit your profile' }));
+    expect(onAvatarClick).toHaveBeenCalledOnce();
+  });
+
+  it('renders the avatar as a link when avatarHref is set', () => {
+    render(
+      <AppHeader
+        user={{ name: 'Jens Wedin', avatarHref: '/profile', avatarLabel: 'Profile', onSignOut: () => {} }}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('href', '/profile');
+  });
+
+  it('marks the avatar control aria-current="page" when avatarActive', () => {
+    render(
+      <AppHeader
+        user={{ name: 'Jens', onAvatarClick: () => {}, avatarActive: true, avatarLabel: 'Profile', onSignOut: () => {} }}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Profile' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('keeps the avatar display-only when no avatar action is set', () => {
+    render(<AppHeader user={{ name: 'Jens Wedin', onSignOut: () => {} }} />);
+    expect(screen.queryByRole('button', { name: 'Jens Wedin' })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Jens Wedin' })).toBeInTheDocument();
+  });
+});

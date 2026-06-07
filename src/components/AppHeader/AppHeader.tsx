@@ -89,6 +89,14 @@ export interface AppHeaderUser {
   onSignOut?: () => void;
   /** Button label. Defaults to "Sign out". */
   signOutLabel?: string;
+  /** Render the avatar as a link to the profile page. */
+  avatarHref?: string;
+  /** OR render the avatar as a button (SPA profile nav). Wins over avatarHref if both set. */
+  onAvatarClick?: () => void;
+  /** Active state on the avatar control: ring + aria-current="page". */
+  avatarActive?: boolean;
+  /** Accessible label for the avatar control, e.g. "Edit your profile". */
+  avatarLabel?: string;
 }
 
 /**
@@ -193,19 +201,61 @@ function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
-function renderUser(u: AppHeaderUser): React.ReactNode {
-  const label = u.name ?? u.email ?? 'Account';
+function AvatarControl({
+  u,
+  onNavigate,
+}: {
+  u: AppHeaderUser;
+  onNavigate?: () => void;
+}): React.ReactElement | null {
+  const label = u.avatarLabel ?? u.name ?? u.email ?? 'Account';
   const initialsSource = u.name ?? u.email?.split('@')[0] ?? '';
+  if (!u.avatarUrl && !u.name) return null;
+
+  const avatar = <Avatar alt={label} src={u.avatarUrl} name={initialsSource} size="sm" />;
+
+  const interactive = u.onAvatarClick != null || u.avatarHref != null;
+  if (!interactive) return avatar;
+
+  const controlCls = cn(
+    'inline-flex rounded-full overflow-hidden',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    u.avatarActive ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-border',
+    'motion-safe:transition-shadow',
+  );
+  const activeAttr = u.avatarActive ? { 'aria-current': 'page' as const } : {};
+
+  if (u.onAvatarClick != null) {
+    if (u.avatarHref != null) {
+      console.warn('[AppHeader] `user.avatarHref` ignored because `user.onAvatarClick` is set.');
+    }
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          u.onAvatarClick?.();
+          onNavigate?.();
+        }}
+        aria-label={label}
+        {...activeAttr}
+        className={controlCls}
+      >
+        {avatar}
+      </button>
+    );
+  }
+
+  return (
+    <a href={u.avatarHref} aria-label={label} {...activeAttr} className={controlCls}>
+      {avatar}
+    </a>
+  );
+}
+
+function renderUser(u: AppHeaderUser): React.ReactNode {
   return (
     <div className="flex items-center gap-3">
-      {(u.avatarUrl || u.name) ? (
-        <Avatar
-          alt={label}
-          src={u.avatarUrl}
-          name={initialsSource}
-          size="sm"
-        />
-      ) : null}
+      <AvatarControl u={u} />
       {u.email && !u.name ? (
         <span className="text-sm text-muted-foreground hidden lg:inline">
           {u.email}
@@ -565,14 +615,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                     <div className="flex items-center justify-between gap-3">
                       {user ? (
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          {(user.avatarUrl || user.name) ? (
-                            <Avatar
-                              alt={user.name ?? user.email ?? 'Account'}
-                              src={user.avatarUrl}
-                              name={user.name ?? user.email?.split('@')[0] ?? ''}
-                              size="sm"
-                            />
-                          ) : null}
+                          <AvatarControl u={user} onNavigate={() => setMenuOpen(false)} />
                           <div className="flex flex-col min-w-0 leading-tight">
                             {user.name ? (
                               <span className="text-sm font-medium truncate">{user.name}</span>

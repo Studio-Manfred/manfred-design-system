@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { within, userEvent, expect } from 'storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 import { AppHeader } from './AppHeader';
 import { SearchBar } from '../SearchBar';
 import { Button } from '../Button';
@@ -251,5 +251,33 @@ export const ProfileAvatar: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     expect(canvas.getByRole('button', { name: 'Edit your profile' })).toBeInTheDocument();
+  },
+};
+
+export const SpaNavMobile: Story = {
+  name: 'SPA nav — drawer closes on tap (mobile)',
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: { name: 'Jens Wedin', onSignOut: () => {} },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Open the drawer (the desktop cluster is display:none at this viewport).
+    await userEvent.click(canvas.getByRole('button', { name: 'Open menu' }));
+    const body = within(document.body);
+    expect(await body.findByRole('dialog')).toBeInTheDocument();
+    // Tapping a SPA (onClick) nav item must close the controlled Sheet —
+    // there's no navigation to unmount it.
+    const drawerHome = (await body.findAllByRole('button', { name: 'Home' })).find((el) =>
+      el.className.includes('w-full'),
+    );
+    expect(drawerHome).toBeTruthy();
+    await userEvent.click(drawerHome!);
+    await waitFor(() => expect(body.queryByRole('dialog')).not.toBeInTheDocument());
   },
 };

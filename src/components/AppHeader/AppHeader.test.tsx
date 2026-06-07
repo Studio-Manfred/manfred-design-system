@@ -324,3 +324,28 @@ describe('AppHeader — button/onClick nav (SPA)', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
   });
 });
+
+describe('AppHeader — theme cycle', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  it('themeToggle="cycle" renders a cycle button and advances the preference', async () => {
+    const user = userEvent.setup();
+    render(<AppHeader themeToggle="cycle" />);
+    // Default stored preference is 'system' → monitor icon, label "Theme: system".
+    const btn = screen.getByRole('button', { name: /theme: system/i });
+    expect(btn).toBeInTheDocument();
+    await user.click(btn);
+    // system → light
+    expect(screen.getByRole('button', { name: /theme: light/i })).toBeInTheDocument();
+  });
+
+  it('themeToggle={true} still renders the 2-state toggle (back-compat)', () => {
+    render(<AppHeader themeToggle />);
+    expect(
+      screen.getByRole('button', { name: /switch to (light|dark) mode/i }),
+    ).toBeInTheDocument();
+  });
+});

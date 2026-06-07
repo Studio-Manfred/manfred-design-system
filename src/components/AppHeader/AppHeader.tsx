@@ -22,7 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/Sheet';
-import { useThemeToggle } from './useThemeToggle';
+import { useThemeToggle, type ThemePreference } from './useThemeToggle';
 
 const appHeaderVariants = cva(
   cn(
@@ -250,6 +250,46 @@ function ThemeToggleButton({ resolved, toggle }: ThemeToggleButtonProps): React.
   );
 }
 
+interface ThemeCycleButtonProps {
+  preference: ThemePreference;
+  cycle: () => void;
+}
+
+function ThemeCycleButton({ preference, cycle }: ThemeCycleButtonProps): React.ReactElement {
+  const iconName = preference === 'light' ? 'sun' : preference === 'dark' ? 'moon' : 'monitor';
+  return (
+    <button
+      type="button"
+      onClick={cycle}
+      aria-label={`Theme: ${preference}. Activate to change.`}
+      className={cn(
+        'inline-flex items-center justify-center',
+        'h-8 w-8 rounded-full',
+        'text-foreground/80 hover:bg-accent hover:text-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'motion-safe:transition-colors',
+      )}
+    >
+      <Icon name={iconName} size="sm" aria-hidden />
+    </button>
+  );
+}
+
+/** Pick the theme control for the `themeToggle` prop value. */
+function renderThemeControl(
+  mode: boolean | 'toggle' | 'cycle',
+  ctx: {
+    resolved: 'light' | 'dark';
+    toggle: () => void;
+    preference: ThemePreference;
+    cycle: () => void;
+  },
+): React.ReactNode {
+  if (!mode) return null;
+  if (mode === 'cycle') return <ThemeCycleButton preference={ctx.preference} cycle={ctx.cycle} />;
+  return <ThemeToggleButton resolved={ctx.resolved} toggle={ctx.toggle} />;
+}
+
 /**
  * Props for the {@link AppHeader} component. See the design spec at
  * `docs/superpowers/specs/2026-05-27-appheader-design.md` for the full
@@ -299,11 +339,12 @@ export interface AppHeaderProps
    */
   user?: AppHeaderUser;
   /**
-   * Render a built-in light/dark theme toggle (Icon button) on the
-   * right edge of the desktop cluster. Uses `useThemeToggle` internally.
-   * Default `false`.
+   * Render a built-in theme control on the right of the desktop cluster
+   * (and in the mobile drawer footer). `true` / `'toggle'` → 2-state
+   * light⇄dark button. `'cycle'` → 3-state light→dark→system button
+   * (sun/moon/monitor). Uses `useThemeToggle` internally. Default `false`.
    */
-  themeToggle?: boolean;
+  themeToggle?: boolean | 'toggle' | 'cycle';
   /**
    * Tailwind breakpoint at which the desktop nav + right cluster
    * collapse into a hamburger Sheet. Default `'md'` (768px).
@@ -378,7 +419,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     },
     ref,
   ) {
-    const { resolved, toggle } = useThemeToggle();
+    const { resolved, toggle, preference, cycle } = useThemeToggle();
     const [menuOpen, setMenuOpen] = React.useState(false);
 
     const renderLogo = (): React.ReactNode => {
@@ -437,7 +478,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}
-          {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+          {themeToggle ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle }) : null}
         </div>
         <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
@@ -544,7 +585,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                       ) : (
                         <div className="flex-1" />
                       )}
-                      {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+                      {themeToggle ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle }) : null}
                     </div>
                   ) : null}
                 </div>

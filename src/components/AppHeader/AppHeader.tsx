@@ -144,11 +144,12 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
       {items.map((item) => (
         <NavItem
           key={item.label}
-          href={item.href}
           active={item.active}
           as={item.as}
           onClick={item.onClick}
-          {...(item.as === 'button' ? { type: item.type ?? 'button' } : {})}
+          {...(item.as === 'button'
+            ? { type: item.type ?? 'button' }
+            : { href: item.href })}
         >
           {item.label}
         </NavItem>
@@ -157,6 +158,8 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
+// NOTE: dropdown nav items are link-based only (v1). Button/onClick nav is
+// supported for flat navItems; a button-driven dropdown item is out of scope.
 function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
   return (
     <NavigationMenu aria-label="Primary nav">
@@ -212,9 +215,19 @@ function AvatarControl({
   const initialsSource = u.name ?? u.email?.split('@')[0] ?? '';
   if (!u.avatarUrl && !u.name) return null;
 
-  const avatar = <Avatar alt={label} src={u.avatarUrl} name={initialsSource} size="sm" />;
-
   const interactive = u.onAvatarClick != null || u.avatarHref != null;
+
+  const avatar = (
+    <Avatar
+      alt={label}
+      src={u.avatarUrl}
+      name={initialsSource}
+      size="sm"
+      // When wrapped in a labelled button/link, hide the inner role="img"
+      // so screen readers don't announce the accessible name twice.
+      {...(interactive ? { 'aria-hidden': true } : {})}
+    />
+  );
   if (!interactive) return avatar;
 
   const controlCls = cn(
@@ -569,8 +582,9 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                       return (
                         <Comp
                           key={item.label}
-                          href={item.href}
-                          {...(item.as === 'button' ? { type: item.type ?? 'button' } : {})}
+                          {...(item.as === 'button'
+                            ? { type: item.type ?? 'button' }
+                            : { href: item.href })}
                           onClick={handleClick}
                           {...(item.active ? { 'aria-current': 'page' } : {})}
                           className={cn(

@@ -39,6 +39,7 @@ describe('Icon', () => {
     'moon',
     'menu',
     'log-out',
+    'monitor',
   ] as const)('renders %s icon with valid path', (name) => {
     const { container } = render(<Icon name={name} />);
     const svg = container.querySelector('svg');

@@ -38,6 +38,15 @@ jobs:
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Force the real branch name. The Chromatic project is linked to a
+          # different repo owner than this org (a @jens-wedin -> @studio-manfred
+          # rename artifact), so Chromatic auto-prefixes builds as
+          # `studio-manfred-fork-<branch>` — which makes the clean
+          # `main--<appid>` permalink (used by the published MCP server) 404.
+          # Overriding branchName with the actual ref strips the fork prefix
+          # while keeping per-branch baselines correct. The proper cure is
+          # relinking the repo under the Studio-Manfred account in Chromatic.
+          branchName: ${{ github.head_ref || github.ref_name }}
           # Dedicated build script that runs ONLY `storybook build` (no
           # registry post-step). The default `build-storybook` script
           # chains `build-registry.mjs` with `&&`, and Chromatic's

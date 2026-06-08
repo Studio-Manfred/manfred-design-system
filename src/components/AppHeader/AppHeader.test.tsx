@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
 
@@ -291,5 +291,99 @@ describe('AppHeader — mobile drawer', () => {
     expect(screen.getByText('Jens')).toBeInTheDocument();
     expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /switch to (light|dark) mode/i })).toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — button/onClick nav (SPA)', () => {
+  it('fires onClick when a button navItem is activated (desktop)', async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(<AppHeader navItems={[{ label: 'Home', as: 'button', onClick, active: true }]} />);
+    // Drawer is closed, so only the desktop nav button is in the DOM.
+    await user.click(screen.getByRole('button', { name: 'Home' }));
+    expect(onClick).toHaveBeenCalledOnce();
+  });
+
+  it('closes the drawer after a SPA nav item is clicked', async () => {
+    const onClick = vi.fn();
+    const user = userEvent.setup();
+    render(<AppHeader navItems={[{ label: 'Home', as: 'button', onClick }]} />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    // The drawer renders a full-width copy of the nav button.
+    const drawerHome = screen
+      .getAllByRole('button', { name: 'Home' })
+      .find((el) => el.className.includes('w-full'));
+    expect(drawerHome).toBeTruthy();
+
+    await user.click(drawerHome!);
+    expect(onClick).toHaveBeenCalled();
+    // Controlled Sheet closes → dialog removed from the DOM.
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+});
+
+describe('AppHeader — theme cycle', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  it('themeToggle="cycle" renders a cycle button and advances the preference', async () => {
+    const user = userEvent.setup();
+    render(<AppHeader themeToggle="cycle" />);
+    // Default stored preference is 'system' → monitor icon, label "Theme: system".
+    const btn = screen.getByRole('button', { name: /theme: system/i });
+    expect(btn).toBeInTheDocument();
+    await user.click(btn);
+    // system → light
+    expect(screen.getByRole('button', { name: /theme: light/i })).toBeInTheDocument();
+  });
+
+  it('themeToggle={true} still renders the 2-state toggle (back-compat)', () => {
+    render(<AppHeader themeToggle />);
+    expect(
+      screen.getByRole('button', { name: /switch to (light|dark) mode/i }),
+    ).toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — clickable profile avatar', () => {
+  it('renders the avatar as a button when onAvatarClick is set, firing on click', async () => {
+    const onAvatarClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <AppHeader
+        user={{ name: 'Jens Wedin', onAvatarClick, avatarLabel: 'Edit your profile', onSignOut: () => {} }}
+      />,
+    );
+    await user.click(screen.getByRole('button', { name: 'Edit your profile' }));
+    expect(onAvatarClick).toHaveBeenCalledOnce();
+  });
+
+  it('renders the avatar as a link when avatarHref is set', () => {
+    render(
+      <AppHeader
+        user={{ name: 'Jens Wedin', avatarHref: '/profile', avatarLabel: 'Profile', onSignOut: () => {} }}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'Profile' })).toHaveAttribute('href', '/profile');
+  });
+
+  it('marks the avatar control aria-current="page" when avatarActive', () => {
+    render(
+      <AppHeader
+        user={{ name: 'Jens', onAvatarClick: () => {}, avatarActive: true, avatarLabel: 'Profile', onSignOut: () => {} }}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Profile' })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('keeps the avatar display-only when no avatar action is set', () => {
+    render(<AppHeader user={{ name: 'Jens Wedin', onSignOut: () => {} }} />);
+    expect(screen.queryByRole('button', { name: 'Jens Wedin' })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Jens Wedin' })).toBeInTheDocument();
   });
 });

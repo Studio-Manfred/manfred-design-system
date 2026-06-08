@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { within, userEvent, expect } from 'storybook/test';
+import { within, userEvent, expect, waitFor } from 'storybook/test';
 import { AppHeader } from './AppHeader';
 import { SearchBar } from '../SearchBar';
 import { Button } from '../Button';
@@ -46,6 +46,12 @@ const NAV_WITH_DROPDOWN = [
   },
   { label: 'Pricing', href: '#pricing' },
   { label: 'About', href: '#about' },
+];
+
+const SPA_NAV = [
+  { label: 'Home', as: 'button' as const, active: true, onClick: () => {} },
+  { label: 'Boards', as: 'button' as const, onClick: () => {} },
+  { label: 'Information', as: 'button' as const, onClick: () => {} },
 ];
 
 export const Default: Story = {
@@ -195,5 +201,83 @@ export const MobileDrawer: Story = {
     // Sheet renders in a portal — search the whole document.
     const dialog = await within(document.body).findByRole('dialog');
     expect(dialog).toBeInTheDocument();
+  },
+};
+
+export const SpaNav: Story = {
+  name: 'SPA button nav (onClick)',
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: { name: 'Jens Wedin', onSignOut: () => {} },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // The active item carries aria-current even though it is a <button>.
+    const active = canvas.getByRole('button', { name: 'Home' });
+    expect(active).toHaveAttribute('aria-current', 'page');
+  },
+};
+
+export const ThemeCycle: Story = {
+  name: 'Theme cycle (light/dark/system)',
+  args: {
+    appName: 'Intranet',
+    themeToggle: 'cycle',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const btn = canvas.getByRole('button', { name: /theme:/i });
+    const before = btn.getAttribute('aria-label');
+    await userEvent.click(btn);
+    const after = canvas.getByRole('button', { name: /theme:/i });
+    expect(after.getAttribute('aria-label')).not.toBe(before);
+  },
+};
+
+export const ProfileAvatar: Story = {
+  name: 'Clickable profile avatar',
+  args: {
+    appName: 'Intranet',
+    navItems: NAV,
+    user: {
+      name: 'Jens Wedin',
+      avatarLabel: 'Edit your profile',
+      onAvatarClick: () => {},
+      onSignOut: () => {},
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    expect(canvas.getByRole('button', { name: 'Edit your profile' })).toBeInTheDocument();
+  },
+};
+
+export const SpaNavMobile: Story = {
+  name: 'SPA nav — drawer closes on tap (mobile)',
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: { name: 'Jens Wedin', onSignOut: () => {} },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // Open the drawer (the desktop cluster is display:none at this viewport).
+    await userEvent.click(canvas.getByRole('button', { name: 'Open menu' }));
+    const body = within(document.body);
+    expect(await body.findByRole('dialog')).toBeInTheDocument();
+    // Tapping a SPA (onClick) nav item must close the controlled Sheet —
+    // there's no navigation to unmount it.
+    const drawerHome = (await body.findAllByRole('button', { name: 'Home' })).find((el) =>
+      el.className.includes('w-full'),
+    );
+    expect(drawerHome).toBeTruthy();
+    await userEvent.click(drawerHome!);
+    await waitFor(() => expect(body.queryByRole('dialog')).not.toBeInTheDocument());
   },
 };

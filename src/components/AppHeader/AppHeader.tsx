@@ -22,7 +22,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/Sheet';
-import { useThemeToggle } from './useThemeToggle';
+import { useThemeToggle, type ThemePreference } from './useThemeToggle';
 
 const appHeaderVariants = cva(
   cn(
@@ -72,6 +72,10 @@ export interface AppHeaderNavItem {
   items?: AppHeaderNavItem[];
   /** Render-prop for router integration (e.g. `as={Link}` for Next/Remix/React-Router). */
   as?: React.ElementType;
+  /** Click handler — required for SPA / button-driven nav (use with `as="button"`). */
+  onClick?: React.MouseEventHandler;
+  /** Button type when `as="button"`. Defaults to `'button'`. */
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export interface AppHeaderUser {
@@ -85,6 +89,14 @@ export interface AppHeaderUser {
   onSignOut?: () => void;
   /** Button label. Defaults to "Sign out". */
   signOutLabel?: string;
+  /** Render the avatar as a link to the profile page. */
+  avatarHref?: string;
+  /** OR render the avatar as a button (SPA profile nav). Wins over avatarHref if both set. */
+  onAvatarClick?: () => void;
+  /** Active state on the avatar control: ring + aria-current="page". */
+  avatarActive?: boolean;
+  /** Accessible label for the avatar control, e.g. "Edit your profile". */
+  avatarLabel?: string;
 }
 
 /**
@@ -132,9 +144,12 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
       {items.map((item) => (
         <NavItem
           key={item.label}
-          href={item.href}
           active={item.active}
           as={item.as}
+          onClick={item.onClick}
+          {...(item.as === 'button'
+            ? { type: item.type ?? 'button' }
+            : { href: item.href })}
         >
           {item.label}
         </NavItem>
@@ -143,6 +158,8 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
+// NOTE: dropdown nav items are link-based only (v1). Button/onClick nav is
+// supported for flat navItems; a button-driven dropdown item is out of scope.
 function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
   return (
     <NavigationMenu aria-label="Primary nav">
@@ -187,19 +204,71 @@ function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
-function renderUser(u: AppHeaderUser): React.ReactNode {
-  const label = u.name ?? u.email ?? 'Account';
+function AvatarControl({
+  u,
+  onNavigate,
+}: {
+  u: AppHeaderUser;
+  onNavigate?: () => void;
+}): React.ReactElement | null {
+  const label = u.avatarLabel ?? u.name ?? u.email ?? 'Account';
   const initialsSource = u.name ?? u.email?.split('@')[0] ?? '';
+  if (!u.avatarUrl && !u.name) return null;
+
+  const interactive = u.onAvatarClick != null || u.avatarHref != null;
+
+  const avatar = (
+    <Avatar
+      alt={label}
+      src={u.avatarUrl}
+      name={initialsSource}
+      size="sm"
+      // When wrapped in a labelled button/link, hide the inner role="img"
+      // so screen readers don't announce the accessible name twice.
+      {...(interactive ? { 'aria-hidden': true } : {})}
+    />
+  );
+  if (!interactive) return avatar;
+
+  const controlCls = cn(
+    'inline-flex rounded-full overflow-hidden',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+    u.avatarActive ? 'ring-2 ring-primary' : 'hover:ring-2 hover:ring-border',
+    'motion-safe:transition-shadow',
+  );
+  const activeAttr = u.avatarActive ? { 'aria-current': 'page' as const } : {};
+
+  if (u.onAvatarClick != null) {
+    if (u.avatarHref != null) {
+      console.warn('[AppHeader] `user.avatarHref` ignored because `user.onAvatarClick` is set.');
+    }
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          u.onAvatarClick?.();
+          onNavigate?.();
+        }}
+        aria-label={label}
+        {...activeAttr}
+        className={controlCls}
+      >
+        {avatar}
+      </button>
+    );
+  }
+
+  return (
+    <a href={u.avatarHref} aria-label={label} {...activeAttr} className={controlCls}>
+      {avatar}
+    </a>
+  );
+}
+
+function renderUser(u: AppHeaderUser): React.ReactNode {
   return (
     <div className="flex items-center gap-3">
-      {(u.avatarUrl || u.name) ? (
-        <Avatar
-          alt={label}
-          src={u.avatarUrl}
-          name={initialsSource}
-          size="sm"
-        />
-      ) : null}
+      <AvatarControl u={u} />
       {u.email && !u.name ? (
         <span className="text-sm text-muted-foreground hidden lg:inline">
           {u.email}
@@ -242,6 +311,46 @@ function ThemeToggleButton({ resolved, toggle }: ThemeToggleButtonProps): React.
       />
     </button>
   );
+}
+
+interface ThemeCycleButtonProps {
+  preference: ThemePreference;
+  cycle: () => void;
+}
+
+function ThemeCycleButton({ preference, cycle }: ThemeCycleButtonProps): React.ReactElement {
+  const iconName = preference === 'light' ? 'sun' : preference === 'dark' ? 'moon' : 'monitor';
+  return (
+    <button
+      type="button"
+      onClick={cycle}
+      aria-label={`Theme: ${preference}. Activate to change.`}
+      className={cn(
+        'inline-flex items-center justify-center',
+        'h-8 w-8 rounded-full',
+        'text-foreground/80 hover:bg-accent hover:text-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'motion-safe:transition-colors',
+      )}
+    >
+      <Icon name={iconName} size="sm" aria-hidden />
+    </button>
+  );
+}
+
+/** Pick the theme control for the `themeToggle` prop value. */
+function renderThemeControl(
+  mode: boolean | 'toggle' | 'cycle',
+  ctx: {
+    resolved: 'light' | 'dark';
+    toggle: () => void;
+    preference: ThemePreference;
+    cycle: () => void;
+  },
+): React.ReactNode {
+  if (!mode) return null;
+  if (mode === 'cycle') return <ThemeCycleButton preference={ctx.preference} cycle={ctx.cycle} />;
+  return <ThemeToggleButton resolved={ctx.resolved} toggle={ctx.toggle} />;
 }
 
 /**
@@ -293,11 +402,12 @@ export interface AppHeaderProps
    */
   user?: AppHeaderUser;
   /**
-   * Render a built-in light/dark theme toggle (Icon button) on the
-   * right edge of the desktop cluster. Uses `useThemeToggle` internally.
-   * Default `false`.
+   * Render a built-in theme control on the right of the desktop cluster
+   * (and in the mobile drawer footer). `true` / `'toggle'` → 2-state
+   * light⇄dark button. `'cycle'` → 3-state light→dark→system button
+   * (sun/moon/monitor). Uses `useThemeToggle` internally. Default `false`.
    */
-  themeToggle?: boolean;
+  themeToggle?: boolean | 'toggle' | 'cycle';
   /**
    * Tailwind breakpoint at which the desktop nav + right cluster
    * collapse into a hamburger Sheet. Default `'md'` (768px).
@@ -372,7 +482,8 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     },
     ref,
   ) {
-    const { resolved, toggle } = useThemeToggle();
+    const { resolved, toggle, preference, cycle } = useThemeToggle();
+    const [menuOpen, setMenuOpen] = React.useState(false);
 
     const renderLogo = (): React.ReactNode => {
       if (logo === null) return null;
@@ -430,10 +541,10 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
           {search ? <div>{search}</div> : null}
           {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
           {user ? renderUser(user) : null}
-          {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+          {themeToggle ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle }) : null}
         </div>
         <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
-          <Sheet>
+          <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
               <button
                 type="button"
@@ -454,8 +565,9 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
               </SheetHeader>
 
               <div className="flex flex-col h-full mt-4">
-                {/* Optional search at top */}
-                {search ? <div className="mb-4">{search}</div> : null}
+                {/* Optional search at top — stretch the slot's content to the
+                    full drawer width (the desktop cluster keeps it compact). */}
+                {search ? <div className="mb-4 [&>*]:w-full">{search}</div> : null}
 
                 {/* Nav items — full-width, larger touch targets. When only the
                     'nav' ReactNode escape hatch is provided (no structured navItems),
@@ -464,10 +576,17 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                   <nav aria-label="Primary nav" className="flex flex-col gap-1">
                     {navItems.map((item) => {
                       const Comp = (item.as ?? 'a') as React.ElementType;
+                      const handleClick: React.MouseEventHandler = (e) => {
+                        item.onClick?.(e);
+                        setMenuOpen(false);
+                      };
                       return (
                         <Comp
                           key={item.label}
-                          href={item.href}
+                          {...(item.as === 'button'
+                            ? { type: item.type ?? 'button' }
+                            : { href: item.href })}
+                          onClick={handleClick}
                           {...(item.active ? { 'aria-current': 'page' } : {})}
                           className={cn(
                             'block w-full px-3 py-3 text-base rounded-[var(--radius-md)]',
@@ -511,14 +630,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                     <div className="flex items-center justify-between gap-3">
                       {user ? (
                         <div className="flex items-center gap-3 flex-1 min-w-0">
-                          {(user.avatarUrl || user.name) ? (
-                            <Avatar
-                              alt={user.name ?? user.email ?? 'Account'}
-                              src={user.avatarUrl}
-                              name={user.name ?? user.email?.split('@')[0] ?? ''}
-                              size="sm"
-                            />
-                          ) : null}
+                          <AvatarControl u={user} onNavigate={() => setMenuOpen(false)} />
                           <div className="flex flex-col min-w-0 leading-tight">
                             {user.name ? (
                               <span className="text-sm font-medium truncate">{user.name}</span>
@@ -531,7 +643,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
                       ) : (
                         <div className="flex-1" />
                       )}
-                      {themeToggle ? <ThemeToggleButton resolved={resolved} toggle={toggle} /> : null}
+                      {themeToggle ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle }) : null}
                     </div>
                   ) : null}
                 </div>

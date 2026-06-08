@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-06-08
+
+### Added
+
+- **AppHeader — SPA / button-driven nav.** `navItems` now accept `onClick` +
+  `as: 'button'` (not just `href`), threaded through both the desktop nav and
+  the mobile drawer. The drawer's `Sheet` is now controlled and auto-closes
+  when a button nav item is activated (an `href` item closes by navigating).
+- **AppHeader — 3-state theme cycle.** `themeToggle` widens to
+  `boolean | 'toggle' | 'cycle'`; `'cycle'` steps light → dark → system
+  (sun / moon / monitor icons). `true` / `'toggle'` keep the 2-state button.
+- **AppHeader — clickable profile avatar.** `user` gains `onAvatarClick` /
+  `avatarHref` / `avatarActive` / `avatarLabel`; the avatar renders as a
+  button/link with an active ring (and `aria-current="page"`), or stays
+  display-only (default, unchanged).
+- **`useThemeToggle`** gains `cycle()` (light → dark → system).
+- **`Icon`** gains the `monitor` glyph.
+
+### Fixed
+
+- **AppHeader** mobile drawer now renders the search slot at full width.
+
+## [0.28.0] - 2026-06-04
+
+### Changed
+
+- **Chart palette** refreshed to a 6-colour brand visualisation palette with
+  dark-mode variants (STU-587).
+
 ## [0.27.0] - 2026-06-02
 
 ### Added

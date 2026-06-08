@@ -103,4 +103,26 @@ describe('useThemeToggle', () => {
     expect(result.current.preference).not.toBe('system');
     expect(result.current.resolved).toBe('dark');
   });
+
+  it('cycle() advances light → dark → system → light', () => {
+    const { result } = renderHook(() => useThemeToggle());
+
+    // Start from an explicit 'light' baseline (default stored pref is 'system').
+    act(() => result.current.setPreference('light'));
+    expect(result.current.preference).toBe('light');
+
+    act(() => result.current.cycle());
+    expect(result.current.preference).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+    act(() => result.current.cycle());
+    expect(result.current.preference).toBe('system');
+    // 'system' removes both explicit classes so the OS query wins.
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.classList.contains('light')).toBe(false);
+
+    act(() => result.current.cycle());
+    expect(result.current.preference).toBe('light');
+    expect(window.localStorage.getItem('manfred-theme')).toBe('light');
+  });
 });

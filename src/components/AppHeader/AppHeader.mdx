@@ -58,13 +58,52 @@ Opinionated, configurable application header. Renders a single `<header>` landma
 
 <Canvas of={AppHeaderStories.MobileDrawer} />
 
+### SPA button nav — `onClick` items for client-routed apps
+
+<Canvas of={AppHeaderStories.SpaNav} />
+
+### Theme cycle — light / dark / system
+
+<Canvas of={AppHeaderStories.ThemeCycle} />
+
+### Clickable profile avatar
+
+<Canvas of={AppHeaderStories.ProfileAvatar} />
+
 ## Props
 
 <Controls of={AppHeaderStories.Default} />
 
+## Patterns
+
+### SPA / button-driven nav
+
+For client-routed apps, give each `navItems` entry `as: 'button'` + an `onClick` instead of an `href`. The active item still gets `aria-current="page"`, and in the mobile drawer the Sheet auto-closes when a button item is activated (an `href` item closes naturally by navigating away).
+
+```tsx
+<AppHeader
+  navItems={pages.map((p) => ({
+    label: p.label,
+    as: 'button',
+    active: current === p.id,
+    onClick: () => setCurrent(p.id),
+  }))}
+  themeToggle="cycle"
+  user={{ name, avatarLabel: 'Edit your profile', onAvatarClick: goToProfile, onSignOut }}
+/>
+```
+
+### Theme control
+
+`themeToggle` accepts `true` / `'toggle'` (2-state light⇄dark) or `'cycle'` (3-state light→dark→system, with sun/moon/monitor icons). Both are backed by the `useThemeToggle` hook and persist to `localStorage('manfred-theme')`.
+
+### Clickable profile avatar
+
+Pass `user.onAvatarClick` (SPA) or `user.avatarHref` (link) to make the avatar navigate to a profile page; `user.avatarActive` adds the active ring and `aria-current="page"`; `user.avatarLabel` sets its accessible name. Omit all of these for a display-only avatar.
+
 ## `useThemeToggle`
 
-`AppHeader` exports its theme-preference hook so consumers can render a custom theme switcher elsewhere on the page. Reads `localStorage('manfred-theme')` and flips `<html>` between `light` / `dark` / system.
+`AppHeader` exports its theme-preference hook so consumers can render a custom theme switcher elsewhere on the page. Reads `localStorage('manfred-theme')` and flips `<html>` between `light` / `dark` / system. Returns `toggle()` (2-state) and `cycle()` (3-state light→dark→system) alongside `preference` and `resolved`.
 
 ```tsx
 import { useThemeToggle } from '@studio-manfred/manfred-design-system';

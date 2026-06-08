@@ -37,7 +37,8 @@ export type IconName =
   | 'menu'
   | 'log-out'
   | 'library'
-  | 'settings';
+  | 'settings'
+  | 'monitor';
 
 const iconVariants = cva('inline-block shrink-0', {
   variants: {

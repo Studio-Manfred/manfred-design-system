@@ -13,6 +13,8 @@ export interface UseThemeToggleResult {
   setPreference: (next: ThemePreference) => void;
   /** Toggle between 'light' and 'dark'. A 'system' user becomes the opposite of the resolved theme. */
   toggle: () => void;
+  /** Cycle the preference: light → dark → system → light. */
+  cycle: () => void;
 }
 
 /**
@@ -94,5 +96,11 @@ export function useThemeToggle(): UseThemeToggleResult {
     setPreference(resolved === 'dark' ? 'light' : 'dark');
   }, [resolved, setPreference]);
 
-  return { preference, resolved, setPreference, toggle };
+  const cycle = useCallback(() => {
+    const next: ThemePreference =
+      preference === 'light' ? 'dark' : preference === 'dark' ? 'system' : 'light';
+    setPreference(next);
+  }, [preference, setPreference]);
+
+  return { preference, resolved, setPreference, toggle, cycle };
 }

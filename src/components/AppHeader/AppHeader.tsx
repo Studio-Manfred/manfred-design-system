@@ -565,8 +565,9 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
               </SheetHeader>
 
               <div className="flex flex-col h-full mt-4">
-                {/* Optional search at top */}
-                {search ? <div className="mb-4">{search}</div> : null}
+                {/* Optional search at top — stretch the slot's content to the
+                    full drawer width (the desktop cluster keeps it compact). */}
+                {search ? <div className="mb-4 [&>*]:w-full">{search}</div> : null}
 
                 {/* Nav items — full-width, larger touch targets. When only the
                     'nav' ReactNode escape hatch is provided (no structured navItems),

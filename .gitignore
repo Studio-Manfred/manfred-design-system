@@ -5,6 +5,10 @@ node_modules/
 dist/
 storybook-static/
 
+# Build / CI logs
+build-storybook.log
+chromatic*.log
+
 # Misc
 .DS_Store
 *.swo

@@ -96,6 +96,12 @@ in your own components, add a second import to your Tailwind input CSS:
 /* app/globals.css (or wherever you @import "tailwindcss") */
 @import "tailwindcss";
 @import "@studio-manfred/manfred-design-system/tokens.css";
+
+/* Scan the DS's compiled output so your Tailwind regenerates the utility
+   classes used *inside* DS components — including responsive/arbitrary
+   variants like `md:flex` and `[&>*]:w-full`. Adjust the relative path so
+   it resolves to the installed package in your node_modules. */
+@source "../node_modules/@studio-manfred/manfred-design-system/dist";
 ```
 
 This exposes the shadcn-shape token contract to your Tailwind utility
@@ -105,6 +111,17 @@ build time, so it doesn't reach your Tailwind from the bundled stylesheet).
 Keep `import '@studio-manfred/manfred-design-system/styles';` at the app
 entry too — `tokens.css` is the Tailwind-input side; `styles` is the
 runtime component CSS.
+
+> **The `@source` line is not optional if you run your own Tailwind.**
+> Tailwind v4 ignores `node_modules` by default, so it never generates the
+> responsive/arbitrary utilities that appear only inside DS component source.
+> The DS's own `styles` bundle has them, but in your final CSS it loads
+> *before* your Tailwind output, so your base utilities (e.g. `.hidden`) can
+> win the cascade over the DS's `md:flex` — silently hiding a component's
+> responsive parts. This bites **only in production builds** (dev injects CSS
+> in a different order). Symptom seen in the wild: `AppHeader`'s desktop
+> cluster (nav/search/actions) rendered invisible, leaving just the logo.
+> Adding `@source` regenerates those utilities in your own layer and fixes it.
 
 ### Components
 

@@ -103,7 +103,7 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/browser-playwright": "^4.0.18",
     "@vitest/coverage-v8": "^4.0.18",
-    "chromatic": "^16.10.1",
+    "chromatic": "^17.3.0",
     "date-fns": "^4.0.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "jsdom": "^29.0.2",

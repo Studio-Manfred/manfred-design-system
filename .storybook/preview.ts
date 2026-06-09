@@ -1,7 +1,26 @@
 import type { Preview } from '@storybook/react-vite';
 import { withThemeByClassName } from '@storybook/addon-themes';
+import isChromatic from 'chromatic/isChromatic';
 import '../src/styles/fonts.css';
 import '../src/tokens/tokens.css';
+
+// Chromatic pauses CSS animations at their final frame for snapshot
+// stability, which freezes Radix's enter/exit transitions mid-flight and
+// stalls the animation-driven mount/unmount its primitives depend on.
+// Interaction tests that assert open-visibility or close-removal (Dialog,
+// Sheet, Tooltip, SplitButton) then fail in Chromatic even though they pass
+// in `test:storybook`. Disabling animations *only* in Chromatic's capture
+// browser makes mount/unmount synchronous so those play assertions hold.
+// `isChromatic()` is false in the dev server and the vitest browser runner,
+// so this is a no-op everywhere else; it complements the `motion-safe:`
+// convention rather than replacing it.
+if (typeof document !== 'undefined' && isChromatic()) {
+  const style = document.createElement('style');
+  style.setAttribute('data-disable-animations', 'chromatic');
+  style.textContent =
+    '*, *::before, *::after { animation: none !important; transition: none !important; }';
+  document.head.appendChild(style);
+}
 
 const preview: Preview = {
   tags: ['autodocs'],

@@ -20,11 +20,20 @@ The mechanism for verifying is the Storybook MCP server below.
 
 ## Storybook MCP server
 
-This repo registers a Storybook MCP server at
-`http://localhost:6006/mcp`. It exposes the live Storybook's component
-inventory, prop tables, and example stories as machine-readable tools.
+The DS exposes its component inventory, prop tables, and example stories
+as machine-readable MCP tools over two endpoints. **Prefer the local
+one; fall back to the published one when Storybook isn't running.**
 
-Required tools (call before using any DS component):
+### Primary — local (`http://localhost:6006/mcp`)
+
+The full toolset, served by the running dev server. Start it once per
+session:
+
+```bash
+npm run storybook            # serves on http://localhost:6006
+```
+
+Tools (call before using any DS component):
 
 - **`list-all-documentation`** — full component inventory.
 - **`get-documentation`** — props + example stories for a target
@@ -34,16 +43,19 @@ Required tools (call before using any DS component):
 - **`run-story-tests`** — verify after story changes.
 - **`preview-stories`** — render previews to confirm visual results.
 
-The MCP server only works when Storybook is running locally.
-Start it once per session:
+### Fallback — published (`https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp`)
 
-```bash
-npm run storybook            # serves on http://localhost:6006
-```
+When Storybook isn't running locally, use the MCP that Chromatic
+publishes on every `main` build. It's public (no auth) and current with
+`main`, but serves the **docs toolset only** — `list-all-documentation`,
+`get-documentation`, `get-documentation-for-story`. The interactive
+`run-story-tests` / `preview-stories` are local-only (they need a live
+Storybook). This is enough to verify props and inventory without
+starting Storybook.
 
-If the MCP is genuinely unreachable, read component sources directly
-under `src/components/<Name>/` and surface the unavailability to the
-user — do **not** silently fall back to grepping or guessing.
+Only if **both** endpoints are unreachable, read component sources
+directly under `src/components/<Name>/` and surface the unavailability to
+the user — do **not** silently fall back to grepping or guessing.
 
 ## Registering the MCP in your agent
 
@@ -87,6 +99,16 @@ Point any MCP-compatible client at the streamable HTTP endpoint:
 
 ```
 http://localhost:6006/mcp
+```
+
+### No local Storybook? Use the published endpoint
+
+If you can't run the DS Storybook locally, register the MCP that
+Chromatic publishes on every `main` build instead — public, no auth,
+**docs toolset only**:
+
+```
+https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp
 ```
 
 ## Working in this repo

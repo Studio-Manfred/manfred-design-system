@@ -65,7 +65,7 @@ This repo registers a Storybook MCP server at `http://localhost:6006/mcp` (see [
 
 ### When the MCP is unavailable
 
-If Storybook is not running (`localhost:6006` not reachable), start it with `npm run storybook &` before invoking MCP tools. Do not fall back to grepping component source as a substitute — read the source directly via the Read tool when the MCP is genuinely unreachable, and surface that to the user.
+If Storybook is not running (`localhost:6006` not reachable), prefer to start it with `npm run storybook &` before invoking MCP tools. If you can't (or don't want to spin up Storybook), fall back to the **published MCP** Chromatic serves at `https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp` — a public, always-current endpoint exposing the **docs toolset only** (`list-all-documentation`, `get-documentation`, `get-documentation-for-story`; no `run-story-tests` / `preview-stories`, which are local-only). Only if **both** are unreachable, do not grep as a substitute — read the source directly via the Read tool when the MCP is genuinely unreachable, and surface that to the user.
 
 ## Architecture
 

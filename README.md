@@ -129,7 +129,7 @@ Accordion · Alert · AppHeader · Avatar · Badge · Breadcrumb · Button · Ca
 Chart (Donut / Bar / Line / Legend / Tooltip) · Checkbox · DatePicker ·
 Dialog · FormField · Icon · Kbd · Label · Logo · NavBar · NavigationMenu ·
 ProgressBar · RadioGroup · SearchBar · Select · Separator · Sheet ·
-Spinner · Switch · Tabs · TextInput · Textarea · Toaster · Tooltip ·
+Spinner · Stepper · Switch · Tabs · TextInput · Textarea · Toaster · Tooltip ·
 Typography.
 
 Plus layout primitives: Container · Grid · PageBackground · PageShell ·

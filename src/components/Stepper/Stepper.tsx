@@ -30,7 +30,12 @@ export interface StepperStep {
  * `React.HTMLAttributes<HTMLElement>` — pass `id`, `data-*`, etc. directly.
  */
 export interface StepperProps extends React.HTMLAttributes<HTMLElement> {
-  /** Ordered steps. The consumer supplies the full list and each step's status. */
+  /**
+   * Ordered steps. The consumer supplies the full list and each step's status.
+   * Steps are positional: the list is keyed by index and `onStepClick` reports
+   * the array index, so keep the order stable across renders (don't reorder or
+   * filter the array in place).
+   */
   steps: StepperStep[];
   /** Layout direction. Default `'horizontal'`. */
   orientation?: 'horizontal' | 'vertical';
@@ -38,6 +43,11 @@ export interface StepperProps extends React.HTMLAttributes<HTMLElement> {
    * When provided, eligible steps render as buttons and call this on
    * activation. Eligible = status `'complete' | 'current' | 'error'` and not
    * `disabled`. `'upcoming'` steps are never interactive (can't jump ahead).
+   *
+   * An interactive step's `<button>` derives its accessible name from its
+   * contents, which include the sr-only position text — so the name is e.g.
+   * `"Step 1 of 3 Dates"` (with the `description` appended when present).
+   * Match on a substring, not an exact string, when querying it in tests.
    */
   onStepClick?: (index: number, step: StepperStep) => void;
   /** Names the `<nav>` landmark. Default `'Progress'`. */

@@ -22,6 +22,7 @@
       "FormField",
       "Radio",
       "SearchBar",
+      "Stepper",
       "Switch",
       "Textarea",
       "TextInput"
@@ -48,7 +49,6 @@
     "Grid",
     "PageBackground",
     "PageShell",
-    "Stack",
-    "Stepper"
+    "Stack"
   ]
 }

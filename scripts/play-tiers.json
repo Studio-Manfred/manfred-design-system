@@ -48,6 +48,7 @@
     "Grid",
     "PageBackground",
     "PageShell",
-    "Stack"
+    "Stack",
+    "Stepper"
   ]
 }

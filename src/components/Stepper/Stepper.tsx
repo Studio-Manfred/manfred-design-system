@@ -44,6 +44,9 @@ export interface StepperProps extends React.HTMLAttributes<HTMLElement> {
   'aria-label'?: string;
 }
 
+// `complete` and `current` share the same filled-circle token on purpose:
+// they are differentiated by their content (check vs number, see
+// StepIndicatorContent) and label weight (see labelVariants), not the circle.
 const indicatorVariants = cva(
   'flex size-7 items-center justify-center rounded-full border text-sm font-medium',
   {
@@ -168,6 +171,9 @@ export const Stepper = React.forwardRef<HTMLElement, StepperProps>(function Step
 
               {!isLast &&
                 (isVertical ? (
+                  // Vertical connector: left-[13px] ≈ centre of the size-7 (28px)
+                  // circle; top-7 / calc(100%-1.75rem) start it just below the
+                  // circle and span to the next step. Update if size-7 changes.
                   <span
                     aria-hidden="true"
                     className="absolute left-[13px] top-7 h-[calc(100%-1.75rem)] w-px bg-border"

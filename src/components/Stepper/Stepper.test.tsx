@@ -102,9 +102,14 @@ describe('Stepper', () => {
     expect(screen.queryByRole('button')).toBeNull();
   });
 
-  it('renders the vertical orientation container', () => {
+  it('renders the vertical orientation with positioned connectors', () => {
     const { container } = render(<Stepper steps={STEPS} orientation="vertical" />);
     expect(container.querySelector('ol')?.className).toContain('flex-col');
+    const items = container.querySelectorAll('li');
+    // vertical list items are position:relative so the absolute connector anchors to them
+    expect(items[0].className).toContain('relative');
+    // a decorative connector span is rendered between steps (not after the last)
+    expect(container.querySelector('span[aria-hidden="true"].absolute')).toBeTruthy();
   });
 
   it('merges an external className onto the nav', () => {

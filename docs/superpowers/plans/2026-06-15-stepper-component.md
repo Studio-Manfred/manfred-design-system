@@ -550,9 +550,9 @@ export const Clickable: Story = {
 };
 ```
 
-- [ ] **Step 2: Add the play tier**
+- [ ] **Step 2: Move the play tier from `excluded` to B**
 
-In `scripts/play-tiers.json`, add `"Stepper"` to the `"B"` array (alphabetical — after `"SearchBar"`, before `"Switch"`):
+In `scripts/play-tiers.json`, **remove** `"Stepper"` from the `"excluded"` array (Task 1 parked it there while stories were pending) and **add** it to the `"B"` array (alphabetical — after `"SearchBar"`, before `"Switch"`):
 
 ```json
     "B": [

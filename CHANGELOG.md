@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-06-15
+
+### Added
+
+- **Stepper component.** Generic, data-driven progress indicator for
+  multi-step flows (wizards, checkouts, onboarding). Configurable `steps`
+  array with explicit per-step `status` (`complete` / `current` / `upcoming`
+  / `error`), horizontal + vertical orientation, optional per-step
+  `description`, and optional click-to-navigate via `onStepClick` (only
+  `complete` / `current` / `error` steps are interactive — upcoming steps can
+  never be jumped to). Built on `<nav>` → `<ol>`/`<li>` with
+  `aria-current="step"` and sr-only position + error announcements.
+  Generalizes the hardcoded `StepIndicator` previously local to
+  `manfred-find-a-time`.
+
 ## [0.29.0] - 2026-06-08
 
 ### Added

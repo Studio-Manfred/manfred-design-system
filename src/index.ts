@@ -224,6 +224,9 @@ export {
 } from './components/Sheet';
 export type { SheetContentProps, SheetSide } from './components/Sheet';
 
+export { Stepper } from './components/Stepper';
+export type { StepperProps, StepperStep, StepStatus } from './components/Stepper';
+
 export { Spinner } from './components/Spinner';
 export type { SpinnerProps, SpinnerSize } from './components/Spinner';
 

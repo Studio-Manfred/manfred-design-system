@@ -247,8 +247,8 @@ describe('lintComponent — robustness', () => {
 describe('lintAll — repository walker', () => {
   it('runs against the real repo and returns a result per component', async () => {
     const results = await lintAll();
-    // 40 components should produce 40 results.
-    expect(results.length).toBe(40);
+    // 41 components should produce 41 results (Stepper added in v0.30.0).
+    expect(results.length).toBe(41);
     // All results must have ok set.
     expect(results.every((r) => typeof r.ok === 'boolean')).toBe(true);
   });

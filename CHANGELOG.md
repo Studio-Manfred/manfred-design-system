@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-07-04
+
+### Added
+
+- **`Tabs` `overflow="scroll"` prop.** Solves the mobile-viewport
+  bleed where a many-option tab strip pushes the whole page
+  horizontally. Threaded through `TabsContext` and picked up by
+  `TabsList`, so consumers set it once on the root: `<Tabs
+  overflow="scroll">`. Under the hood: `max-w-full overflow-x-auto
+  snap-x snap-mandatory` on the list, `snap-start` on every trigger,
+  and scrollbar chrome hidden cross-browser. Default remains
+  `"visible"` — zero visual change to existing consumers. New
+  `TabsOverflow` type exported from the barrel. (STU-629)
+
 ## [0.32.0] - 2026-07-04
 
 ### Changed (breaking peer-dep)

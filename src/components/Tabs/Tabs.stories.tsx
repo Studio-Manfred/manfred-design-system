@@ -31,6 +31,13 @@ const meta: Meta<typeof Tabs> = {
       description: 'Trigger height + text size.',
       table: { defaultValue: { summary: 'md' } },
     },
+    overflow: {
+      control: 'inline-radio',
+      options: ['visible', 'scroll'],
+      description:
+        'How the tab strip handles too-many-triggers-for-parent-width. `visible` keeps the historical `inline-flex` behaviour; `scroll` caps at parent width and enables horizontal swipe with hidden scrollbar chrome.',
+      table: { defaultValue: { summary: 'visible' } },
+    },
   },
 };
 export default meta;
@@ -155,6 +162,89 @@ export const SideBySide: Story = {
         <TabsContent value="overview">Underline — Overview</TabsContent>
         <TabsContent value="activity">Underline — Activity</TabsContent>
       </Tabs>
+    </div>
+  ),
+};
+
+const analyticsTabs = [
+  { value: 'pages', label: 'Pages' },
+  { value: 'sources', label: 'Sources' },
+  { value: 'countries', label: 'Countries' },
+  { value: 'browsers', label: 'Browsers' },
+  { value: 'os', label: 'OS' },
+  { value: 'devices', label: 'Devices' },
+  { value: 'referrers', label: 'Referrers' },
+] as const;
+
+export const ManyOptionsMobile: Story = {
+  name: 'Many options (mobile viewport)',
+  parameters: {
+    layout: 'padded',
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story:
+          'Analytics-style tab strip (Pages / Sources / Countries / Browsers / ' +
+          'OS / Devices / Referrers) at a mobile viewport. Top row uses the ' +
+          'default `overflow="visible"` — the `inline-flex` list grows past ' +
+          'the parent and pushes the viewport horizontally (the analytics-app ' +
+          'symptom). Bottom row opts in to `overflow="scroll"`: the list is ' +
+          'capped at parent width, scrollbar chrome is hidden, and each ' +
+          'trigger gets `scroll-snap-align: start` for a touch-friendly swipe.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // 7 triggers × 2 rows = 14 tab roles in the DOM.
+    expect(canvas.getAllByRole('tab')).toHaveLength(analyticsTabs.length * 2);
+    // Both `Pages` triggers are selected by default (one per row).
+    expect(canvas.getAllByRole('tab', { name: 'Pages' })).toHaveLength(2);
+    canvas
+      .getAllByRole('tab', { name: 'Pages' })
+      .forEach((el) => expect(el).toHaveAttribute('aria-selected', 'true'));
+  },
+  render: () => (
+    <div className="flex flex-col gap-8">
+      <section aria-labelledby="tabs-default-heading" className="flex flex-col gap-2">
+        <h3 id="tabs-default-heading" className="text-xs uppercase text-muted-foreground">
+          Default — <code>overflow="visible"</code> (bleeds past parent)
+        </h3>
+        <Tabs defaultValue="pages" variant="underline">
+          <TabsList aria-label="Analytics view (default overflow)">
+            {analyticsTabs.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {analyticsTabs.map((t) => (
+            <TabsContent key={t.value} value={t.value}>
+              {t.label}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </section>
+
+      <section aria-labelledby="tabs-scroll-heading" className="flex flex-col gap-2">
+        <h3 id="tabs-scroll-heading" className="text-xs uppercase text-muted-foreground">
+          Fix — <code>overflow="scroll"</code> (contained + swipeable)
+        </h3>
+        <Tabs defaultValue="pages" variant="underline" overflow="scroll">
+          <TabsList aria-label="Analytics view (scroll overflow)">
+            {analyticsTabs.map((t) => (
+              <TabsTrigger key={t.value} value={t.value}>
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {analyticsTabs.map((t) => (
+            <TabsContent key={t.value} value={t.value}>
+              {t.label}
+            </TabsContent>
+          ))}
+        </Tabs>
+      </section>
     </div>
   ),
 };

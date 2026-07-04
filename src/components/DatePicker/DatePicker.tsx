@@ -115,18 +115,17 @@ export type DatePickerRangeProps = DatePickerBaseProps & {
 export type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
 /**
- * Manfred-token classNames for react-day-picker v9.
+ * Manfred-token classNames for react-day-picker v10.
  *
  * Every entry references a semantic token — no hex, no primitive-layer
  * skips. If you need a color that doesn't exist yet, add it to the
  * semantic layer in tokens.css first (never hardcode here).
  *
- * Key names follow the rdp v9 UI enum (UI.d.ts). v8 names are deprecated:
- *   caption → month_caption, table → month_grid, head_row → weekdays,
- *   head_cell → weekday, row → week, cell → day, day → day_button,
- *   day_selected → selected, day_today → today, day_outside → outside,
- *   day_disabled → disabled, day_hidden → hidden,
- *   nav_button_previous → button_previous, nav_button_next → button_next.
+ * Key names follow the rdp v10 UI enum (UI.d.ts). v10 removed the v9
+ * deprecated aliases; this map is already on the canonical set:
+ *   month_caption, weekdays, weekday, week, day, day_button, selected,
+ *   today, outside, disabled, hidden, button_previous, button_next,
+ *   month_grid, range_start, range_end, range_middle.
  */
 const rdpClassNames = {
   root: 'font-sans relative',
@@ -177,7 +176,7 @@ const rdpClassNames = {
 
 /**
  * Date input with a popover calendar. Built on `@radix-ui/react-popover`
- * for the trigger/popover plumbing and `react-day-picker` v9 for the
+ * for the trigger/popover plumbing and `react-day-picker` v10 for the
  * grid, keyboard model, and locale-aware month rendering.
  *
  * Two modes share one component:

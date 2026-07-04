@@ -94,7 +94,7 @@ export { Icon } from './components/Icon';
 export type { IconProps, IconName, IconSize } from './components/Icon';
 
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './components/Tabs';
-export type { TabsProps, TabsVariant, TabsSize } from './components/Tabs';
+export type { TabsProps, TabsVariant, TabsSize, TabsOverflow } from './components/Tabs';
 
 export { NavBar, NavItem } from './components/NavBar';
 export type { NavBarProps, NavItemProps } from './components/NavBar';

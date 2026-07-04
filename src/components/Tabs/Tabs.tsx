@@ -37,19 +37,37 @@ import { cn } from '@/lib/utils';
  *   …
  * </Tabs>
  * ```
+ *
+ * @example Overflow-safe strip at mobile width
+ * ```tsx
+ * <Tabs overflow="scroll" variant="underline" defaultValue="pages">
+ *   <TabsList aria-label="Analytics view">
+ *     <TabsTrigger value="pages">Pages</TabsTrigger>
+ *     <TabsTrigger value="sources">Sources</TabsTrigger>
+ *     <TabsTrigger value="countries">Countries</TabsTrigger>
+ *     <TabsTrigger value="browsers">Browsers</TabsTrigger>
+ *     <TabsTrigger value="os">OS</TabsTrigger>
+ *     <TabsTrigger value="devices">Devices</TabsTrigger>
+ *   </TabsList>
+ *   …
+ * </Tabs>
+ * ```
  */
 
 export type TabsVariant = 'segmented' | 'underline';
 export type TabsSize = 'sm' | 'md';
+export type TabsOverflow = 'visible' | 'scroll';
 
 interface TabsContextValue {
   variant: TabsVariant;
   size: TabsSize;
+  overflow: TabsOverflow;
 }
 
 const TabsContext = React.createContext<TabsContextValue>({
   variant: 'segmented',
   size: 'md',
+  overflow: 'visible',
 });
 
 /**
@@ -64,20 +82,42 @@ export interface TabsProps
   variant?: TabsVariant;
   /** Size scale shared with descendant triggers. `sm` for dense UIs, `md` (default) otherwise. */
   size?: TabsSize;
+  /**
+   * How `TabsList` handles too-many-triggers-for-parent-width. `visible`
+   * (default) keeps the historical behaviour — the list is `inline-flex`
+   * and grows past the parent, which can push the viewport horizontally
+   * on narrow screens. `scroll` caps the list at parent width, hides the
+   * native scrollbar, and enables `scroll-snap` on each trigger for
+   * a touch-friendly swipe. Use on any tabbed surface that can be
+   * rendered at mobile width with more than ~4 short labels.
+   */
+  overflow?: TabsOverflow;
 }
 
 /**
- * Root of the tabbed view. Provides `variant` and `size` via context so
- * `TabsList` and `TabsTrigger` style themselves to match.
+ * Root of the tabbed view. Provides `variant`, `size`, and `overflow`
+ * via context so `TabsList` and `TabsTrigger` style themselves to match.
  */
 export const Tabs = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Root>,
   TabsProps
->(function Tabs({ variant = 'segmented', size = 'md', children, ...props }, ref) {
-  const ctx = React.useMemo(() => ({ variant, size }), [variant, size]);
+>(function Tabs(
+  { variant = 'segmented', size = 'md', overflow = 'visible', children, ...props },
+  ref,
+) {
+  const ctx = React.useMemo(
+    () => ({ variant, size, overflow }),
+    [variant, size, overflow],
+  );
   return (
     <TabsContext.Provider value={ctx}>
-      <TabsPrimitive.Root ref={ref} data-variant={variant} data-size={size} {...props}>
+      <TabsPrimitive.Root
+        ref={ref}
+        data-variant={variant}
+        data-size={size}
+        data-overflow={overflow}
+        {...props}
+      >
         {children}
       </TabsPrimitive.Root>
     </TabsContext.Provider>
@@ -95,6 +135,21 @@ const tabsListVariants = cva('inline-flex items-center', {
       sm: '',
       md: '',
     },
+    overflow: {
+      visible: '',
+      // Cap the list at the parent's width, allow horizontal swipe,
+      // hide the scrollbar chrome, and snap each trigger to the start
+      // edge on release. Applied to the list itself so both variants'
+      // borders (segmented's rounded track, underline's bottom rule)
+      // continue to contain the scroll area.
+      scroll:
+        'max-w-full overflow-x-auto snap-x snap-mandatory ' +
+        '[-ms-overflow-style:none] [scrollbar-width:none] ' +
+        '[&::-webkit-scrollbar]:hidden [&>*]:snap-start',
+    },
+  },
+  defaultVariants: {
+    overflow: 'visible',
   },
 });
 
@@ -106,11 +161,11 @@ export const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
 >(function TabsList({ className, ...props }, ref) {
-  const { variant, size } = React.useContext(TabsContext);
+  const { variant, size, overflow } = React.useContext(TabsContext);
   return (
     <TabsPrimitive.List
       ref={ref}
-      className={cn(tabsListVariants({ variant, size }), className)}
+      className={cn(tabsListVariants({ variant, size, overflow }), className)}
       {...props}
     />
   );

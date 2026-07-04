@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
-import { Logo, type LogoColor } from '@/components/Logo';
+import { Logo, type LogoColor, type LogoVariant } from '@/components/Logo';
 import { NavBar, NavItem } from '@/components/NavBar';
 import {
   NavigationMenu,
@@ -490,7 +490,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       if (logo === 'wordmark' || logo === 'monogram') {
         return (
           <Logo
-            variant={logo}
+            variant={logo as LogoVariant}
             color={logoColorForTone(tone, resolved)}
             height={logo === 'monogram' ? 28 : 24}
             aria-label="Manfred home"

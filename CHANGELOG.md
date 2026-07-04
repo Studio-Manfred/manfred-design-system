@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-07-04
+
+### Changed
+
+- **Build-chain majors bumped together.** Vite `^7.3.2` → `^8.0.0`
+  (Rolldown by default + Lightning CSS minifier), `@vitejs/plugin-react`
+  `^4.7.0` → `^6.0.0` (Babel dropped as a dep), `vite-plugin-dts`
+  `^4.5.4` → `^5.0.0` (thin re-export of the new `unplugin-dts`), and
+  `typescript` `^5.9.3` → `^6.0.0`. Peer contracts are unchanged for
+  consumers: `dist/index.mjs` + `dist/index.cjs` still lead with
+  `"use client";`, the rolled-up `dist/index.d.ts` is the same shape,
+  and Chromatic reported zero visual diffs across all 264 stories.
+  (STU-621, STU-622, STU-623, STU-625)
+- **`tsconfig.json`.** Dropped the deprecated `baseUrl` (removed in
+  TypeScript 7) and switched `paths` to the required relative form
+  (`["./src/*"]`).
+
+### Added
+
+- **`src/globals.d.ts`.** Ambient `declare module '*.css';` — TypeScript
+  6 now requires declarations for the side-effect CSS imports in
+  `src/index.ts`.
+
+### Fixed
+
+- **`AppHeader`.** Explicit `LogoVariant` cast on the narrowed `logo`
+  prop. TypeScript 6 no longer eliminates the `Iterable<ReactNode>`
+  branch from `AppHeaderLogo` on a string-literal equality check
+  (because `string` satisfies `Iterable<ReactNode>` in React's ambient
+  types). Runtime behaviour is identical.
+
 ## [0.30.0] - 2026-06-15
 
 ### Added

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.1] - 2026-07-04
+
+### Changed
+
+- **`chromatic` v17 → v18** (installed 18.0.1). Chromatic v18's sole
+  breaking change is a task-list UI-renderer swap (to Clack) for
+  interactive terminals — no CLI flag was renamed, no config schema
+  key changed, no baseline algorithm changed. All flags used by this
+  repo (`--exit-zero-on-changes`, `--build-script-name`,
+  `--only-changed`, `--project-token`) work identically; existing
+  `main` baseline preserved. (STU-624)
+
 ## [0.31.0] - 2026-07-04
 
 ### Changed

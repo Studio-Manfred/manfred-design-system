@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-07-04
+
+### Changed (breaking peer-dep)
+
+- **`react-day-picker` peer-dep bumped v9 → v10** (installed 10.0.1).
+  **Consumer apps on rdp v9 must migrate their own install alongside
+  this release.** Consumers who use the DS `<DatePicker>` component
+  directly need no code change — the wrapper's public API is
+  unchanged. Consumers who import `react-day-picker` directly must
+  follow the [rdp v10 upgrade guide](https://daypicker.dev/upgrading).
+  (STU-626)
+
+  DS-internal impact was essentially zero: rdp v10 is a cleanup release
+  removing v9-deprecated aliases (`classNames.table`, `nav_button`,
+  `day_selected`, `day_disabled`, `components.Button`, `fromMonth`,
+  `initialFocus`, etc.) — every removal was already avoided in
+  `DatePicker.tsx`. DOM structure, `addToRange` first-click behaviour,
+  and `Chevron` SVG (stroke-only) are all preserved in v10; existing
+  `reference_rdp_v9_*.md` notes remain accurate.
+
 ## [0.31.1] - 2026-07-04
 
 ### Changed

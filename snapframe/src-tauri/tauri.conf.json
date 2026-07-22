@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Snapframe",
+  "version": "0.1.0",
+  "identifier": "com.studiomanfred.snapframe",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Snapframe",
+        "width": 1180,
+        "height": 760,
+        "minWidth": 900,
+        "minHeight": 600,
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "category": "Productivity",
+    "shortDescription": "Beautiful screenshots with backgrounds and soft shadows",
+    "longDescription": "Snapframe captures a window or region without the system shadow, drops it onto a beautiful background with a soft shadow and rounded corners, then lets you copy or save the result — a lightweight, open take on CleanShot's beautifier.",
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
+  }
+}

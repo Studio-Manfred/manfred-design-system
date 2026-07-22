@@ -1,0 +1,29 @@
+[package]
+name = "snapframe"
+version = "0.1.0"
+description = "A CleanShot-style screenshot beautifier for macOS"
+authors = ["Studio Manfred"]
+edition = "2021"
+
+# The library that both the desktop binary and any mobile target share.
+[lib]
+name = "snapframe_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-global-shortcut = "2"
+base64 = "0.22"
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

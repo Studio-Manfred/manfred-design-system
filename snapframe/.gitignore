@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Rust / Tauri build artifacts
+src-tauri/target
+src-tauri/gen
+
+# Editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json

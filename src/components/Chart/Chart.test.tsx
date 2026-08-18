@@ -5,6 +5,7 @@ import { BarChart } from './BarChart';
 import { LineChart } from './LineChart';
 import { DonutChart } from './DonutChart';
 import { ChartContainer, chartSeriesColor } from './ChartContainer';
+import { ChartLegendContent } from './ChartLegend';
 
 // Recharts uses ResponsiveContainer which depends on the parent's size; in jsdom
 // width/height come back 0. Force a non-zero size so charts actually render their svg.
@@ -205,12 +206,20 @@ describe('DonutChart', () => {
     // collapse some sector groups. So we can't assert exact arc commands or the
     // sector count — but we can still verify the composition shape:
     //   * one `.recharts-pie` group exists
-    //   * the legend exposes one bullet per data row, coloured from --chart-1..N.
     const pieLayers = container.querySelectorAll('.recharts-pie');
     expect(pieLayers.length).toBe(1);
+  });
 
+  it('ChartLegendContent renders one bullet per payload item with chart-N colour tokens', () => {
+    // Recharts 3.10+ populates legend payload via async Redux state in jsdom, so
+    // we test ChartLegendContent directly rather than relying on recharts internals.
+    const mockPayload = donutData.map((row, i) => ({
+      value: String(row.lane),
+      color: chartSeriesColor(i),
+    }));
+    const { container } = render(<ChartLegendContent payload={mockPayload} />);
     const bullets = Array.from(
-      container.querySelectorAll('.recharts-legend-wrapper [aria-hidden="true"]'),
+      container.querySelectorAll('[aria-hidden="true"]'),
     ) as HTMLElement[];
     expect(bullets.length).toBe(donutData.length);
     const colours = bullets.map((b) => b.style.backgroundColor).sort();

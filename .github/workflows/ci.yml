@@ -6,6 +6,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -62,12 +65,21 @@ jobs:
         run: npm run build-storybook
 
       - name: Start static Storybook server
+        # http-server is a pinned devDependency (installed by npm ci) so this
+        # step never hits the registry. The loop fails the job if the server
+        # is not answering within 60 s — it used to give up silently after
+        # 20 s and the a11y scan died with ECONNREFUSED (PR #73, run 1).
         run: |
-          npx --yes http-server@14 storybook-static -p 6006 --silent &
-          for i in $(seq 1 40); do
-            if curl -sf http://localhost:6006 > /dev/null; then break; fi
+          npx http-server storybook-static -p 6006 --silent &
+          for i in $(seq 1 120); do
+            if curl -sf http://localhost:6006/iframe.html > /dev/null; then
+              echo "storybook-static reachable after $i probes"
+              exit 0
+            fi
             sleep 0.5
           done
+          echo "::error::storybook-static never became reachable on :6006"
+          exit 1
 
       - name: Runtime a11y scan
         run: node scripts/a11y-runtime-scan.mjs

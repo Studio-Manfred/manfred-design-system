@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-09-04
+
+### Security
+
+- **vitest 4.1.8 → 4.1.10** (now 4.1.11) — patches GHSA-p63j-vcc4-9vmv
+  (critical, CVSS 9.4). Dev-only; the published tarball never included
+  vitest. (PR #69)
+- **Storybook 10.4 → 10.6.0** (`storybook`, `@storybook/react-vite`,
+  `@storybook/addon-{a11y,docs,themes,vitest}`) — pulls a patched
+  `valibot` (GHSA-5qjj-4xww-7phc, moderate). `@storybook/addon-mcp`
+  moves from its own 0.6.x line onto the core 10.6.0 version. (PR #72)
+- `npm audit` and GitHub Dependabot alerts are both at zero as of
+  2026-09-03.
+
+### Changed
+
+- **In-range devDependency refresh** (lockfile only, ranges unchanged):
+  chromatic 18.2.0 → 18.7.2, vite 8.2.1 → 8.2.2, @vitejs/plugin-react
+  6.0.5 → 6.1.1, vite-plugin-dts 5.0.3 → 5.1.0, typescript-eslint
+  8.67.0 → 8.69.0, @testing-library/react 16.3.2 → 16.3.3,
+  @testing-library/user-event 14.6.4 → 14.6.7, @types/react-dom
+  19.2.4 → 19.2.7. (STU-704)
+- **`Chart.test.tsx`** — the DonutChart legend assertion now renders
+  `ChartLegendContent` directly; recharts 3.10 populates the legend
+  payload asynchronously in jsdom. (PRs #69–#72)
+
+### CI / infrastructure
+
+- **Workflow hardening.** `ci.yml` and `chromatic.yml` now declare
+  `permissions: contents: read` (previously the default token scope).
+  `chromaui/action` is pinned to `@v18` instead of the floating
+  `@latest` tag. (STU-704)
+- **Dependabot version updates** enabled via `.github/dependabot.yml`
+  — weekly, grouped (Storybook, vitest, Radix, then minor/patch by
+  dependency type) for npm and GitHub Actions. Replaces the ad-hoc
+  scheduled dependency-audit branches. (STU-704)
+- **CI static-server race fixed.** The "Runtime a11y scan" step served
+  `storybook-static` with `npx --yes http-server@14`, which downloads
+  the package on every run; a slow registry made the 20 s wait loop
+  give up silently and the scan failed with `ECONNREFUSED`. `http-server`
+  is now a pinned devDependency (installed by `npm ci`), the loop waits
+  up to 60 s, and it fails the job loudly if the server never answers.
+  (STU-704, PR #73)
+
+No runtime changes. Consumers on 0.33.0 need no action.
+
 ## [0.33.0] - 2026-07-04
 
 ### Added

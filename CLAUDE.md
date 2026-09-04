@@ -49,6 +49,10 @@ node scripts/a11y-runtime-scan.mjs --dark   # dark (sets colorScheme on the Play
 
 Full JSON output is written to `/tmp/a11y-runtime.json`. Stories listed in `CONTRAST_EXEMPT_STORIES` inside the script are token/typography showcases where `color-contrast` is intentionally disabled — update that set when adding new showcase stories.
 
+### Dependency updates (Dependabot)
+
+`.github/dependabot.yml` opens weekly grouped PRs (Monday 06:00 Europe/Stockholm) for npm and GitHub Actions: Storybook, vitest and Radix each land as one PR; remaining minor/patch bumps are grouped by dev/prod dependency type; majors outside those groups open individually so they can be checked against peer ranges. Dependabot *security* updates are enabled separately in repo settings. Majors currently blocked by peers are tracked in Linear (STU-707 vitest 5, STU-708 TypeScript 7). The CI and Chromatic workflows run with `permissions: contents: read`; keep that when adding steps.
+
 ## Storybook MCP
 
 This repo registers a Storybook MCP server at `http://localhost:6006/mcp` (see [.mcp.json](.mcp.json) and the `@storybook/addon-mcp` registration in [.storybook/main.ts](.storybook/main.ts)). When working on UI components in this repo, **use the `manfred-design-system` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action.** This requires Storybook to be running on :6006.
@@ -137,3 +141,5 @@ This is a design system — accessibility is part of the product, not a post-hoc
 ## Publishing
 
 Bumping `version` in `package.json`, updating `CHANGELOG.md`, and creating a GitHub Release triggers `.github/workflows/publish.yml`, which runs `npm ci && npm run build && npm publish` against `npm.pkg.github.com`. The `files` field restricts the published tarball to `dist/` only.
+
+Since 2026-09-04 (STU-705) `main` is protected by the "Protect main" ruleset: no direct pushes, PR required, and the CI `test` job must be green (an admin can bypass only when merging a PR). So the version bump and the CHANGELOG section go **inside the PR**; after merge, tag the merge commit and create the Release. Tags are not covered by the ruleset.

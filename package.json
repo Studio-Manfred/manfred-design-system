@@ -1,6 +1,6 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.33.0",
+  "version": "0.33.1",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "engines": {
     "node": ">=22"
@@ -106,6 +106,7 @@
     "chromatic": "^18.0.0",
     "date-fns": "^4.0.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
+    "http-server": "^14.1.1",
     "jsdom": "^29.0.2",
     "playwright": "^1.58.2",
     "react-day-picker": "^10.0.0",

@@ -1,0 +1,55 @@
+# Dependabot version updates (security updates are enabled separately in
+# repo settings). Weekly, grouped so a Storybook / vitest / Radix release
+# arrives as one PR instead of six. Majors outside a named group open
+# individual PRs so they can be reviewed against their peer ranges —
+# see STU-707 (vitest 5) and STU-708 (TypeScript 7) for the ones that
+# are currently blocked.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Stockholm
+    open-pull-requests-limit: 5
+    groups:
+      storybook:
+        patterns:
+          - "storybook"
+          - "@storybook/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+      radix:
+        patterns:
+          - "@radix-ui/*"
+      dev-minor-patch:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+      prod-minor-patch:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Stockholm
+    groups:
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "ci"

@@ -43,6 +43,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   — weekly, grouped (Storybook, vitest, Radix, then minor/patch by
   dependency type) for npm and GitHub Actions. Replaces the ad-hoc
   scheduled dependency-audit branches. (STU-704)
+- **CI static-server race fixed.** The "Runtime a11y scan" step served
+  `storybook-static` with `npx --yes http-server@14`, which downloads
+  the package on every run; a slow registry made the 20 s wait loop
+  give up silently and the scan failed with `ECONNREFUSED`. `http-server`
+  is now a pinned devDependency (installed by `npm ci`), the loop waits
+  up to 60 s, and it fails the job loudly if the server never answers.
+  (STU-704, PR #73)
 
 No runtime changes. Consumers on 0.33.0 need no action.
 

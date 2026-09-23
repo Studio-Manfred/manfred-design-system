@@ -116,4 +116,50 @@ describe('Stepper', () => {
     render(<Stepper steps={STEPS} className="custom-x" />);
     expect(screen.getByRole('navigation').className).toContain('custom-x');
   });
+
+  describe('keyboard and names', () => {
+    it('Tab visits only interactive steps, skipping upcoming', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Stepper steps={STEPS} onStepClick={() => {}} />
+          <button type="button">After</button>
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('button', { name: /Dates/ })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole('button', { name: /Times/ })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it.each([
+      ['Enter', '{Enter}'],
+      ['Space', ' '],
+    ])('%s activates the focused step', async (_, key) => {
+      const user = userEvent.setup();
+      const onStepClick = vi.fn();
+      render(<Stepper steps={STEPS} onStepClick={onStepClick} />);
+      await user.tab();
+      await user.tab();
+      await user.keyboard(key);
+      expect(onStepClick).toHaveBeenCalledWith(1, expect.objectContaining({ label: 'Times' }));
+    });
+
+    it('step button names carry position, label and error state', () => {
+      render(
+        <Stepper
+          steps={[
+            { label: 'Dates', status: 'complete' },
+            { label: 'Times', status: 'error' },
+          ]}
+          onStepClick={() => {}}
+        />,
+      );
+      const [first, second] = screen.getAllByRole('button');
+      expect(first).toHaveAccessibleName(expect.stringMatching(/^Step 1 of 2\s*Dates$/));
+      expect(second).toHaveAccessibleName(expect.stringMatching(/^Step 2 of 2, error\s*Times$/));
+    });
+  });
 });

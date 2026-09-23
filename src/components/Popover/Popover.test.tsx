@@ -47,4 +47,45 @@ describe('Popover', () => {
     await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByText('Panel body')).not.toBeInTheDocument());
   });
+
+  describe('keyboard and focus', () => {
+    it('Enter on the trigger opens the popover and moves focus inside it', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+      const panel = await screen.findByRole('dialog');
+      expect(panel).toContainElement(document.activeElement as HTMLElement);
+      expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    });
+
+    it('Space on the trigger opens the popover', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.tab();
+      await user.keyboard(' ');
+      expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    });
+
+    it('Escape returns focus to the trigger', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.tab();
+      await user.keyboard('{Enter}');
+      await screen.findByRole('dialog');
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+    });
+
+    it('trigger aria-controls points at the open panel', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      const panel = await screen.findByRole('dialog');
+      expect(trigger).toHaveAttribute('aria-controls', panel.id);
+    });
+  });
 });

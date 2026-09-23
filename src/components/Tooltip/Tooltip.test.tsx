@@ -53,4 +53,26 @@ describe('Tooltip', () => {
       expect(screen.queryByText('Helpful text', { selector: '[role="tooltip"]' })).not.toBeInTheDocument(),
     );
   });
+
+  it('Escape closes the tooltip and keeps focus on the trigger', async () => {
+    const user = userEvent.setup();
+    render(<Fixture />);
+    await user.tab();
+    await screen.findByRole('tooltip');
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('tooltip')).not.toBeInTheDocument());
+    // Dismissing must not move focus away — WCAG 1.4.13 (dismissible without
+    // moving pointer / focus).
+    expect(screen.getByRole('button', { name: 'Hover me' })).toHaveFocus();
+  });
+
+  it('trigger description resolves to the tooltip text', async () => {
+    const user = userEvent.setup();
+    render(<Fixture />);
+    await user.tab();
+    await screen.findByRole('tooltip');
+    expect(screen.getByRole('button', { name: 'Hover me' })).toHaveAccessibleDescription(
+      'Helpful text',
+    );
+  });
 });

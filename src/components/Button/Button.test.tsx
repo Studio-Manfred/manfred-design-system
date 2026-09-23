@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -101,5 +102,49 @@ describe('Button', () => {
     const link = screen.getByRole('link', { name: 'Go' });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/target');
+  });
+
+  describe('keyboard', () => {
+    it.each([
+      ['Enter', '{Enter}'],
+      ['Space', ' '],
+    ])('%s activates the focused button', async (_, key) => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      render(<Button onClick={onClick}>Save</Button>);
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Save' })).toHaveFocus();
+      await user.keyboard(key);
+      expect(onClick).toHaveBeenCalledOnce();
+    });
+
+    it('disabled and loading buttons are skipped by Tab', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Button disabled>Disabled</Button>
+          <Button isLoading>Loading</Button>
+          <Button>Enabled</Button>
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Enabled' })).toHaveFocus();
+    });
+
+    it('asChild link is reachable by Tab and activates with Enter', async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn((e: React.MouseEvent) => e.preventDefault());
+      render(
+        <Button asChild>
+          <a href="/docs" onClick={onClick}>
+            Docs
+          </a>
+        </Button>,
+      );
+      await user.tab();
+      expect(screen.getByRole('link', { name: 'Docs' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+      expect(onClick).toHaveBeenCalledOnce();
+    });
   });
 });

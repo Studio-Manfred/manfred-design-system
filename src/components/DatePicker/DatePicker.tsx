@@ -21,12 +21,13 @@ import { useDatePickerState } from './useDatePickerState';
 type DatePickerBaseProps = {
   /**
    * Placeholder text shown in the trigger when no date is selected.
-   * Falls back to a localised "Pick a date" / "Pick a date range".
+   * Falls back to "Pick a date" (single) / "Pick dates" (range). The
+   * fallback is not localised — pass your own when you change `locale`.
    */
   placeholder?: string;
   /**
    * `date-fns` locale used for month names, weekday headers, and the
-   * default `formatValue` output. Defaults to English.
+   * default `formatValue` output. Defaults to Swedish (`sv`).
    */
   locale?: Locale;
   /**
@@ -104,7 +105,10 @@ export type DatePickerRangeProps = DatePickerBaseProps & {
   defaultValue?: DateRange;
   /** Fires with the new range (or `undefined` when cleared). */
   onValueChange?: (value: DateRange | undefined) => void;
-  /** Custom trigger formatter. Defaults to `"from – to"` localised. */
+  /**
+   * Custom trigger formatter. Defaults to `"from – to"` localised; a
+   * missing endpoint renders as `…` (`"from – …"` / `"… – to"`).
+   */
   formatValue?: (value: DateRange, locale: Locale) => string;
 };
 

@@ -108,9 +108,11 @@ describe('aggregate', () => {
         '@manfred/play-tiers',
         '@manfred/lib',
         '@manfred/tokens/stories',
+        '@manfred/tokens',
       ].map(rec),
     );
     expect(out.suites.map((s) => s.name)).toEqual([
+      '@manfred/tokens',
       '@manfred/lib',
       '@manfred/play-tiers',
       '@manfred/components',

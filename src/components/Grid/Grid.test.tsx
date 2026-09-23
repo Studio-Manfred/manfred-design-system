@@ -39,6 +39,13 @@ describe('Grid', () => {
     expect(el.className).toContain('xl:grid-cols-6');
   });
 
+  it('emits only the breakpoints given in a sparse responsive object', () => {
+    const { container } = render(<Grid cols={{ sm: 2, lg: 4 }}>x</Grid>);
+    const classes = (container.firstElementChild as HTMLElement).className.split(/\s+/);
+    const colClasses = classes.filter((c) => c.includes('grid-cols-'));
+    expect(colClasses.sort()).toEqual(['lg:grid-cols-4', 'sm:grid-cols-2']);
+  });
+
   it('applies the gap variant from the token scale', () => {
     const gaps = [1, 2, 3, 4, 6, 8, 12] as const;
     for (const g of gaps) {

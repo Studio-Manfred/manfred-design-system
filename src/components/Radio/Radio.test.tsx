@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { RadioGroup, RadioGroupItem } from './Radio';
 
@@ -67,5 +67,119 @@ describe('RadioGroup', () => {
     );
     await user.click(screen.getByRole('radio', { name: 'D' }));
     expect(onValueChange).not.toHaveBeenCalled();
+  });
+
+  // Keyboard. The Default play function only clicks; these cover the
+  // WAI-ARIA radio group contract (single tab stop, arrows move + select, wrap).
+  describe('keyboard', () => {
+    // Radix moves focus on a setTimeout and only *selects* the newly focused
+    // radio while an arrow key is still held (document keydown/keyup flag).
+    // user-event releases keys synchronously, so hold the key across a tick
+    // the way a real keypress does.
+    async function press(user: ReturnType<typeof userEvent.setup>, key: string) {
+      await user.keyboard(`{${key}>}`);
+      await act(() => new Promise((r) => setTimeout(r, 0)));
+      await user.keyboard(`{/${key}}`);
+    }
+
+    function Keyed({
+      defaultValue,
+      disabledB,
+      onValueChange,
+    }: {
+      defaultValue?: string;
+      disabledB?: boolean;
+      onValueChange?: (v: string) => void;
+    }) {
+      return (
+        <>
+          <RadioGroup aria-label="Letters" defaultValue={defaultValue} onValueChange={onValueChange}>
+            <RadioGroupItem id="ka" value="a" label="A" />
+            <RadioGroupItem id="kb" value="b" label="B" disabled={disabledB} />
+            <RadioGroupItem id="kc" value="c" label="C" />
+          </RadioGroup>
+          <button type="button">After</button>
+        </>
+      );
+    }
+
+    it('Tab enters the group on the checked radio', async () => {
+      const user = userEvent.setup();
+      render(<Keyed defaultValue="b" />);
+      await user.tab();
+      expect(screen.getByRole('radio', { name: 'B' })).toHaveFocus();
+    });
+
+    it('the group is a single tab stop', async () => {
+      const user = userEvent.setup();
+      render(<Keyed defaultValue="a" />);
+      await user.tab();
+      expect(screen.getByRole('radio', { name: 'A' })).toHaveFocus();
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'After' })).toHaveFocus();
+    });
+
+    it('ArrowDown / ArrowUp move focus and selection', async () => {
+      const user = userEvent.setup();
+      const onValueChange = vi.fn();
+      render(<Keyed defaultValue="a" onValueChange={onValueChange} />);
+      await user.tab();
+      await press(user, 'ArrowDown');
+      const b = screen.getByRole('radio', { name: 'B' });
+      expect(b).toHaveFocus();
+      expect(b).toBeChecked();
+      expect(onValueChange).toHaveBeenLastCalledWith('b');
+      await press(user, 'ArrowUp');
+      expect(screen.getByRole('radio', { name: 'A' })).toHaveFocus();
+      expect(screen.getByRole('radio', { name: 'A' })).toBeChecked();
+    });
+
+    it('arrow keys wrap from last to first and first to last', async () => {
+      const user = userEvent.setup();
+      render(<Keyed defaultValue="c" />);
+      await user.tab();
+      await press(user, 'ArrowDown');
+      expect(screen.getByRole('radio', { name: 'A' })).toHaveFocus();
+      expect(screen.getByRole('radio', { name: 'A' })).toBeChecked();
+      await press(user, 'ArrowUp');
+      expect(screen.getByRole('radio', { name: 'C' })).toHaveFocus();
+      expect(screen.getByRole('radio', { name: 'C' })).toBeChecked();
+    });
+
+    it('ArrowRight / ArrowLeft also move selection', async () => {
+      const user = userEvent.setup();
+      render(<Keyed defaultValue="a" />);
+      await user.tab();
+      await press(user, 'ArrowRight');
+      expect(screen.getByRole('radio', { name: 'B' })).toBeChecked();
+      await press(user, 'ArrowLeft');
+      expect(screen.getByRole('radio', { name: 'A' })).toBeChecked();
+    });
+
+    it('arrow keys skip a disabled radio', async () => {
+      const user = userEvent.setup();
+      render(<Keyed defaultValue="a" disabledB />);
+      await user.tab();
+      await press(user, 'ArrowDown');
+      expect(screen.getByRole('radio', { name: 'C' })).toHaveFocus();
+      expect(screen.getByRole('radio', { name: 'C' })).toBeChecked();
+      expect(screen.getByRole('radio', { name: 'B' })).not.toBeChecked();
+    });
+
+    it('Space selects the focused radio when the group has no value', async () => {
+      const user = userEvent.setup();
+      render(<Keyed />);
+      await user.tab();
+      const a = screen.getByRole('radio', { name: 'A' });
+      expect(a).toHaveFocus();
+      expect(a).not.toBeChecked();
+      await user.keyboard(' ');
+      expect(a).toBeChecked();
+    });
+
+    it('exposes the group with role radiogroup and its label', () => {
+      render(<Keyed defaultValue="a" />);
+      expect(screen.getByRole('radiogroup', { name: 'Letters' })).toBeInTheDocument();
+    });
   });
 });

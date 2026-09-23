@@ -69,4 +69,41 @@ describe('TextInput', () => {
     const { container } = render(<TextInput fullWidth placeholder="p" />);
     expect(container.firstElementChild!.className).toContain('w-full');
   });
+
+  describe('keyboard and semantics', () => {
+    it('Tab focuses the inner input, skipping a disabled one', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <TextInput aria-label="Disabled" disabled />
+          <TextInput aria-label="Email" leadingIcon="search" />
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('textbox', { name: 'Email' })).toHaveFocus();
+    });
+
+    it('error status plus aria-describedby exposes the error message to AT', () => {
+      render(
+        <>
+          <label htmlFor="em">Email</label>
+          <TextInput id="em" status="error" aria-describedby="em-error" />
+          <p id="em-error">Enter a valid email address</p>
+        </>,
+      );
+      const input = screen.getByRole('textbox', { name: 'Email' });
+      expect(input).toBeInvalid();
+      expect(input).toHaveAccessibleDescription('Enter a valid email address');
+    });
+
+    it('decorative icons are aria-hidden and do not leak into the name', () => {
+      const { container } = render(
+        <TextInput aria-label="Search" leadingIcon="search" trailingIcon="x" />,
+      );
+      for (const svg of container.querySelectorAll('svg')) {
+        expect(svg.closest('[aria-hidden="true"]')).not.toBeNull();
+      }
+      expect(screen.getByRole('textbox', { name: 'Search' })).toBeInTheDocument();
+    });
+  });
 });

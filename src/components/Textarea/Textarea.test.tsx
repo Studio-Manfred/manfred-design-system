@@ -1,3 +1,4 @@
+import type * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -78,5 +79,46 @@ describe('Textarea', () => {
   it('respects custom rows', () => {
     render(<Textarea placeholder="p" rows={8} />);
     expect(screen.getByPlaceholderText('p')).toHaveAttribute('rows', '8');
+  });
+
+  describe('keyboard and semantics', () => {
+    it('Tab focuses the textarea, skipping a disabled one', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Textarea aria-label="Disabled" disabled />
+          <Textarea aria-label="Bio" />
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('textbox', { name: 'Bio' })).toHaveFocus();
+    });
+
+    it('Enter inserts a newline and does not submit the form', async () => {
+      const user = userEvent.setup();
+      const onSubmit = vi.fn((e: React.FormEvent) => e.preventDefault());
+      render(
+        <form onSubmit={onSubmit}>
+          <Textarea aria-label="Bio" />
+        </form>,
+      );
+      await user.click(screen.getByRole('textbox', { name: 'Bio' }));
+      await user.keyboard('one{Enter}two');
+      expect(screen.getByRole('textbox', { name: 'Bio' })).toHaveValue('one\ntwo');
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
+    it('error status plus aria-describedby exposes the error message to AT', () => {
+      render(
+        <>
+          <label htmlFor="bio">Bio</label>
+          <Textarea id="bio" status="error" aria-describedby="bio-error" />
+          <p id="bio-error">Bio is too short</p>
+        </>,
+      );
+      const ta = screen.getByRole('textbox', { name: 'Bio' });
+      expect(ta).toBeInvalid();
+      expect(ta).toHaveAccessibleDescription('Bio is too short');
+    });
   });
 });

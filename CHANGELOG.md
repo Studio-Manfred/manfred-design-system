@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`npm run test:all` is now a branded one-shot report** — runs the unit
+  project, the Storybook project (play functions + axe) and `lint:play-tiers`
+  in parallel and prints one row per suite (`@manfred/lib`,
+  `@manfred/components`, `@manfred/components/stories`, …) under an ASCII
+  Manfred M, with totals and the first line of each failure. `--unit` skips
+  Chromium. A runner that exits non-zero without reporting a failure (e.g. a
+  missing Playwright browser) now shows as a red row instead of passing
+  silently. Ported from manfred-intranet (STU-873); dev tooling only, nothing
+  in `dist/` changes.
+
 ## [0.33.1] - 2026-09-04
 
 ### Security

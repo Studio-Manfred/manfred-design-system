@@ -238,8 +238,17 @@ npm run storybook          # dev at http://localhost:6006
 npm run build              # build library → dist/
 npm run test               # unit tests (vitest, jsdom)
 npm run test:coverage      # unit tests with coverage report
+npm run test:all           # everything, as one branded report (below)
 npm run build-storybook    # static Storybook → storybook-static/
 ```
+
+`npm run test:all` runs the unit project (jsdom), every story's play function
+plus axe (headless Chromium) and the play-tier lint in parallel, then prints a
+per-suite summary under the Manfred M. Pass `-- --unit` to skip Chromium.
+Colour follows the TTY; `NO_COLOR=1` turns it off, `FORCE_COLOR=1` forces it.
+The process exits non-zero on any failure, including a runner that crashes
+without reporting (e.g. Playwright's browser isn't installed — run
+`npx playwright install chromium`).
 
 ## Release history
 

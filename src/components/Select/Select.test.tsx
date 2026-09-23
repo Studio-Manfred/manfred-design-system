@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   Select,
@@ -8,6 +8,9 @@ import {
   SelectValue,
   SelectContent,
   SelectItem,
+  SelectGroup,
+  SelectLabel,
+  SelectSeparator,
 } from './Select';
 
 function Uncontrolled({ defaultValue }: { defaultValue?: string }) {
@@ -180,5 +183,53 @@ describe('Select', () => {
     await user.keyboard('b');
     await user.keyboard('{Enter}');
     expect(trigger).toHaveTextContent('Banana');
+  });
+
+  it('SelectLabel names its group and a separator is not exposed as an option', async () => {
+    const user = userEvent.setup();
+    render(
+      <Select>
+        <SelectTrigger aria-label="Food">
+          <SelectValue placeholder="Pick food" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Fruit</SelectLabel>
+            <SelectItem value="apple">Apple</SelectItem>
+          </SelectGroup>
+          <SelectSeparator data-testid="sep" />
+          <SelectGroup>
+            <SelectLabel>Vegetables</SelectLabel>
+            <SelectItem value="carrot">Carrot</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>,
+    );
+    await user.click(screen.getByRole('combobox', { name: 'Food' }));
+    const fruit = await screen.findByRole('group', { name: 'Fruit' });
+    expect(within(fruit).getByRole('option', { name: 'Apple' })).toBeInTheDocument();
+    const veg = screen.getByRole('group', { name: 'Vegetables' });
+    expect(within(veg).getByRole('option', { name: 'Carrot' })).toBeInTheDocument();
+
+    expect(screen.getAllByRole('option')).toHaveLength(2);
+    expect(screen.getByTestId('sep')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it.each([
+    ['sm', 'text-sm'],
+    ['md', 'text-base'],
+    ['lg', 'text-lg'],
+  ] as const)('size="%s" sets the trigger text step to %s', (size, cls) => {
+    render(
+      <Select>
+        <SelectTrigger aria-label="Fruit" size={size}>
+          <SelectValue placeholder="Pick a fruit" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="apple">Apple</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    expect(screen.getByRole('combobox', { name: 'Fruit' })).toHaveClass(cls);
   });
 });

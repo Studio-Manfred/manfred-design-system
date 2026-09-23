@@ -35,6 +35,14 @@ export default defineConfig({
         // Walks a live Storybook in Playwright — exercised by running it, not by unit tests.
         'scripts/a11y-runtime-scan.mjs',
       ],
+      // Floor just under the measured baseline (2026-09-23: 94.3 lines / 96.0
+      // branches). `npm run test:coverage` fails below it. Raise when it rises.
+      thresholds: {
+        lines: 93,
+        branches: 95,
+        functions: 93,
+        statements: 92,
+      },
     },
     projects: [
       {

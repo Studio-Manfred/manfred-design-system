@@ -158,6 +158,8 @@ function renderFlatNav(items: AppHeaderNavItem[]): React.ReactNode {
   );
 }
 
+// Active links use Radix's `active` prop, which sets both `data-active`
+// (styling) and `aria-current="page"` (AT) — matching the flat NavBar path.
 // NOTE: dropdown nav items are link-based only (v1). Button/onClick nav is
 // supported for flat navItems; a button-driven dropdown item is out of scope.
 function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
@@ -175,7 +177,7 @@ function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
                       <li key={sub.label}>
                         <NavigationMenuLink
                           href={sub.href}
-                          {...(sub.active ? { 'data-active': '' } : {})}
+                          active={sub.active}
                           className={navigationMenuTriggerStyle()}
                         >
                           {sub.label}
@@ -191,7 +193,7 @@ function renderDropdownNav(items: AppHeaderNavItem[]): React.ReactNode {
             <NavigationMenuItem key={item.label}>
               <NavigationMenuLink
                 href={item.href}
-                {...(item.active ? { 'data-active': '' } : {})}
+                active={item.active}
                 className={navigationMenuTriggerStyle()}
               >
                 {item.label}

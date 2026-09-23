@@ -157,6 +157,31 @@ describe('NavigationMenu', () => {
     expect(link.className).toMatch(/data-\[active\]:bg-accent\/50/);
   });
 
+  it('the `active` prop sets both data-active and aria-current="page" (STU-876)', () => {
+    render(
+      <NavigationMenu>
+        <NavigationMenuList>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="/here" active className={navigationMenuTriggerStyle()}>
+              Here
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <NavigationMenuLink href="/there" className={navigationMenuTriggerStyle()}>
+              There
+            </NavigationMenuLink>
+          </NavigationMenuItem>
+        </NavigationMenuList>
+      </NavigationMenu>,
+    );
+    const here = screen.getByRole('link', { name: 'Here' });
+    expect(here).toHaveAttribute('data-active');
+    expect(here).toHaveAttribute('aria-current', 'page');
+    const there = screen.getByRole('link', { name: 'There' });
+    expect(there).not.toHaveAttribute('data-active');
+    expect(there).not.toHaveAttribute('aria-current');
+  });
+
   it('forwards className on each sub-part', () => {
     render(
       <NavigationMenu className="root-cls" data-testid="root">

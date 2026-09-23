@@ -11,7 +11,7 @@ import { Icon } from '@/components/Icon';
  * top bar visually consistent across mixed link/dropdown items.
  *
  * Active / open state is driven by `data-active` and `data-state=open`
- * (set by Radix on triggers, manual `data-active` on links).
+ * (set by Radix on triggers; set on links via the `active` prop).
  *
  * @example Apply the trigger look to a plain link
  * ```tsx
@@ -30,8 +30,9 @@ export const navigationMenuTriggerStyle = cva(
     'focus-visible:shadow-[var(--shadow-focus)]',
     'disabled:pointer-events-none disabled:opacity-50',
     // Active-link styling driven by tokens. `data-[active]` is set by
-    // Radix's `<NavigationMenuLink active>` and by manual data-active on
-    // any element using this style.
+    // Radix's `<NavigationMenuLink active>` (which also sets
+    // aria-current="page") and by manual data-active on any other element
+    // using this style.
     'data-[active]:bg-accent/50 data-[state=open]:bg-accent/50',
   ),
 );
@@ -71,10 +72,12 @@ export interface NavigationMenuProps
  *   gated behind the `motion-safe:` Tailwind variant — users with
  *   `prefers-reduced-motion: reduce` get the full state changes
  *   without the transitions.
- * - Active-link styling is driven by `data-active` on
- *   `NavigationMenuLink` (or any element using
- *   `navigationMenuTriggerStyle`) — pair with `aria-current="page"`
- *   for the route's link.
+ * - Mark the current route with `<NavigationMenuLink active>`. Radix
+ *   sets both `data-active` (drives the active styling) and
+ *   `aria-current="page"` (announces the current page). Setting
+ *   `data-active` by hand styles the link but leaves screen-reader users
+ *   without the current-page state — only do that on non-link elements
+ *   using `navigationMenuTriggerStyle`, and add `aria-current` yourself.
  * - Radix handles full keyboard support: Tab between triggers, Enter /
  *   Space / Down to open, Esc to close, arrow keys inside content.
  *
@@ -83,7 +86,7 @@ export interface NavigationMenuProps
  * <NavigationMenu>
  *   <NavigationMenuList>
  *     <NavigationMenuItem>
- *       <NavigationMenuLink href="#home" data-active className={navigationMenuTriggerStyle()}>
+ *       <NavigationMenuLink href="#home" active className={navigationMenuTriggerStyle()}>
  *         Home
  *       </NavigationMenuLink>
  *     </NavigationMenuItem>
@@ -286,9 +289,10 @@ NavigationMenuContent.displayName = NavigationMenuPrimitive.Content.displayName;
 /**
  * The link element inside the menu. Direct passthrough to Radix's
  * `Link`. Use it both for plain top-level links (apply
- * {@link navigationMenuTriggerStyle} and `data-active` on the current
+ * {@link navigationMenuTriggerStyle} and the `active` prop on the current
  * route) and for items inside a {@link NavigationMenuContent} panel
- * (style as needed).
+ * (style as needed). `active` renders `data-active` plus
+ * `aria-current="page"`.
  */
 export const NavigationMenuLink = NavigationMenuPrimitive.Link;
 export type NavigationMenuLinkProps = React.ComponentPropsWithoutRef<

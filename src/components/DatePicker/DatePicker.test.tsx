@@ -397,6 +397,28 @@ describe('DatePicker range mode', () => {
     expect(screen.getByRole('combobox')).toHaveTextContent(/2026-04-01 – …/);
   });
 
+  // STU-878: a to-only range used to hide the placeholder but format to ''.
+  it('renders an end-only range instead of a blank trigger, and Clear resets it', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <DatePicker
+        mode="range"
+        defaultValue={{ from: undefined, to: new Date(2026, 3, 15) }}
+        onValueChange={onValueChange}
+      />,
+    );
+    const trigger = screen.getByRole('combobox');
+    expect(trigger).toHaveTextContent('… – 2026-04-15');
+    // Without aria-label / aria-labelledby the accessible name falls back to the display text.
+    expect(trigger).toHaveAccessibleName('… – 2026-04-15');
+
+    await user.click(trigger);
+    await user.click(await screen.findByRole('button', { name: 'Clear' }));
+    expect(onValueChange).toHaveBeenCalledWith(undefined);
+    expect(screen.getByRole('combobox')).toHaveTextContent('Pick dates');
+  });
+
   it('warns once when `mode` prop changes between renders', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const { rerender } = render(<DatePicker mode="single" aria-label="test" />);

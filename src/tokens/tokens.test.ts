@@ -1,13 +1,10 @@
-// @vitest-environment node
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+/// <reference types="vite/client" />
 import { describe, expect, it } from 'vitest';
+import css from './tokens.css?raw';
 import * as tokens from './index';
 
 // The TS token objects are a public export with values copied by hand from
 // tokens.css. These tests fail when the two drift apart.
-const css = readFileSync(fileURLToPath(new URL('./tokens.css', import.meta.url)), 'utf8');
-
 // First declaration wins: primitives are declared once in :root and never
 // rebind under dark mode, so later (dark) blocks don't matter here.
 const declared = new Map<string, string>();

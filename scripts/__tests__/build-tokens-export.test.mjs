@@ -48,8 +48,52 @@ describe('stripImports', () => {
   });
 
   it('does not strip sub-path or prefixed imports of the same packages', () => {
-    const src = '@import "tailwindcss/theme";\n@import "my-tailwindcss";\n@import "tailwindcss" layer(base);\n';
+    const src = '@import "tailwindcss/theme";\n@import "my-tailwindcss";\n';
     expect(stripImports(src)).toBe(src);
+  });
+
+  // STU-879: every syntactic form of an import of a stripped package goes.
+  it.each([
+    ['double quotes', '@import "tailwindcss";\n:root {}\n'],
+    ['single quotes', "@import 'tailwindcss';\n:root {}\n"],
+    ['layer() modifier', '@import "tailwindcss" layer(base);\n:root {}\n'],
+    ['source() modifier', '@import "tailwindcss" source(none);\n:root {}\n'],
+    ['stacked modifiers', '@import "tailwindcss" layer(base) supports(display: grid) screen;\n:root {}\n'],
+    ['url() with double quotes', '@import url("tailwindcss");\n:root {}\n'],
+    ["url() with single quotes", "@import url('tw-animate-css');\n:root {}\n"],
+    ['unquoted url()', '@import url(tailwindcss);\n:root {}\n'],
+    ['url() with modifier', '@import url("tailwindcss") layer(base);\n:root {}\n'],
+    ['trailing spaces before newline', '@import "tailwindcss";   \n:root {}\n'],
+    ['following blank lines (as today)', '@import "tailwindcss";\n\n:root {}\n'],
+  ])('strips an import with %s', (_label, src) => {
+    expect(stripImports(src)).toBe(':root {}\n');
+  });
+
+  it.each([
+    ['no trailing newline', ':root {}\n@import "tailwindcss";', ':root {}\n'],
+    ['no trailing newline, modifier', ':root {}\n@import "tailwindcss" layer(base);', ':root {}\n'],
+    ['only an import', "@import 'tw-animate-css';", ''],
+    ['trailing whitespace, no newline', ':root {}\n@import url(tailwindcss);  ', ':root {}\n'],
+  ])('strips an import on the last line with %s', (_label, src, expected) => {
+    expect(stripImports(src)).toBe(expected);
+  });
+
+  it.each([
+    ['prefixed package', '@import "tailwindcss-foo";\n'],
+    ['prefixed package with modifier', '@import "tailwindcss-foo" layer(base);\n'],
+    ['relative path', '@import "./other.css";\n'],
+    ['url() of another package', '@import url("tailwindcss-foo");\n'],
+    ['unquoted url() of a sub-path', '@import url(tailwindcss/theme);\n'],
+    ['sub-path in single quotes', "@import 'tw-animate-css/utilities';\n"],
+    ['prefixed package, no trailing newline', '@import "tailwindcss-foo";'],
+  ])('keeps a non-stripped import: %s', (_label, src) => {
+    expect(stripImports(src)).toBe(src);
+  });
+
+  it('treats strip-list names literally, not as regex', () => {
+    const src = '@import "aXb";\n';
+    expect(stripImports(src, ['a.b'])).toBe(src);
+    expect(stripImports('@import "a.b";\n', ['a.b'])).toBe('');
   });
 
   it('does not strip an import that is not at the start of a line', () => {
@@ -101,7 +145,18 @@ describe('main', () => {
     const written = main({ srcPath, outPath, log: (m) => logs.push(m) });
     expect(readFileSync(outPath, 'utf8')).toBe(buildTokensExport(TOKENS));
     expect(written).toBe(buildTokensExport(TOKENS));
-    expect(logs).toEqual([`wrote ${outPath} (${written.length} bytes)`]);
+    expect(logs).toEqual([`wrote ${outPath} (${Buffer.byteLength(written)} bytes)`]);
+  });
+
+  it('logs the UTF-8 byte size, not the string length (banner has multi-byte chars)', () => {
+    const srcPath = join(dir, 'tokens.css');
+    const outPath = join(dir, 'tokens-out.css');
+    writeFileSync(srcPath, TOKENS);
+    const logs = [];
+    const written = main({ srcPath, outPath, log: (m) => logs.push(m) });
+    const bytes = readFileSync(outPath).length;
+    expect(bytes).toBeGreaterThan(written.length);
+    expect(logs).toEqual([`wrote ${outPath} (${bytes} bytes)`]);
   });
 
   it('throws when the source file is missing', () => {

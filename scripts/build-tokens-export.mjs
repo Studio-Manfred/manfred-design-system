@@ -38,15 +38,32 @@ export const banner = `/*!
 `;
 
 /**
- * Remove whole-line `@import "<name>";` statements for each name in
- * `stripImports`. Other @imports and all rules are left untouched.
+ * Remove whole-line `@import` statements whose target is one of
+ * `stripImports`, in any syntactic form:
+ *
+ *   @import "tailwindcss";                 @import 'tailwindcss';
+ *   @import url("tailwindcss");            @import url(tailwindcss);
+ *   @import "tailwindcss" layer(base);     @import "tailwindcss" source(none);
+ *
+ * The match must start at column 0 (indented or commented-out imports are
+ * left alone). Trailing whitespace up to and including the last newline is
+ * consumed, as is an import on the final line with no newline at all.
+ * The target must equal a strip-list name exactly, so `tailwindcss-foo`,
+ * `tailwindcss/theme` and `./other.css` are kept. Everything else is
+ * returned byte-for-byte.
  * @param {string} source
  * @param {string[]} [stripImports]
  * @returns {string}
  */
 export function stripImports(source, stripImports = STRIP_IMPORTS) {
+  const names = stripImports.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+  const target =
+    `(?:(["'])(?:${names})\\1` + // "name" or 'name'
+    `|url\\(\\s*(["']?)(?:${names})\\2\\s*\\))`; // url(name), url("name"), url('name')
+  const modifiers = '[^;\\n]*'; // layer(base), source(none), supports(...), media queries
+  const lineEnd = '\\s*(?:\\n|(?![\\s\\S]))'; // newline, or end of input
   return source.replace(
-    new RegExp(`^@import\\s+["'](${stripImports.join('|')})["'];\\s*\\n`, 'gm'),
+    new RegExp(`^@import\\s+${target}${modifiers};${lineEnd}`, 'gm'),
     '',
   );
 }
@@ -76,7 +93,7 @@ export function main({
   mkdirSync(dirname(outPath), { recursive: true });
   writeFileSync(outPath, output);
 
-  log(`wrote ${outPath} (${output.length} bytes)`);
+  log(`wrote ${outPath} (${Buffer.byteLength(output)} bytes)`);
   return output;
 }
 

@@ -41,6 +41,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Branch-gap tests for Chart (tooltip, container a11y fallbacks), DatePicker,
   AppHeader, Select and Grid.
 
+### Fixed
+
+- **`useThemeToggle` no longer throws when storage is unavailable** (STU-875).
+  In Safari private mode, with a full quota or with storage disabled, the
+  theme now still switches for the session (state and `<html>` class);
+  persisting the choice is best-effort.
+- **AppHeader dropdown nav announces the current page** (STU-876). Active
+  links in the NavigationMenu path now get `aria-current="page"` (via
+  `NavigationMenuLink`'s `active` prop), matching the flat NavBar and the
+  mobile drawer. `data-active` styling is unchanged.
+- **Radio `error` sets `aria-invalid`** (STU-877), matching Checkbox and
+  Switch. An explicit `aria-invalid` from the consumer still wins.
+- **DatePicker range with only an end date** (STU-878) now reads
+  `… – <date>` instead of rendering a blank trigger. JSDoc corrected: the
+  default locale is `sv` and the range placeholder is "Pick dates".
+- **`dist/tokens.css` export strips Tailwind imports in every form**
+  (STU-879): quoted either way, inside `url()`, with `layer()`/`source()`
+  modifiers, or on a last line without a newline. Today's output is
+  byte-identical; the build log now reports real bytes.
+
 ## [0.33.1] - 2026-09-04
 
 ### Security

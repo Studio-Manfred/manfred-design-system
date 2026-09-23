@@ -234,4 +234,65 @@ describe('useThemeToggle — missing browser APIs', () => {
     expect(result.current.preference).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
   });
+
+  // STU-875: Safari private mode / quota full / disabled storage make
+  // localStorage throw. Storage is best-effort — the theme must still switch.
+  function throwingStorage(): Storage {
+    const fail = () => {
+      throw new DOMException('The quota has been exceeded.', 'QuotaExceededError');
+    };
+    return {
+      length: 0,
+      clear: fail,
+      getItem: fail,
+      key: fail,
+      removeItem: fail,
+      setItem: fail,
+    };
+  }
+
+  it('still switches the theme when localStorage.setItem throws', () => {
+    Object.defineProperty(window, 'localStorage', {
+      value: throwingStorage(),
+      configurable: true,
+    });
+    const { result } = renderHook(() => useThemeToggle());
+
+    expect(() => act(() => result.current.setPreference('dark'))).not.toThrow();
+    expect(result.current.preference).toBe('dark');
+    expect(result.current.resolved).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+    expect(() => act(() => result.current.toggle())).not.toThrow();
+    expect(document.documentElement.classList.contains('light')).toBe(true);
+
+    expect(() => act(() => result.current.cycle())).not.toThrow();
+    expect(result.current.preference).toBe('dark');
+  });
+
+  it('falls back to "system" on mount when localStorage.getItem throws', () => {
+    Object.defineProperty(window, 'localStorage', {
+      value: throwingStorage(),
+      configurable: true,
+    });
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+  });
+
+  it('falls back to "system" on mount when accessing window.localStorage throws', () => {
+    // Some browsers throw a SecurityError on the property access itself
+    // when storage is disabled (e.g. blocked third-party iframes).
+    Object.defineProperty(window, 'localStorage', {
+      get() {
+        throw new DOMException('Access is denied.', 'SecurityError');
+      },
+      configurable: true,
+    });
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+
+    expect(() => act(() => result.current.setPreference('light'))).not.toThrow();
+    expect(result.current.preference).toBe('light');
+    expect(document.documentElement.classList.contains('light')).toBe(true);
+  });
 });

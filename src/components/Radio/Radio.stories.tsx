@@ -117,8 +117,8 @@ export const States: Story = {
         story:
           'Coverage of every visual state — checked / unchecked, disabled in ' +
           'both states, and the `error` border treatment. The error variant ' +
-          'is purely visual; production use should pair it with announced ' +
-          'error text via `FormField`.',
+          'also sets `aria-invalid="true"`; production use should pair it ' +
+          'with announced error text via `FormField`.',
       },
     },
   },

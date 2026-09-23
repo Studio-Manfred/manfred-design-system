@@ -41,7 +41,7 @@
     "test:watch": "vitest --project unit",
     "test:coverage": "vitest run --project unit --coverage",
     "test:storybook": "vitest run --project storybook",
-    "test:all": "npm run test && npm run test:storybook",
+    "test:all": "node scripts/test-all.mjs",
     "lint:play-tiers": "node scripts/lint-play-tiers.mjs",
     "chromatic": "chromatic --exit-zero-on-changes --build-script-name=build-storybook:chromatic"
   },

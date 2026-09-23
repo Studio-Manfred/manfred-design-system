@@ -146,4 +146,70 @@ describe('Sheet', () => {
     expect(dialog.className).toMatch(/motion-safe:data-\[state=open\]:slide-in-from-right/);
     expect(dialog.className).toMatch(/motion-safe:data-\[state=open\]:animate-in/);
   });
+
+  describe('keyboard and focus', () => {
+    it('opens from the keyboard and moves focus into the sheet', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.tab();
+      expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+      const dialog = await screen.findByRole('dialog');
+      // First tabbable in DOM order is the footer action; the X comes last.
+      expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+      expect(dialog).toContainElement(document.activeElement as HTMLElement);
+    });
+
+    it('traps Tab and Shift+Tab inside the sheet', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const cancel = screen.getByRole('button', { name: 'Cancel' });
+      const close = screen.getByRole('button', { name: 'Close sheet' });
+      expect(cancel).toHaveFocus();
+      await user.tab();
+      expect(close).toHaveFocus();
+      await user.tab();
+      expect(cancel).toHaveFocus();
+      await user.tab({ shift: true });
+      expect(close).toHaveFocus();
+    });
+
+    it('Escape returns focus to the trigger', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.tab();
+      await user.keyboard('{Enter}');
+      await screen.findByRole('dialog');
+      await user.keyboard('{Escape}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+    });
+
+    it('closing via the X button returns focus to the trigger', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      await user.tab();
+      await user.keyboard('{Enter}');
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus();
+    });
+
+    it('hides the page behind the open sheet from assistive tech', async () => {
+      const user = userEvent.setup();
+      render(<Fixture />);
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      // Radix marks siblings aria-hidden so the reading cursor cannot leave.
+      expect(screen.queryByRole('button', { name: 'Open' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Open', hidden: true })).toBeInTheDocument();
+    });
+  });
+
+  it('accessible description resolves to the SheetDescription text', async () => {
+    const user = userEvent.setup();
+    render(<Fixture />);
+    await user.click(screen.getByText('Open'));
+    expect(screen.getByRole('dialog', { name: 'Title' })).toHaveAccessibleDescription('Body copy');
+  });
 });

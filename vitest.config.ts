@@ -20,11 +20,20 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],
-      include: ['src/components/**/*.tsx', 'src/lib/**/*.ts'],
+      // .ts is included on purpose: hooks and state helpers (useThemeToggle,
+      // useDatePickerState, …) live in .ts files and were invisible before.
+      include: [
+        'src/components/**/*.{ts,tsx}',
+        'src/lib/**/*.ts',
+        'src/tokens/*.ts',
+        'scripts/*.mjs',
+      ],
       exclude: [
         'src/**/*.stories.tsx',
         'src/**/*.test.{ts,tsx}',
         'src/**/index.ts',
+        // Walks a live Storybook in Playwright — exercised by running it, not by unit tests.
+        'scripts/a11y-runtime-scan.mjs',
       ],
     },
     projects: [

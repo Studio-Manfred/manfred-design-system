@@ -18,6 +18,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   missing Playwright browser) now shows as a red row instead of passing
   silently. Ported from manfred-intranet (STU-873); dev tooling only, nothing
   in `dist/` changes.
+- **Coverage is now measured honestly.** `.ts` hooks and state helpers
+  (`useThemeToggle`, `useDatePickerState`, `datePickerStateHelpers`), the TS
+  tokens and the build scripts were outside the coverage `include`. Widening
+  it dropped the real baseline to 71% lines / 79% branches; ~220 new tests
+  bring it to 94.3% / 96.0%, and `npm run test:coverage` now fails under a
+  floor just below that.
+- **Build scripts refactored for testability** (`verify-use-client-directive`,
+  `build-tokens-export`, `build-registry`, `lint-play-tiers`): logic is
+  exported as pure functions behind an `invokedDirectly` guard. CLI output is
+  byte-identical.
+
+### Added
+
+- **Token drift guard** — `src/tokens/tokens.test.ts` fails when the exported
+  TS token objects disagree with `tokens.css` (primitive scales, typography,
+  spacing, sizing, and every `var()` reference in semantic tokens).
+- **Keyboard and screen-reader unit tests** for Checkbox, Switch, Radio,
+  Tooltip, Popover, Dialog, Sheet, SplitButton, Toast, Alert, Label,
+  TextInput, Textarea, Button and Stepper — added only where neither the unit
+  tests nor the play functions covered the contract.
+- Branch-gap tests for Chart (tooltip, container a11y fallbacks), DatePicker,
+  AppHeader, Select and Grid.
 
 ## [0.33.1] - 2026-09-04
 

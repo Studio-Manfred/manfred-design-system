@@ -15,7 +15,7 @@ npm run build-storybook     # static Storybook → storybook-static/
 
 npm run test                # vitest run, unit project only (jsdom)
 npm run test:watch          # vitest watch, unit project only
-npm run test:coverage       # v8 coverage over src/components and src/lib
+npm run test:coverage       # v8 coverage (components incl. .ts hooks, lib, tokens, scripts); fails under the thresholds in vitest.config.ts
 npm run test:storybook      # play functions, headless Chromium (CI-gated since v0.20.1)
 npm run test:all            # unit + storybook + play-tier lint in parallel, branded per-suite report (--unit skips Chromium)
 npm run lint:play-tiers     # regex tier compliance (required CI gate)
@@ -124,7 +124,9 @@ Path alias `@/*` → `src/*` is wired in `tsconfig.json`, `vite.config.ts`, and 
 
 `vite build` uses `vite-plugin-dts` with `rollupTypes: true` to emit a single `dist/index.d.ts`. React, `react-dom`, `react/jsx-runtime`, every `@radix-ui/*`, `sonner`, `class-variance-authority`, `clsx`, and `tailwind-merge` are marked external — they are peer/declared dependencies, not bundled. CSS is emitted as a single non-split `dist/style.css` (the `./styles` export). If you add a new runtime dependency that should ship bundled, also remove it from `rollupOptions.external`.
 
-`tsconfig.build.json` excludes tests and stories from the emitted types.
+`tsconfig.build.json` excludes stories but **not** tests, so test files are type-checked by the dts build: a `node:` import in a `src/**/*.test.ts` surfaces as TS2591 during `npm run build`. Read files with Vite's `?raw` import (plus `/// <reference types="vite/client" />`) instead — see `src/tokens/tokens.test.ts`.
+
+The build scripts in `scripts/` export their logic as pure functions behind an `invokedDirectly` guard, with `main()` taking injectable paths/loggers/`exit`; tests live in `scripts/__tests__/`. Keep that shape when adding a script.
 
 ## Conventions
 

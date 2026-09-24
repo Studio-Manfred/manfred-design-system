@@ -9,7 +9,11 @@ export interface UseThemeToggleResult {
   preference: ThemePreference;
   /** The currently rendered theme (resolves 'system' against the OS query). */
   resolved: 'light' | 'dark';
-  /** Set the preference and persist it. */
+  /**
+   * Set the preference and persist it. Persistence is best-effort: if
+   * localStorage is unavailable, full or throws, the theme still switches for
+   * the session and the error is swallowed.
+   */
   setPreference: (next: ThemePreference) => void;
   /** Toggle between 'light' and 'dark'. A 'system' user becomes the opposite of the resolved theme. */
   toggle: () => void;
@@ -28,12 +32,31 @@ function readOsPreference(): 'light' | 'dark' {
 
 /**
  * Read the stored preference from localStorage, returning 'system' if unset.
- * Returns 'system' when `window`/`localStorage` is unavailable.
+ * Returns 'system' when `window`/`localStorage` is unavailable or throws
+ * (Safari private mode, disabled storage, SecurityError on access).
  */
 function readStoredPreference(): ThemePreference {
-  if (typeof window === 'undefined' || !window.localStorage) return 'system';
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return 'system';
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+  } catch {
+    return 'system';
+  }
+}
+
+/**
+ * Persist the preference. Best-effort: quota-full, private-mode and
+ * disabled-storage errors are swallowed so the theme still switches for the
+ * session.
+ */
+function writeStoredPreference(pref: ThemePreference): void {
+  try {
+    if (typeof window === 'undefined' || !window.localStorage) return;
+    window.localStorage.setItem(STORAGE_KEY, pref);
+  } catch {
+    // Storage unavailable — keep the in-memory preference only.
+  }
 }
 
 /**
@@ -55,6 +78,11 @@ function applyToDocument(pref: ThemePreference): void {
  * class on `<html>`, and resolves 'system' to the current OS preference.
  *
  * SSR-safe: returns 'system' until the first effect runs post-mount.
+ *
+ * Storage is best-effort: when localStorage is blocked, full or throws
+ * (Safari private mode, quota exceeded, disabled storage), reads fall back to
+ * 'system' and writes are skipped silently — the theme still switches in
+ * memory and on `<html>` for the rest of the session.
  *
  * @example
  * ```tsx
@@ -84,9 +112,7 @@ export function useThemeToggle(): UseThemeToggleResult {
   }, [preference]);
 
   const setPreference = useCallback((next: ThemePreference) => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem(STORAGE_KEY, next);
-    }
+    writeStoredPreference(next);
     setPreferenceState(next);
   }, []);
 

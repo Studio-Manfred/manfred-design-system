@@ -4,7 +4,37 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
-## Current state — 2026-05-10 (v0.17.0 shipped, STU-113 epic closed)
+## Current state — 2026-09-23 (test coverage work + STU-875..879 fixes)
+
+- **Latest release:** v0.33.1. Everything below sits under `[Unreleased]`
+  in CHANGELOG.md; nothing is published.
+- **PR #84 (merged):** branded `npm run test:all` report with the Manfred M
+  (`scripts/test-all.mjs`, `scripts/test-report/`).
+- **PR #86 (open, pushed) — `test/coverage-gaps`:** coverage config now
+  includes `.ts` hooks, tokens and scripts (honest baseline was 71% lines /
+  79% branches, now 94.3% / 96.0%); ~220 new unit tests; token drift guard
+  `src/tokens/tokens.test.ts`; coverage thresholds in `vitest.config.ts`;
+  release scripts refactored to pure functions + `invokedDirectly` guard.
+- **`fix/stu-875-879-coverage-bugs` (local, NOT pushed, stacked on #86):**
+  fixes for the five bugs the coverage work found, all TDD, reviewed.
+  STU-875 useThemeToggle storage best-effort · STU-876 AppHeader dropdown
+  aria-current · STU-877 Radio aria-invalid · STU-878 DatePicker end-only
+  range · STU-879 tokens export import stripping. 1,138 tests green in
+  `npm run test:all`; build clean.
+- **Next:** review/merge #86, then push the fix branch and open its PR
+  (retarget to main after #86 merges). Then cut a release (fixes are
+  consumer-visible → minor or patch; no breaking changes).
+- **Open decisions for the user:** RadioGroup group-level invalid prop?
+  Wire `test:coverage` into CI? Alert always `role="alert"` (interrupts
+  even for info/success); all toasts polite; Button has no default
+  `type`; SplitButton group and popover panels unnamed.
+- **Needs play functions (jsdom can't):** focus-ring visibility, Tooltip
+  hover delay, Radio arrows with real key timing, Stepper name spacing.
+- **Env gotcha:** after a Playwright bump run `npx playwright install
+  chromium` — otherwise the storybook project "passes" with 0 tests (the
+  branded runner now flags this red).
+
+## Previous state — 2026-05-10 (v0.17.0 shipped, STU-113 epic closed)
 
 - **Release:** `v0.17.0` — Wave 3 (final wave) of the
   AI/agent-friendly Storybook surface epic. Published to GitHub

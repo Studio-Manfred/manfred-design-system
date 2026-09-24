@@ -85,11 +85,13 @@ interface BuildRangeStateOptions {
   placeholder: string;
 }
 
+// A missing endpoint renders as "…" on its side, so partial ranges read
+// `from – …` or `… – to`. Only called when at least one endpoint is set
+// (see `hasAnyDate` in buildRangeState), so the result is never empty.
 const defaultRangeFormat = (value: DateRange, locale: Locale) => {
-  if (!value.from) return '';
-  const fromStr = formatDate(value.from, 'P', { locale });
-  if (!value.to) return `${fromStr} – …`;
-  return `${fromStr} – ${formatDate(value.to, 'P', { locale })}`;
+  const fromStr = value.from ? formatDate(value.from, 'P', { locale }) : '…';
+  const toStr = value.to ? formatDate(value.to, 'P', { locale }) : '…';
+  return `${fromStr} – ${toStr}`;
 };
 
 export function buildRangeState(opts: BuildRangeStateOptions): DatePickerInternalState {

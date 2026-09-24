@@ -137,6 +137,8 @@ describe('buildRangeState — display and form serialisation', () => {
     ['empty {} (rdp transient)', {} as DateRange, 'Pick dates', true],
     ['both endpoints undefined', { from: undefined, to: undefined }, 'Pick dates', true],
     ['partial (from only)', { from: d(2026, 4, 1), to: undefined }, '2026-04-01 – …', false],
+    ['partial (to only)', { from: undefined, to: d(2026, 4, 10) }, '… – 2026-04-10', false],
+    ['partial (to only, key absent)', { to: d(2026, 4, 10) } as DateRange, '… – 2026-04-10', false],
     ['same-day range', { from: d(2026, 4, 1), to: d(2026, 4, 1) }, '2026-04-01 – 2026-04-01', false],
     [
       'range across a month boundary',
@@ -167,6 +169,35 @@ describe('buildRangeState — display and form serialisation', () => {
       { name: 'stay_from', value: from },
       { name: 'stay_to', value: to },
     ]);
+  });
+
+  // STU-878: `isEmpty` and the default formatter must agree — the trigger
+  // shows either the placeholder or a formatted date, never an empty string.
+  it.each<[string, DateRange | undefined]>([
+    ['undefined', undefined],
+    ['{}', {} as DateRange],
+    ['{from: undefined, to: undefined}', { from: undefined, to: undefined }],
+    ['{from}', { from: d(2026, 4, 1) }],
+    ['{to}', { to: d(2026, 4, 10) } as DateRange],
+    ['{from: undefined, to}', { from: undefined, to: d(2026, 4, 10) }],
+    ['{from, to}', { from: d(2026, 4, 1), to: d(2026, 4, 10) }],
+  ])('display text is never empty for %s', (_label, value) => {
+    const { state } = range(value);
+    expect(state.displayText).not.toBe('');
+    expect(state.displayText === 'Pick dates').toBe(state.isEmpty);
+  });
+
+  it('formats a to-only range with the locale, mirroring the from-only shape', () => {
+    const state = buildRangeState({
+      value: { from: undefined, to: d(2026, 4, 24) },
+      setValue: vi.fn(),
+      isControlled: false,
+      setOpen: vi.fn(),
+      props: { mode: 'range' },
+      locale: enUS,
+      placeholder: 'Pick dates',
+    });
+    expect(state.displayText).toBe('… – 04/24/2026');
   });
 
   it('custom formatValue receives the range and locale', () => {

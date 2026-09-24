@@ -446,7 +446,7 @@ describe('AppHeader — user block fallbacks', () => {
 });
 
 describe('AppHeader — dropdown nav active state', () => {
-  it('marks the active top-level link and the active sub-item with data-active', async () => {
+  it('marks the active top-level link and the active sub-item with data-active + aria-current="page" (STU-876)', async () => {
     const user = userEvent.setup();
     render(
       <AppHeader
@@ -463,12 +463,20 @@ describe('AppHeader — dropdown nav active state', () => {
         ]}
       />,
     );
-    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-active');
-    expect(screen.getByRole('link', { name: 'Contact' })).not.toHaveAttribute('data-active');
+    const about = screen.getByRole('link', { name: 'About' });
+    expect(about).toHaveAttribute('data-active');
+    expect(about).toHaveAttribute('aria-current', 'page');
+    const contact = screen.getByRole('link', { name: 'Contact' });
+    expect(contact).not.toHaveAttribute('data-active');
+    expect(contact).not.toHaveAttribute('aria-current');
 
     await user.click(screen.getByRole('button', { name: 'Products' }));
-    expect(await screen.findByRole('link', { name: 'Alpha' })).toHaveAttribute('data-active');
-    expect(screen.getByRole('link', { name: 'Beta' })).not.toHaveAttribute('data-active');
+    const alpha = await screen.findByRole('link', { name: 'Alpha' });
+    expect(alpha).toHaveAttribute('data-active');
+    expect(alpha).toHaveAttribute('aria-current', 'page');
+    const beta = screen.getByRole('link', { name: 'Beta' });
+    expect(beta).not.toHaveAttribute('data-active');
+    expect(beta).not.toHaveAttribute('aria-current');
   });
 });
 

@@ -117,6 +117,7 @@ export function reconcileExit(records, res, suite, label) {
 
 // Report order: foundations first, then components, then the browser layer.
 const ORDER = [
+  'tokens',
   'lib',
   'scripts',
   'play-tiers',

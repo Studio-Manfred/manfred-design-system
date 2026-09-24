@@ -59,9 +59,10 @@ export interface RadioGroupItemProps
    */
   label?: React.ReactNode;
   /**
-   * Apply error-state styling (red border). Pair with form-level error
-   * messaging via `FormField` or your own description so the error is
-   * announced to assistive tech, not just shown visually.
+   * Mark this item as invalid. Sets `aria-invalid="true"` on the radio
+   * and shifts its border to the error token. A consumer-passed
+   * `aria-invalid` takes precedence. Pair with announced error text
+   * (e.g. via `FormField`) so screen-reader users hear what is wrong.
    */
   error?: boolean;
 }
@@ -79,8 +80,10 @@ export interface RadioGroupItemProps
  * - Radix manages `role="radio"`, `aria-checked`, and roving tabindex.
  * - The whole label is a click target, not just the 18px control —
  *   pointer + touch users get a comfortable hit area.
- * - `error` is a visual signal only; pair with announced error text
- *   (e.g. via `FormField`) so screen-reader users hear the problem.
+ * - `error` sets `aria-invalid="true"` on the item (an explicit
+ *   `aria-invalid` prop wins) and a red border. `aria-invalid` only
+ *   says the field is invalid, not why — pair it with announced error
+ *   text (e.g. via `FormField`) so screen-reader users hear the problem.
  *
  * @example Labelled item inside a group
  * ```tsx
@@ -101,6 +104,7 @@ const RadioGroupItem = React.forwardRef<
       ref={ref}
       id={id}
       disabled={disabled}
+      aria-invalid={error || undefined}
       className={cn(
         'shrink-0 w-[18px] h-[18px] rounded-full border-[1.5px] bg-background',
         'border-[var(--color-border-strong)]',

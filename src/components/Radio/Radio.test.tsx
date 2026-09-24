@@ -43,7 +43,26 @@ describe('RadioGroup', () => {
       </RadioGroup>,
     );
     const r = screen.getByRole('radio', { name: 'X' });
+    expect(r).toHaveAttribute('aria-invalid', 'true');
     expect(r.className).toMatch(/var\(--color-feedback-error-fg\)/);
+  });
+
+  it('omits aria-invalid when error is not set', () => {
+    render(
+      <RadioGroup>
+        <RadioGroupItem id="x" value="x" label="X" />
+      </RadioGroup>,
+    );
+    expect(screen.getByRole('radio', { name: 'X' })).not.toHaveAttribute('aria-invalid');
+  });
+
+  it('lets a consumer-passed aria-invalid win over the error prop', () => {
+    render(
+      <RadioGroup>
+        <RadioGroupItem id="x" value="x" label="X" error aria-invalid={false} />
+      </RadioGroup>,
+    );
+    expect(screen.getByRole('radio', { name: 'X' })).toHaveAttribute('aria-invalid', 'false');
   });
 
   it('renders labelless RadioGroupItem and routes className to it', () => {

@@ -50,8 +50,9 @@ export const Simple: Story = {
         story:
           'Flat list of links — no sub-menus. Each `NavigationMenuLink` uses ' +
           'the shared `navigationMenuTriggerStyle()` so plain links match the ' +
-          'look of sub-menu triggers. The current route gets `data-active` to ' +
-          'pick up the active treatment from the cva style.',
+          'look of sub-menu triggers. The current route gets the `active` prop, ' +
+          'which sets `data-active` (picked up by the cva active treatment) and ' +
+          '`aria-current="page"` for assistive tech.',
       },
     },
   },
@@ -72,9 +73,11 @@ export const Simple: Story = {
     // trigger-style stealing keyboard reachability under future refactors.
     await userEvent.tab();
     expect(homeLink).toHaveFocus();
-    // data-active is set statically in JSX — verifies the cva active branch
-    // renders the marker, not that interaction toggles it.
+    // `active` is set statically in JSX — verifies Radix renders both the
+    // styling marker and the AT-facing current-page state, not that
+    // interaction toggles it.
     expect(homeLink).toHaveAttribute('data-active');
+    expect(homeLink).toHaveAttribute('aria-current', 'page');
     // Plain NavigationMenuLink elements are not buttons and have no aria-haspopup — confirm absence.
     expect(homeLink).not.toHaveAttribute('aria-haspopup');
   },
@@ -84,7 +87,7 @@ export const Simple: Story = {
         <NavigationMenuItem>
           <NavigationMenuLink
             href="#home"
-            data-active
+            active
             className={navigationMenuTriggerStyle()}
           >
             Home
@@ -350,7 +353,7 @@ export const InAppHeader: Story = {
               <NavigationMenuItem>
                 <NavigationMenuLink
                   href="#home"
-                  data-active
+                  active
                   className={navigationMenuTriggerStyle()}
                 >
                   Home

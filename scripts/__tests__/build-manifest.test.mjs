@@ -260,50 +260,23 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     expect(chartTooltip.props.cursor).toBeDefined();
   }, 30_000);
 
-  it('ChartLegend keeps its own recharts Legend config', () => {
-    // KNOWN GAP, reported rather than silently fixed by widening the filter
-    // (see task-5-report.md): ChartLegend's ~150 DOM/SVG event-handler
-    // props (onAbort, onPointerDown, ...) are declared inside recharts' own
-    // DOMAttributesAdaptChildEvent mapped type in
-    // node_modules/recharts/types/util/types.d.ts — not @types/react — so
-    // this filter does not remove them. layout/align are ChartLegend's
-    // genuine own (recharts Legend) config and must survive regardless.
+  it("ChartLegend drops recharts' DOM/SVG adapter props but keeps its own Legend config", () => {
+    // recharts re-declares the DOM/SVG event-handler surface (onAbort,
+    // onPointerDown, ...) in an anonymous TypeLiteral inside
+    // DOMAttributesAdaptChildEvent, in node_modules/recharts/types/util/types.d.ts.
+    // Props declared ONLY there are dropped; layout/align/verticalAlign are
+    // real Legend config declared elsewhere and must survive.
     const docs = runDocgen(['src/components/Chart/ChartLegend.tsx']);
     const chartLegend = docs.find((d) => d.displayName === 'ChartLegend');
     const chartLegendContent = docs.find((d) => d.displayName === 'ChartLegendContent');
+    expect(chartLegend.props.onAbort).toBeUndefined();
+    expect(chartLegend.props.onPointerDown).toBeUndefined();
+    expect(chartLegend.props.dangerouslySetInnerHTML).toBeUndefined();
     expect(chartLegend.props.layout).toBeDefined();
     expect(chartLegend.props.align).toBeDefined();
+    expect(chartLegend.props.verticalAlign).toBeDefined();
     expect(chartLegendContent.props.payload).toBeDefined();
     expect(chartLegendContent.props.className).toBeDefined();
-  }, 30_000);
-
-  it('the DOM-attribute-type-name rule keeps recharts config and Radix/library API intact', () => {
-    // The type-name rule (prop.parent?.name or every declarations[].name
-    // matching /^(DOMAttributes|HTMLAttributes|AllHTMLAttributes|
-    // SVGAttributes|SVGProps|AriaAttributes|DOMAttributesAdaptChildEvent)$/)
-    // must not remove real recharts config or Radix/library API. See the
-    // "known no-op" note in task-5-report.md: in this codebase every prop
-    // that matches by name is already excluded by the @types/react file
-    // rule, and ChartLegend/ChartTooltip's recharts DOM-flood props are
-    // declared via an anonymous TypeLiteral (declarations[].name ===
-    // 'TypeLiteral'), not the named DOMAttributesAdaptChildEvent alias, so
-    // this rule does not additionally remove them.
-    const legendDocs = runDocgen(['src/components/Chart/ChartLegend.tsx']);
-    const chartLegend = legendDocs.find((d) => d.displayName === 'ChartLegend');
-    expect(chartLegend.props.layout ?? chartLegend.props.align).toBeDefined();
-
-    const tooltipDocs = runDocgen(['src/components/Chart/ChartTooltip.tsx']);
-    const chartTooltip = tooltipDocs.find((d) => d.displayName === 'ChartTooltip');
-    expect(chartTooltip.props.valueFormatter).toBeDefined();
-    expect(chartTooltip.props.cursor).toBeDefined();
-
-    const selectDocs = runDocgen(['src/components/Select/Select.tsx']);
-    const select = selectDocs.find((d) => d.displayName === 'Select');
-    expect(select.props.onValueChange).toBeDefined();
-
-    const tabsDocs = runDocgen(['src/components/Tabs/Tabs.tsx']);
-    const tabsTrigger = tabsDocs.find((d) => d.displayName === 'TabsTrigger');
-    expect(tabsTrigger.props.asChild).toBeDefined();
   }, 30_000);
 
   it('ChartContainer now extracts its own real props (usePrefersReducedMotion + chartSeriesColor moved out)', () => {

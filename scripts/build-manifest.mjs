@@ -17,10 +17,12 @@ const TYPES_REACT = /node_modules[\\/]@types[\\/]react[\\/]/;
 // prototypes). Never real component API from any library — see the
 // ChartContainer note on `propFilter` below.
 const TS_LIB = /node_modules[\\/]typescript[\\/]lib[\\/]/;
-// Generic DOM/HTML/SVG/ARIA attribute-surface interface names, wherever
-// they're declared (not just @types/react) — e.g. recharts re-declares the
-// DOM surface via its own DOMAttributesAdaptChildEvent mapped type.
-const DOM_ATTR_TYPE_NAME = /^(DOMAttributes|HTMLAttributes|AllHTMLAttributes|SVGAttributes|SVGProps|AriaAttributes|DOMAttributesAdaptChildEvent)$/;
+// recharts' DOM/SVG attribute adapter (DOMAttributesAdaptChildEvent): it
+// re-declares the DOM event-handler surface in an anonymous TypeLiteral,
+// so neither the @types/react file rule nor a type-name rule reaches it.
+// Every prop declared only in this file is a DOM/SVG attribute or event
+// handler, never Legend/Tooltip config.
+const RECHARTS_DOM_ADAPTER = /node_modules[\\/]recharts[\\/]types[\\/]util[\\/]types\.d\.ts$/;
 
 function findLayerBoundaries(css) {
   const layer2Match = css.match(/LAYER\s+2\b/);
@@ -212,15 +214,7 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
       // (e.g. some Radix primitives) have no single `parent` interface, but
       // every declaration site still resolves into @types/react.
       if (prop.declarations?.length && prop.declarations.every((d) => excluded(d.fileName))) return false;
-      // Same principle, by type NAME rather than file: a library can
-      // re-declare the DOM/HTML/SVG/ARIA attribute surface under its own
-      // node_modules path (recharts' DOMAttributesAdaptChildEvent). In this
-      // codebase that mapped type's own members carry no named parent
-      // interface (declarations[].name is the generic "TypeLiteral"), so
-      // this rule does not additionally remove recharts' DOM-flood props —
-      // see the ChartLegend note in task-5-report.md.
-      if (prop.parent?.name && DOM_ATTR_TYPE_NAME.test(prop.parent.name)) return false;
-      if (prop.declarations?.length && prop.declarations.every((d) => DOM_ATTR_TYPE_NAME.test(d.name))) return false;
+      if (prop.declarations?.length && prop.declarations.every((d) => RECHARTS_DOM_ADAPTER.test(d.fileName))) return false;
       return true;
     },
   });

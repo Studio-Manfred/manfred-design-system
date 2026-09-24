@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { inputLikeVariants } from '@/lib/inputLikeVariants';
+import { useFormFieldControl } from '../FormField/FormFieldContext';
 
 /**
  * Per-size overrides applied on top of `inputLikeVariants`:
@@ -96,7 +97,9 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   (
     {
       size = 'md',
-      status = 'default',
+      status: statusProp,
+      id,
+      'aria-describedby': ariaDescribedBy,
       fullWidth = false,
       rows = 3,
       className,
@@ -105,6 +108,13 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     },
     ref,
   ) => {
+    const field = useFormFieldControl({
+      id,
+      describedBy: ariaDescribedBy,
+      invalid: statusProp === undefined ? undefined : statusProp === 'error',
+    });
+    // Inside a FormField an unset status follows the field (STU-888).
+    const status = statusProp ?? (field.invalid ? 'error' : 'default');
     return (
       <div
         className={cn(
@@ -118,6 +128,8 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           rows={rows}
           className={cn(textareaVariants({ size }))}
           disabled={disabled}
+          id={field.id}
+          aria-describedby={field.describedBy}
           aria-invalid={status === 'error' ? true : undefined}
           {...rest}
         />

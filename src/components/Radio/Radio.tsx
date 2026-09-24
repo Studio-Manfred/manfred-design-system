@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { cn } from '@/lib/utils';
+import { useFormFieldGroup } from '../FormField/FormFieldContext';
 
 /**
  * Props for the {@link RadioGroup} component.
@@ -35,6 +36,9 @@ const RadioGroupErrorContext = React.createContext(false);
  * - When the group has no visible heading, set `aria-label` (or
  *   `aria-labelledby`) on `RadioGroup` so AT users hear the group
  *   purpose.
+ * - Inside a `FormField` the group is named by the field label
+ *   (`aria-labelledby`), described by its message and follows its
+ *   `status="error"`, with no ids needed (STU-888).
  * - `error` sets `aria-invalid="true"` on the radiogroup and marks every
  *   item invalid (red border + `aria-invalid`). Validity belongs to the
  *   group — a required choice that is missing — so prefer this over
@@ -71,16 +75,40 @@ const RadioGroupErrorContext = React.createContext(false);
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
   RadioGroupProps
->(({ className, error = false, ...props }, ref) => (
-  <RadioGroupErrorContext.Provider value={error}>
-    <RadioGroupPrimitive.Root
-      ref={ref}
-      aria-invalid={error || undefined}
-      className={cn('flex flex-col gap-2', className)}
-      {...props}
-    />
-  </RadioGroupErrorContext.Provider>
-));
+>(
+  (
+    {
+      className,
+      error: errorProp,
+      'aria-labelledby': ariaLabelledBy,
+      'aria-describedby': ariaDescribedBy,
+      ...props
+    },
+    ref,
+  ) => {
+    // Inside a FormField the group is named by the field label, described
+    // by its message and follows its error state, unless set explicitly
+    // (STU-888).
+    const field = useFormFieldGroup({
+      labelledBy: ariaLabelledBy,
+      describedBy: ariaDescribedBy,
+      invalid: errorProp,
+    });
+    const error = field.invalid;
+    return (
+      <RadioGroupErrorContext.Provider value={error}>
+        <RadioGroupPrimitive.Root
+          ref={ref}
+          aria-invalid={error || undefined}
+          aria-labelledby={field.labelledBy}
+          aria-describedby={field.describedBy}
+          className={cn('flex flex-col gap-2', className)}
+          {...props}
+        />
+      </RadioGroupErrorContext.Provider>
+    );
+  },
+);
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
 /**

@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **FormField wires its label and message into the wrapped control**
+  (STU-888). `TextInput`, `Textarea`, `Select` (trigger), `DatePicker`,
+  `Checkbox`, `Switch` and `RadioGroup` read a new internal FormField
+  context, so **no `htmlFor`/`id` pair is needed** any more:
+  - the control is named by the field label, and the message becomes its
+    `aria-describedby`. **This also applies to the existing `htmlFor`
+    pattern:** native inputs are now described by their hint or error
+    text on focus, not only through the live region (a screen-reader
+    behaviour change, and an improvement);
+  - `status="error"` on the field makes the control invalid
+    (`aria-invalid` + error styling) without also setting
+    `status`/`error` on it;
+  - `RadioGroup` inside a FormField is named by the label through
+    `aria-labelledby`, and the label renders as a plain element instead
+    of a `<label for>` that points at nothing;
+  - `DatePicker` is labelled by "<field label> <current value>";
+  - explicit props always win: a control's own `id`, `aria-labelledby`,
+    `aria-label` (DatePicker), `status` / `error` (`error={false}` opts
+    out), and `aria-describedby` is merged ahead of the message, not
+    replaced.
+  New stories: *Error state, no ids passed* and *Radio group with error*.
+  Controls outside a FormField render exactly as before.
+
 ### Changed
 
 - **CI enforces the coverage floor** (STU-889). The CI unit-test step now runs

@@ -8,6 +8,7 @@ import { Button } from '../Button';
 import { inputLikeVariants, type InputLikeSize, type InputLikeStatus } from '@/lib/inputLikeVariants';
 import { cn } from '@/lib/utils';
 import { useDatePickerState } from './useDatePickerState';
+import { mergeIds, useFormFieldControl } from '../FormField/FormFieldContext';
 
 /**
  * Props shared by both modes of the {@link DatePicker} component.
@@ -233,7 +234,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     const {
       mode = 'single',
       size = 'md',
-      status = 'default',
+      status: statusProp,
       fullWidth,
       disabled,
       id,
@@ -251,6 +252,19 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     } = props;
 
     const popoverId = React.useId();
+
+    // Inside a FormField: the trigger gets the field's id + description,
+    // an unset status follows the field, and — unless the consumer named it
+    // explicitly — it is labelled by "<field label> <own text>" so the
+    // current value stays in the name (STU-888).
+    const field = useFormFieldControl({
+      id,
+      describedBy: ariaDescribedBy,
+      invalid: statusProp === undefined ? undefined : statusProp === 'error',
+    });
+    const status = statusProp ?? (field.invalid ? 'error' : 'default');
+    const labelledBy =
+      ariaLabelledBy ?? (field.labelId && !ariaLabel ? mergeIds(field.labelId, field.id) : undefined);
 
     const isOpenControlled = openProp !== undefined;
     const [internalOpen, setInternalOpen] = React.useState(false);
@@ -309,7 +323,7 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
     // Compute accessible name: explicit prop wins, otherwise fall back to the
     // current display text so the button always has a discernible name even
     // when no wrapping <label> or aria-labelledby is provided.
-    const resolvedAriaLabel = ariaLabel ?? (!ariaLabelledBy ? displayText : undefined);
+    const resolvedAriaLabel = ariaLabel ?? (!labelledBy ? displayText : undefined);
 
     // rdp's onSelect → hook's handleSelect, then maybe close.
     const onRdpSelect = (next: Date | DateRange | undefined) => {
@@ -341,15 +355,15 @@ export const DatePicker = React.forwardRef<HTMLButtonElement, DatePickerProps>(
             <button
               ref={ref}
               type="button"
-              id={id}
+              id={field.id}
               disabled={disabled}
               role="combobox"
               aria-controls={popoverId}
               aria-haspopup="dialog"
               aria-expanded={open}
               aria-label={resolvedAriaLabel}
-              aria-labelledby={ariaLabelledBy}
-              aria-describedby={ariaDescribedBy}
+              aria-labelledby={labelledBy}
+              aria-describedby={field.describedBy}
               aria-invalid={status === 'error' || undefined}
               aria-required={required || undefined}
               onKeyDown={(e) => {

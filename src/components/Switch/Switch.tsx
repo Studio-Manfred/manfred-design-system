@@ -3,6 +3,7 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Spinner } from '../Spinner';
+import { useFormFieldControl } from '../FormField/FormFieldContext';
 
 type RadixSwitchProps = React.ComponentPropsWithoutRef<typeof SwitchPrimitive.Root>;
 
@@ -101,14 +102,20 @@ export const Switch = React.forwardRef<
       size = 'md',
       loading = false,
       label,
-      error,
+      error: errorProp,
       className,
       disabled,
-      id,
+      id: idProp,
+      'aria-describedby': ariaDescribedBy,
       ...rest
     },
     ref,
   ) => {
+    // Inside a FormField, id / description / validity come from the field
+    // unless set explicitly (STU-888).
+    const field = useFormFieldControl({ id: idProp, describedBy: ariaDescribedBy, invalid: errorProp });
+    const id = field.id;
+    const error = field.invalid;
     const isDisabled = disabled || loading;
 
     const control = (
@@ -117,6 +124,7 @@ export const Switch = React.forwardRef<
         id={id}
         disabled={isDisabled}
         aria-invalid={error || undefined}
+      aria-describedby={field.describedBy}
         aria-busy={loading || undefined}
         data-loading={loading || undefined}
         className={cn(

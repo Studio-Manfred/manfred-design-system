@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Icon } from '../Icon';
+import { FormFieldContext, type FormFieldContextValue } from './FormFieldContext';
 
 const messageVariants = cva('flex items-center gap-1 font-sans text-xs leading-[1.5]', {
   variants: {
@@ -31,8 +32,10 @@ export interface FormFieldProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Visible label text. Required — every field must have a label. */
   label: string;
   /**
-   * Wired to the rendered `<label htmlFor>`. Pass the same string as
-   * the wrapped input's `id` so clicking the label focuses the input.
+   * Id of the wrapped control. Optional: DS controls inside a FormField
+   * pick up a generated id automatically (STU-888). Pass it when you
+   * need a stable id, and give the control the same `id`, or when the
+   * child is a plain native element that doesn't read the context.
    */
   htmlFor?: string;
   /**
@@ -74,8 +77,16 @@ const statusIconMap = {
  * the matching colour, icon, and live-region semantics.
  *
  * Accessibility:
- * - The label is a real `<label htmlFor>`, so clicking it focuses the
- *   wrapped input.
+ * - DS controls (`TextInput`, `Textarea`, `Select`, `DatePicker`,
+ *   `Checkbox`, `Switch`, `RadioGroup`) wire themselves through context
+ *   (STU-888): they get the label as their accessible name, the message
+ *   as their `aria-describedby`, and `status="error"` makes them invalid
+ *   (`aria-invalid` + error styling). No ids needed. A control's own
+ *   `id`, `aria-describedby`, `aria-labelledby`, `status` or `error`
+ *   still wins; `aria-describedby` is merged, not replaced.
+ * - For a single control the label is a real `<label htmlFor>`, so
+ *   clicking it focuses the control. For a group (`RadioGroup`) it is a
+ *   plain element the group references with `aria-labelledby`.
  * - `error` messages render with `role="alert"` so SR users hear the
  *   failure on submit; `hint` and `success` use a polite live-region.
  * - The `required` asterisk is `aria-hidden` — set `required` on the
@@ -83,8 +94,18 @@ const statusIconMap = {
  *
  * @example Basic field with hint
  * ```tsx
- * <FormField label="Password" htmlFor="pw" status="hint" message="Min. 8 chars">
- *   <TextInput id="pw" type="password" />
+ * <FormField label="Password" status="hint" message="Min. 8 chars">
+ *   <TextInput type="password" />
+ * </FormField>
+ * ```
+ *
+ * @example Radio group with a group-level error
+ * ```tsx
+ * <FormField label="Plan" status="error" message="Pick a plan">
+ *   <RadioGroup>
+ *     <RadioGroupItem id="basic" value="basic" label="Basic" />
+ *     <RadioGroupItem id="pro" value="pro" label="Pro" />
+ *   </RadioGroup>
  * </FormField>
  * ```
  *
@@ -105,6 +126,36 @@ export function FormField({
   className,
   ...rest
 }: FormFieldProps) {
+  const autoId = React.useId();
+  const controlId = htmlFor ?? `${autoId}-control`;
+  const labelId = `${autoId}-label`;
+  const messageId = message ? `${autoId}-message` : undefined;
+  const invalid = status === 'error';
+
+  const [groupCount, setGroupCount] = React.useState(0);
+  const registerGroup = React.useCallback(() => {
+    setGroupCount((n) => n + 1);
+    return () => setGroupCount((n) => n - 1);
+  }, []);
+  const isGroup = groupCount > 0;
+
+  const context = React.useMemo<FormFieldContextValue>(
+    () => ({ controlId, labelId, messageId, invalid, registerGroup }),
+    [controlId, labelId, messageId, invalid, registerGroup],
+  );
+
+  const labelClassName = 'font-sans text-sm font-semibold text-foreground leading-[1.5]';
+  const labelContent = (
+    <>
+      {label}
+      {required && (
+        <span className="text-[var(--color-feedback-error-fg)] ml-1" aria-hidden="true">
+          *
+        </span>
+      )}
+    </>
+  );
+
   const iconName =
     status === 'error' || status === 'success' || status === 'hint'
       ? statusIconMap[status]
@@ -112,20 +163,19 @@ export function FormField({
 
   return (
     <div {...rest} className={cn('flex flex-col gap-2', className)}>
-      <label
-        className="font-sans text-sm font-semibold text-foreground leading-[1.5]"
-        htmlFor={htmlFor}
-      >
-        {label}
-        {required && (
-          <span className="text-[var(--color-feedback-error-fg)] ml-1" aria-hidden="true">
-            *
-          </span>
-        )}
-      </label>
-      {children}
+      {isGroup ? (
+        <span id={labelId} className={labelClassName}>
+          {labelContent}
+        </span>
+      ) : (
+        <label id={labelId} className={labelClassName} htmlFor={controlId}>
+          {labelContent}
+        </label>
+      )}
+      <FormFieldContext.Provider value={context}>{children}</FormFieldContext.Provider>
       {message && (
         <span
+          id={messageId}
           role={status === 'error' ? 'alert' : undefined}
           aria-live={status === 'success' || status === 'hint' ? 'polite' : undefined}
           className={messageVariants({ status })}

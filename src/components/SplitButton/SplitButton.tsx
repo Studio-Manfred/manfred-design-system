@@ -4,6 +4,20 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/Popover';
 import { Icon } from '@/components/Icon';
 import { cn } from '@/lib/utils';
 
+interface SplitButtonContextValue {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+}
+const SplitButtonContext = React.createContext<SplitButtonContextValue>({});
+
+/** Props for {@link SplitButton}. Extends the DS {@link Popover} root (open / onOpenChange / defaultOpen / modal). */
+export interface SplitButtonProps extends React.ComponentProps<typeof Popover> {
+  /** Visual variant, applied to both segments. Mirrors `Button`. Default `primary`. */
+  variant?: ButtonVariant;
+  /** Size, applied to both segments. Mirrors `Button`. Default `md`. */
+  size?: ButtonSize;
+}
+
 /**
  * A split button: a primary action joined to a dropdown toggle —
  * `[ Play │ ▾ ]`. The left segment runs the main action; the right segment
@@ -26,21 +40,6 @@ import { cn } from '@/lib/utils';
  * requires an `aria-label` (it has no text). The action and the dropdown are
  * independently focusable buttons.
  */
-
-interface SplitButtonContextValue {
-  variant?: ButtonVariant;
-  size?: ButtonSize;
-}
-const SplitButtonContext = React.createContext<SplitButtonContextValue>({});
-
-/** Props for {@link SplitButton}. Extends the DS {@link Popover} root (open / onOpenChange / defaultOpen / modal). */
-export interface SplitButtonProps extends React.ComponentProps<typeof Popover> {
-  /** Visual variant, applied to both segments. Mirrors `Button`. Default `primary`. */
-  variant?: ButtonVariant;
-  /** Size, applied to both segments. Mirrors `Button`. Default `md`. */
-  size?: ButtonSize;
-}
-
 function SplitButton({ variant = 'primary', size = 'md', children, ...rootProps }: SplitButtonProps) {
   return (
     <Popover {...rootProps}>

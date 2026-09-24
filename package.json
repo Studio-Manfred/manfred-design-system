@@ -1,6 +1,6 @@
 {
   "name": "@studio-manfred/manfred-design-system",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "description": "Manfred Design System — brand tokens, typography, and core components (shadcn/ui + Tailwind v4)",
   "engines": {
     "node": ">=22"
@@ -26,14 +26,18 @@
       }
     },
     "./styles": "./dist/style.css",
-    "./tokens.css": "./dist/tokens.css"
+    "./tokens.css": "./dist/tokens.css",
+    "./manifest.json": "./dist/manifest.json",
+    "./migrations.json": "./dist/migrations.json",
+    "./manifest.schema.json": "./dist/manifest.schema.json",
+    "./migrations.schema.json": "./dist/migrations.schema.json"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "vite build",
-    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs",
+    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs && node scripts/build-manifest.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",
@@ -103,6 +107,7 @@
     "@vitejs/plugin-react": "^6.0.0",
     "@vitest/browser-playwright": "^4.1.10",
     "@vitest/coverage-v8": "^4.1.10",
+    "ajv": "^8.20.0",
     "chromatic": "^18.0.0",
     "date-fns": "^4.0.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -110,6 +115,7 @@
     "jsdom": "^30.0.1",
     "playwright": "^1.58.2",
     "react-day-picker": "^10.0.0",
+    "react-docgen-typescript": "^2.4.0",
     "recharts": "^3.8.1",
     "storybook": "^10.6.0",
     "tailwindcss": "^4.2.2",

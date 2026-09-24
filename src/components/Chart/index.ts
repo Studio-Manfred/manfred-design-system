@@ -1,7 +1,5 @@
 export {
   ChartContainer,
-  chartSeriesColor,
-  usePrefersReducedMotion,
   useChartContainer,
 } from './ChartContainer';
 export type {
@@ -9,6 +7,9 @@ export type {
   ChartSeriesDef,
   ChartContainerContextValue,
 } from './ChartContainer';
+
+export { usePrefersReducedMotion } from './usePrefersReducedMotion';
+export { chartSeriesColor } from './chartSeriesColor';
 
 export { BarChart } from './BarChart';
 export type { BarChartProps } from './BarChart';

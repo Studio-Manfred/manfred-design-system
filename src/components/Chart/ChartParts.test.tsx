@@ -8,8 +8,8 @@ import { DonutChart } from './DonutChart';
 import {
   ChartContainer,
   useChartContainer,
-  usePrefersReducedMotion,
 } from './ChartContainer';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 import { ChartTooltip, ChartTooltipContent } from './ChartTooltip';
 
 // Same jsdom sizing shim as Chart.test.tsx so Recharts renders its svg layers.

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "array",
+  "items": {
+    "type": "object", "required": ["version", "breaking", "summary", "steps"], "additionalProperties": false,
+    "properties": {
+      "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+      "breaking": { "type": "boolean" },
+      "summary": { "type": "string", "minLength": 1 },
+      "steps": {
+        "type": "array", "minItems": 1,
+        "items": {
+          "oneOf": [
+            { "type": "object", "required": ["kind", "package", "range"], "additionalProperties": false,
+              "properties": { "kind": { "const": "peer" }, "package": { "type": "string" }, "range": { "type": "string" } } },
+            { "type": "object", "required": ["kind", "note"], "additionalProperties": false,
+              "properties": { "kind": { "const": "code" }, "note": { "type": "string" },
+                              "findImports": { "type": "array", "items": { "type": "string" } } } },
+            { "type": "object", "required": ["kind", "note"], "additionalProperties": false,
+              "properties": { "kind": { "const": "setup" }, "note": { "type": "string" } } }
+          ]
+        }
+      }
+    }
+  }
+}

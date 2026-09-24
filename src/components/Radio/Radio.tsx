@@ -3,6 +3,24 @@ import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { cn } from '@/lib/utils';
 
 /**
+ * Props for the {@link RadioGroup} component.
+ *
+ * Inherits every prop from `@radix-ui/react-radio-group` `Root`.
+ */
+export interface RadioGroupProps
+  extends React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root> {
+  /**
+   * Mark the whole group as invalid. Sets `aria-invalid="true"` on the
+   * radiogroup and passes `error` to every item (red border and
+   * `aria-invalid`). An item's own `error` prop wins, and so does a
+   * consumer-passed `aria-invalid`.
+   */
+  error?: boolean;
+}
+
+const RadioGroupErrorContext = React.createContext(false);
+
+/**
  * Group container for {@link RadioGroupItem}s. Token-styled wrapper
  * around `@radix-ui/react-radio-group` `Root`.
  *
@@ -17,6 +35,11 @@ import { cn } from '@/lib/utils';
  * - When the group has no visible heading, set `aria-label` (or
  *   `aria-labelledby`) on `RadioGroup` so AT users hear the group
  *   purpose.
+ * - `error` sets `aria-invalid="true"` on the radiogroup and marks every
+ *   item invalid (red border + `aria-invalid`). Validity belongs to the
+ *   group — a required choice that is missing — so prefer this over
+ *   per-item `error`. Point `aria-describedby` at the error text so
+ *   screen-reader users hear what is wrong, not just that it is.
  *
  * @example Uncontrolled with default value
  * ```tsx
@@ -34,12 +57,29 @@ import { cn } from '@/lib/utils';
  *   <RadioGroupItem id="y" value="y" label="Y" />
  * </RadioGroup>
  * ```
+ *
+ * @example Invalid group, named by a heading and described by its error
+ * ```tsx
+ * <p id="plan-label">Plan</p>
+ * <RadioGroup aria-labelledby="plan-label" aria-describedby="plan-error" error>
+ *   <RadioGroupItem id="basic" value="basic" label="Basic" />
+ *   <RadioGroupItem id="pro" value="pro" label="Pro" />
+ * </RadioGroup>
+ * <p id="plan-error">Choose a plan to continue.</p>
+ * ```
  */
 const RadioGroup = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof RadioGroupPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <RadioGroupPrimitive.Root ref={ref} className={cn('flex flex-col gap-2', className)} {...props} />
+  RadioGroupProps
+>(({ className, error = false, ...props }, ref) => (
+  <RadioGroupErrorContext.Provider value={error}>
+    <RadioGroupPrimitive.Root
+      ref={ref}
+      aria-invalid={error || undefined}
+      className={cn('flex flex-col gap-2', className)}
+      {...props}
+    />
+  </RadioGroupErrorContext.Provider>
 ));
 RadioGroup.displayName = RadioGroupPrimitive.Root.displayName;
 
@@ -60,7 +100,8 @@ export interface RadioGroupItemProps
   label?: React.ReactNode;
   /**
    * Mark this item as invalid. Sets `aria-invalid="true"` on the radio
-   * and shifts its border to the error token. A consumer-passed
+   * and shifts its border to the error token. Defaults to the group's
+   * `error`; pass `false` to opt a single item out. A consumer-passed
    * `aria-invalid` takes precedence. Pair with announced error text
    * (e.g. via `FormField`) so screen-reader users hear what is wrong.
    */
@@ -98,7 +139,9 @@ export interface RadioGroupItemProps
 const RadioGroupItem = React.forwardRef<
   React.ElementRef<typeof RadioGroupPrimitive.Item>,
   RadioGroupItemProps
->(({ className, label, error, id, disabled, ...props }, ref) => {
+>(({ className, label, error: itemError, id, disabled, ...props }, ref) => {
+  const groupError = React.useContext(RadioGroupErrorContext);
+  const error = itemError ?? groupError;
   const control = (
     <RadioGroupPrimitive.Item
       ref={ref}

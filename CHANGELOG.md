@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-09-24
+
+No breaking changes. One new prop (`RadioGroup` `error`), six bug fixes,
+and a large test/coverage overhaul.
+
 ### Changed
 
 - **`npm run test:all` is now a branded one-shot report** — runs the unit
@@ -31,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`RadioGroup` `error` prop** (STU-880). Marks the whole group invalid:
+  `aria-invalid="true"` on the radiogroup, and every item gets the error
+  border and `aria-invalid`. An item's own `error` wins (`error={false}` opts
+  one out), as does a consumer-passed `aria-invalid`. New exported type
+  `RadioGroupProps`, and an `InvalidGroup` story showing the
+  `aria-labelledby` + `aria-describedby` pattern.
 - **Token drift guard** — `src/tokens/tokens.test.ts` fails when the exported
   TS token objects disagree with `tokens.css` (primitive scales, typography,
   spacing, sizing, and every `var()` reference in semantic tokens).
@@ -43,6 +54,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Enabled buttons show a pointer cursor again** (STU-886). Tailwind v4's
+  preflight gives `<button>` `cursor: default`, so button-rendered parts of
+  the DS (AppHeader nav items with `as: 'button'`, dropdown triggers, the
+  avatar, theme toggle, sign-out, the mobile menu) showed the arrow. The DS
+  base layer now sets `cursor: pointer` on `button:not(:disabled)` and
+  `[role="button"]:not([aria-disabled="true"])`, as Tailwind's v4 upgrade
+  guide recommends. **This is DS-wide:** plain buttons in consumer apps that
+  load `style.css` or `tokens.css` get the pointer too. Disabled buttons keep
+  the default cursor, and utilities such as `cursor-not-allowed` still win.
 - **`useThemeToggle` no longer throws when storage is unavailable** (STU-875).
   In Safari private mode, with a full quota or with storage disabled, the
   theme now still switches for the session (state and `<html>` class);

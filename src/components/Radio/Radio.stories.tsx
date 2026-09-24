@@ -138,3 +138,44 @@ export const States: Story = {
     </div>
   ),
 };
+
+export const InvalidGroup: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Group-level `error`: the radiogroup gets `aria-invalid="true"` and ' +
+          'every item picks up the error border and `aria-invalid`. The group ' +
+          'is named by its heading via `aria-labelledby` and points at the ' +
+          'error text via `aria-describedby`, so screen readers hear both the ' +
+          'question and what is wrong.',
+      },
+    },
+  },
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <p id="plan-label" style={{ margin: 0, fontWeight: 600 }}>
+        Plan
+      </p>
+      <RadioGroup aria-labelledby="plan-label" aria-describedby="plan-error" error>
+        <RadioGroupItem id="ig-basic" value="basic" label="Basic" />
+        <RadioGroupItem id="ig-pro" value="pro" label="Pro" />
+      </RadioGroup>
+      <p id="plan-error" style={{ margin: 0, color: 'var(--color-feedback-error-fg)' }}>
+        Choose a plan to continue.
+      </p>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const group = canvas.getByRole('radiogroup', { name: 'Plan' });
+    await expect(group).toHaveAttribute('aria-invalid', 'true');
+    await expect(group).toHaveAccessibleDescription('Choose a plan to continue.');
+    for (const radio of canvas.getAllByRole('radio')) {
+      await expect(radio).toHaveAttribute('aria-invalid', 'true');
+    }
+    // An invalid group still accepts a choice.
+    await userEvent.click(canvas.getByRole('radio', { name: 'Basic' }));
+    await expect(canvas.getByRole('radio', { name: 'Basic' })).toBeChecked();
+  },
+};

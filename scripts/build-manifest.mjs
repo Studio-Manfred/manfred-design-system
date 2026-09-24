@@ -2,6 +2,11 @@
 // (Linear project "Manfred DS CLI"). Pure functions are exported for tests;
 // main() does the I/O and runs as the last postbuild step.
 
+import { createRequire } from 'node:module';
+import path from 'node:path';
+
+const require = createRequire(import.meta.url);
+
 const DECL = /(--[\w-]+)\s*:\s*([^;]+);/g;
 const VAR_REF = /^var\((--[\w-]+)\)$/;
 
@@ -96,4 +101,73 @@ export function parseTokens(css) {
     }
   }
   return [...tokens.values()];
+}
+
+// Value exports that are intentionally not React components, or that docgen cannot see.
+// Filled from the first real run (Task 5 step 3); every entry needs a one-line reason.
+export const NON_COMPONENT_EXPORTS = new Set([]);
+
+export function barrelExports(indexSource) {
+  const names = new Set();
+  for (const [, typeKw, list] of indexSource.matchAll(/export\s+(type\s+)?\{([^}]*)\}\s*from/g)) {
+    if (typeKw) continue;
+    for (const part of list.split(',')) {
+      const name = part.trim().split(/\s+as\s+/).pop()?.trim();
+      if (name) names.add(name);
+    }
+  }
+  return names;
+}
+
+export function storybookId(title) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
+export function storyTitle(storiesSource) {
+  return storiesSource.match(/\btitle:\s*['"]([^'"]+)['"]/)?.[1] ?? null;
+}
+
+const typeString = (t) => (t.name === 'enum' ? t.raw ?? t.value.map((v) => v.value).join(' | ') : t.raw ?? t.name);
+
+export function componentsFromDocs(docs, { exported, storyTitles }) {
+  const seen = new Set();
+  const out = [];
+  for (const d of docs) {
+    if (!exported.has(d.displayName) || seen.has(d.displayName)) continue;
+    seen.add(d.displayName);
+    const group = d.filePath.split(/[\\/]components[\\/]/)[1]?.split(/[\\/]/)[0] ?? d.displayName;
+    const title = storyTitles[group];
+    out.push({
+      name: d.displayName,
+      group,
+      description: (d.description ?? '').trim(),
+      storybook: title ? storybookId(title) : null,
+      props: Object.values(d.props ?? {})
+        .map((p) => ({
+          name: p.name,
+          type: typeString(p.type),
+          required: Boolean(p.required),
+          default: p.defaultValue?.value ?? null,
+          description: (p.description ?? '').trim(),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    });
+  }
+  return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export function missingComponents(exported, components, allow) {
+  const have = new Set(components.map((c) => c.name));
+  return [...exported].filter((n) => /^[A-Z]/.test(n) && !have.has(n) && !allow.has(n)).sort();
+}
+
+export function runDocgen(files, { root = process.cwd() } = {}) {
+  const docgen = require('react-docgen-typescript');
+  const parser = docgen.withCustomConfig(path.join(root, 'tsconfig.json'), {
+    savePropValueAsString: true,
+    shouldExtractLiteralValuesFromEnum: true,
+    shouldRemoveUndefinedFromOptional: true,
+    propFilter: (prop) => !prop.parent || !prop.parent.fileName.includes('node_modules'),
+  });
+  return parser.parse(files.map((f) => path.resolve(root, f)));
 }

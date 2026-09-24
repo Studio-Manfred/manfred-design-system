@@ -110,6 +110,7 @@
     "jsdom": "^30.0.1",
     "playwright": "^1.58.2",
     "react-day-picker": "^10.0.0",
+    "react-docgen-typescript": "^2.4.0",
     "recharts": "^3.8.1",
     "storybook": "^10.6.0",
     "tailwindcss": "^4.2.2",

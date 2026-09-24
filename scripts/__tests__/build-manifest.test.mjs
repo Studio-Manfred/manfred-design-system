@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { parseTokens } from '../build-manifest.mjs';
+import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen } from '../build-manifest.mjs';
 
 const CSS = `
 @import "tailwindcss";
@@ -160,4 +160,74 @@ describe('parseTokens', () => {
     const allValuesOneLine = toks.every((t) => !t.value.includes('\n'));
     expect(allValuesOneLine).toBe(true);
   });
+});
+
+describe('barrelExports', () => {
+  it('keeps value exports, drops type exports, resolves aliases', () => {
+    const src = `
+export { Button, buttonVariants } from './components/Button';
+export type { ButtonProps } from './components/Button';
+export {
+  RadioGroup,
+  RadioGroupItem as RadioItem,
+} from './components/Radio';
+export * from './tokens';`;
+    expect([...barrelExports(src)].sort()).toEqual(['Button', 'RadioGroup', 'RadioItem', 'buttonVariants']);
+  });
+});
+
+describe('storybook ids', () => {
+  it('derives ids and titles like Storybook does', () => {
+    expect(storybookId('Components/RadioGroup')).toBe('components-radiogroup');
+    expect(storybookId('Layout/PageShell')).toBe('layout-pageshell');
+    expect(storyTitle("const meta = {\n  title: 'Components/Button',\n  component: Button,")).toBe('Components/Button');
+    expect(storyTitle('export default {}')).toBeNull();
+  });
+});
+
+const doc = (displayName, filePath, props = {}) => ({ displayName, filePath, description: `${displayName} docs`, props });
+
+describe('componentsFromDocs', () => {
+  const docs = [
+    doc('Button', '/r/src/components/Button/Button.tsx', {
+      variant: { name: 'variant', required: false, description: 'Look', defaultValue: { value: 'primary' },
+        type: { name: 'enum', raw: '"primary" | "secondary"', value: [{ value: '"primary"' }, { value: '"secondary"' }] } },
+      asChild: { name: 'asChild', required: false, description: '', defaultValue: null, type: { name: 'boolean' } },
+    }),
+    doc('RadioGroupItem', '/r/src/components/Radio/Radio.tsx'),
+    doc('Internal', '/r/src/components/Radio/Radio.tsx'),
+  ];
+  const out = componentsFromDocs(docs, {
+    exported: new Set(['Button', 'RadioGroupItem']),
+    storyTitles: { Button: 'Components/Button' },
+  });
+
+  it('keeps only exported components, grouped by folder, sorted', () => {
+    expect(out.map((c) => [c.name, c.group])).toEqual([['Button', 'Button'], ['RadioGroupItem', 'Radio']]);
+  });
+
+  it('maps props with enum raw types and defaults, sorted by name', () => {
+    expect(out[0].props).toEqual([
+      { name: 'asChild', type: 'boolean', required: false, default: null, description: '' },
+      { name: 'variant', type: '"primary" | "secondary"', required: false, default: 'primary', description: 'Look' },
+    ]);
+    expect(out[0].storybook).toBe('components-button');
+    expect(out[1].storybook).toBeNull();
+  });
+
+  it('reports PascalCase exports with no docgen entry unless allowlisted', () => {
+    expect(missingComponents(new Set(['Button', 'Tabs', 'toast', 'buttonVariants', 'Ghost']), out, new Set(['Ghost'])))
+      .toEqual(['Tabs']);
+  });
+});
+
+describe('componentsFromDocs on real sources (contract with react-docgen-typescript)', () => {
+  it('reads Button and RadioGroup from the repo', () => {
+    const docs = runDocgen(['src/components/Button/Button.tsx', 'src/components/Radio/Radio.tsx']);
+    const out = componentsFromDocs(docs, { exported: new Set(['Button', 'RadioGroup']), storyTitles: {} });
+    const button = out.find((c) => c.name === 'Button');
+    expect(button.props.map((p) => p.name)).toContain('variant');
+    expect(button.props.some((p) => p.name === 'onClick')).toBe(false); // inherited HTML props filtered
+    expect(out.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
+  }, 30_000);
 });

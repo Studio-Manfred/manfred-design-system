@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { cn } from '@/lib/utils';
 import { Icon } from '../Icon';
+import { useFormFieldControl } from '../FormField/FormFieldContext';
 
 type RadixCheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>;
 
@@ -69,7 +70,26 @@ export interface CheckboxProps extends Omit<RadixCheckboxProps, 'children'> {
 export const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   CheckboxProps
->(({ label, indeterminate, error, className, disabled, checked, id, ...rest }, ref) => {
+>(
+  (
+    {
+      label,
+      indeterminate,
+      error: errorProp,
+      className,
+      disabled,
+      checked,
+      id: idProp,
+      'aria-describedby': ariaDescribedBy,
+      ...rest
+    },
+    ref,
+  ) => {
+  // Inside a FormField, id / description / validity come from the field
+  // unless set explicitly (STU-888).
+  const field = useFormFieldControl({ id: idProp, describedBy: ariaDescribedBy, invalid: errorProp });
+  const id = field.id;
+  const error = field.invalid;
   const checkedValue: CheckboxPrimitive.CheckedState | undefined =
     indeterminate ? 'indeterminate' : checked;
 
@@ -80,6 +100,7 @@ export const Checkbox = React.forwardRef<
       disabled={disabled}
       checked={checkedValue}
       aria-invalid={error || undefined}
+    aria-describedby={field.describedBy}
       className={cn(
         'peer shrink-0 w-[18px] h-[18px] rounded-[var(--radius-sm)] border-[1.5px] bg-background',
         'border-[var(--color-border-strong)]',

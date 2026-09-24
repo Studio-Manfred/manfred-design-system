@@ -4,6 +4,10 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
+## 2026-09-24 — FormField context wiring (STU-888)
+
+Branch `feat/stu-888-formfield-context`. New `src/components/FormField/FormFieldContext.ts` (internal, not exported from the barrel): `useFormFieldControl` (single controls) + `useFormFieldGroup` (RadioGroup, registers so the label renders as `<span id>`). Wired: TextInput, Textarea, SelectTrigger, DatePicker, Checkbox, Switch, RadioGroup. Decisions (Jens, 2026-09-24): automatic context, field `status="error"` → control invalid incl. styling (own prop wins), auto `<span>` label for groups. Verified: unit 855/855, coverage 93.71/96.22/94.53/94.63, storybook 268/268 with axe=error, play-tiers ok, build + use-client ok; tsc errors == main (20, all in stories). Not done: VoiceOver spot check (manual), exporting the hooks for custom consumer controls (possible follow-up). Note: AGENTS.md lists MCP tool names (`get-documentation`, `list-all-documentation`, `run-story-tests`) that the servers don't expose; the real ones are `docs-list`, `docs-show`, `test-run`, … Worth a docs fix.
+
 ## 2026-09-24 — CI enforces the coverage floor (STU-889)
 
 Branch `ci/stu-889-enforce-coverage-floor`. The CI "Unit tests" step now runs `npm run test:coverage` (unit project + v8 coverage), so the v0.34.0 thresholds (lines 93 / branches 95 / functions 93 / statements 92) gate the required `test` job. Local main: 837 tests, 93.44 / 96.05 / 94.32 / 94.4. Headroom is thin (~0.4 on lines/stmts), so a PR adding untested code will now go red; that's intended. Unreleased (dev tooling only, no version bump needed). Also filed STU-888 (FormField can't label/describe a RadioGroup; message not wired via aria-describedby).

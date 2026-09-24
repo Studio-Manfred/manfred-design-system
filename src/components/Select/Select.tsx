@@ -7,6 +7,7 @@ import {
   type InputLikeStatus,
 } from '@/lib/inputLikeVariants';
 import { Icon } from '../Icon';
+import { useFormFieldControl } from '../FormField/FormFieldContext';
 import type { IconName } from '../Icon';
 
 /**
@@ -86,20 +87,32 @@ const SelectTrigger = React.forwardRef<
     {
       className,
       size = 'md',
-      status = 'default',
+      status: statusProp,
       fullWidth = false,
       leadingIcon,
       children,
+      id,
+      'aria-describedby': ariaDescribedBy,
       ...props
     },
     ref,
   ) => {
     const iconSize = size === 'lg' ? 'md' : 'sm';
+    // Inside a FormField an unset status, the id and the description come
+    // from the field (STU-888).
+    const field = useFormFieldControl({
+      id,
+      describedBy: ariaDescribedBy,
+      invalid: statusProp === undefined ? undefined : statusProp === 'error',
+    });
+    const status = statusProp ?? (field.invalid ? 'error' : 'default');
     const isError = status === 'error';
 
     return (
       <SelectPrimitive.Trigger
         ref={ref}
+        id={field.id}
+        aria-describedby={field.describedBy}
         aria-invalid={isError ? true : props['aria-invalid']}
         data-status={status}
         className={cn(

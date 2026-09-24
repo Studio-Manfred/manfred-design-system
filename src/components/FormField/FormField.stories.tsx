@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { userEvent, within, expect } from 'storybook/test';
 import { FormField } from './FormField';
 import { TextInput } from '../TextInput';
+import { RadioGroup, RadioGroupItem } from '../Radio';
 
 const meta: Meta<typeof FormField> = {
   title: 'Components/FormField',
@@ -86,8 +87,9 @@ export const WithError: Story = {
         story:
           'Failure state — `status="error"` colours the message + icon, ' +
           'and the message renders as `role="alert"` so screen readers ' +
-          'announce it on submit. The wrapped `TextInput` mirrors the ' +
-          'error border via its own `status` prop.',
+          'announce it on submit. The wrapped `TextInput` gets the error ' +
+          'border and `aria-invalid` from the field; passing its own ' +
+          '`status` is optional (and wins when set).',
       },
     },
   },
@@ -226,6 +228,76 @@ export const FullForm: Story = {
         message="At least 8 characters with a number."
       >
         <TextInput id="ff-pw" type="password" placeholder="••••••••" fullWidth />
+      </FormField>
+    </div>
+  ),
+};
+
+export const ErrorWithoutIds: Story = {
+  name: 'Error state, no ids passed',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'DS controls wire themselves through FormField context (STU-888): ' +
+          'no `htmlFor`/`id` pair, and `status="error"` only on the field. ' +
+          'The input is named by the label, described by the message and ' +
+          'marked `aria-invalid`.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole('textbox', { name: 'Email address' });
+    // The field's error reaches the control: invalid + described by the message.
+    await expect(input).toHaveAttribute('aria-invalid', 'true');
+    await expect(input).toHaveAccessibleDescription('Please enter a valid email address.');
+    // Clicking the label still focuses the input (generated htmlFor ↔ id).
+    await userEvent.click(canvas.getByText('Email address'));
+    await expect(input).toHaveFocus();
+  },
+  render: () => (
+    <div style={{ width: '320px' }}>
+      <FormField label="Email address" status="error" message="Please enter a valid email address.">
+        <TextInput defaultValue="notanemail" fullWidth />
+      </FormField>
+    </div>
+  ),
+};
+
+export const WithRadioGroup: Story = {
+  name: 'Radio group with error',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'FormField can label a group (STU-888). The label renders as a ' +
+          'plain element the `RadioGroup` references with `aria-labelledby`, ' +
+          'the message becomes its `aria-describedby`, and `status="error"` ' +
+          'marks the group and every item invalid. No ids needed.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const group = canvas.getByRole('radiogroup', { name: 'Plan' });
+    await expect(group).toHaveAccessibleDescription('Choose a plan to continue.');
+    await expect(group).toHaveAttribute('aria-invalid', 'true');
+    for (const radio of canvas.getAllByRole('radio')) {
+      await expect(radio).toHaveAttribute('aria-invalid', 'true');
+    }
+    // Selecting an option still works through the item labels.
+    await userEvent.click(canvas.getByText('Pro'));
+    await expect(canvas.getByRole('radio', { name: 'Pro' })).toBeChecked();
+  },
+  render: () => (
+    <div style={{ width: '320px' }}>
+      <FormField label="Plan" required status="error" message="Choose a plan to continue.">
+        <RadioGroup>
+          <RadioGroupItem id="plan-basic" value="basic" label="Basic" />
+          <RadioGroupItem id="plan-pro" value="pro" label="Pro" />
+          <RadioGroupItem id="plan-team" value="team" label="Team" />
+        </RadioGroup>
       </FormField>
     </div>
   ),

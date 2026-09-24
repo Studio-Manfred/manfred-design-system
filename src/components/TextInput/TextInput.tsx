@@ -2,6 +2,7 @@ import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { inputLikeVariants } from '@/lib/inputLikeVariants';
+import { useFormFieldControl } from '../FormField/FormFieldContext';
 import { Icon } from '../Icon';
 import type { IconName } from '../Icon';
 
@@ -88,7 +89,9 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
   (
     {
       size = 'md',
-      status = 'default',
+      status: statusProp,
+      id,
+      'aria-describedby': ariaDescribedBy,
       leadingIcon,
       trailingIcon,
       fullWidth = false,
@@ -98,6 +101,13 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
     },
     ref,
   ) => {
+    const field = useFormFieldControl({
+      id,
+      describedBy: ariaDescribedBy,
+      invalid: statusProp === undefined ? undefined : statusProp === 'error',
+    });
+    // Inside a FormField an unset status follows the field (STU-888).
+    const status = statusProp ?? (field.invalid ? 'error' : 'default');
     const iconSize = size === 'lg' ? 'md' : 'sm';
 
     return (
@@ -120,6 +130,8 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
             }),
           )}
           disabled={disabled}
+          id={field.id}
+          aria-describedby={field.describedBy}
           aria-invalid={status === 'error' ? true : undefined}
           {...rest}
         />

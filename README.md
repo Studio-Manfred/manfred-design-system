@@ -239,13 +239,19 @@ description and props (type, required, default, description), every design
 token (name, value, layer — `primitive` / `semantic` / `contract` — and the
 Tailwind utility it feeds), the package's peer dependencies, and a `setup`
 block (CSS imports, registry, MCP URL, the `"use client"` cutover version).
-`schemaVersion` is `1`; validate against `scripts/manifest.schema.json` in
-this repo before relying on new fields.
+Each component also has a required `extendsDom` flag: when it is `true`, the
+component passes native DOM attributes through, so tooling (the CLI's `lint`)
+should treat any native attribute (`onClick`, `className`, `aria-*`, …) as a
+valid prop even though the manifest lists only the component's own API.
+`schemaVersion` is `1`; validate against the published schema,
+`@studio-manfred/manfred-design-system/manifest.schema.json`
+(`dist/manifest.schema.json`), before relying on new fields.
 
 `dist/migrations.json` (`./migrations.json`) is the companion changelog for
 breaking or setup-affecting releases — each entry names the version, whether
 it's breaking, and machine-actionable steps (`peer`, `code`, `setup`). Diff
-your installed version against the list to find what still applies.
+your installed version against the list to find what still applies. Its
+schema ships as `@studio-manfred/manfred-design-system/migrations.schema.json`.
 
 ## Local development
 

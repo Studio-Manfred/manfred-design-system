@@ -15,8 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   inventory of every component's props, every design token (with its
   layer and Tailwind utility), peer dependencies, and consumer setup
   info, plus a machine-actionable list of breaking/setup-affecting
-  release steps. Read by the upcoming Manfred DS CLI; the build fails
-  if either file doesn't validate against its schema.
+  release steps. Every component carries an `extendsDom` flag (true when
+  it also accepts native DOM attributes, which the manifest leaves out).
+  Both JSON schemas ship too, as `./manifest.schema.json` and
+  `./migrations.schema.json`. Read by the upcoming Manfred DS CLI; the
+  build fails if either file doesn't validate against its schema, or if
+  an exported component comes out with no props and isn't a known pure
+  HTML wrapper.
 
 ## [0.35.0] - 2026-09-24
 

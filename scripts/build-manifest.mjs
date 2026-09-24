@@ -3,9 +3,12 @@
 // main() does the I/O and runs as the last postbuild step.
 
 import { createRequire } from 'node:module';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const DECL = /(--[\w-]+)\s*:\s*([^;]+);/g;
 const VAR_REF = /^var\((--[\w-]+)\)$/;
@@ -170,4 +173,33 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
     propFilter: (prop) => !prop.parent || !prop.parent.fileName.includes('node_modules'),
   });
   return parser.parse(files.map((f) => path.resolve(root, f)));
+}
+
+export const SETUP = Object.freeze({
+  cssImports: ['@studio-manfred/manfred-design-system/tokens.css'],
+  sourceGlob: 'node_modules/@studio-manfred/manfred-design-system/dist',
+  registry: { scope: '@studio-manfred', url: 'https://npm.pkg.github.com' },
+  mcp: { name: 'manfred-design-system', url: 'https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp' },
+  nextUseClientSince: '0.23.0',
+});
+
+export function buildManifest({ pkg, components, tokens }) {
+  return {
+    schemaVersion: 1,
+    package: { name: pkg.name, version: pkg.version },
+    components,
+    tokens,
+    peerDependencies: { ...(pkg.peerDependencies ?? {}) },
+    setup: structuredClone(SETUP),
+  };
+}
+
+const validators = {};
+export function validate(kind, data) {
+  if (!validators[kind]) {
+    const Ajv = require('ajv/dist/2020').default;
+    const schema = JSON.parse(readFileSync(path.join(HERE, `${kind}.schema.json`), 'utf8'));
+    validators[kind] = new Ajv({ allErrors: true }).compile(schema);
+  }
+  return validators[kind](data) ? [] : validators[kind].errors.map((e) => `${e.instancePath || '/'} ${e.message}`);
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen } from '../build-manifest.mjs';
+import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP } from '../build-manifest.mjs';
 
 const CSS = `
 @import "tailwindcss";
@@ -230,4 +230,31 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     expect(button.props.some((p) => p.name === 'onClick')).toBe(false); // inherited HTML props filtered
     expect(out.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
   }, 30_000);
+});
+
+describe('buildManifest + validate', () => {
+  const pkg = { name: '@studio-manfred/manfred-design-system', version: '0.35.0', peerDependencies: { react: '>=18.0.0' } };
+  const components = [{ name: 'Button', group: 'Button', description: 'x', storybook: 'components-button', props: [] }];
+  const tokens = [{ name: '--blue-500', value: '#2c28ec', layer: 'primitive' }];
+
+  it('assembles a valid manifest', () => {
+    const m = buildManifest({ pkg, components, tokens });
+    expect(m.schemaVersion).toBe(1);
+    expect(m.package).toEqual({ name: pkg.name, version: '0.35.0' });
+    expect(m.peerDependencies).toEqual({ react: '>=18.0.0' });
+    expect(m.setup).toEqual(SETUP);
+    expect(validate('manifest', m)).toEqual([]);
+  });
+
+  it('pins the setup contract the CLI relies on', () => {
+    expect(SETUP.mcp.url).toBe('https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp');
+    expect(SETUP.nextUseClientSince).toBe('0.23.0');
+    expect(SETUP.cssImports).toEqual(['@studio-manfred/manfred-design-system/tokens.css']);
+    expect(SETUP.sourceGlob).toBe('node_modules/@studio-manfred/manfred-design-system/dist');
+  });
+
+  it('reports schema errors with a path', () => {
+    const bad = { ...buildManifest({ pkg, components, tokens }), components: [] };
+    expect(validate('manifest', bad).join('\n')).toMatch(/components/);
+  });
 });

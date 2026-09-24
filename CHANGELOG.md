@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-09-24
+
+No breaking changes. One new prop (`RadioGroup` `error`), five bug fixes,
+and a large test/coverage overhaul.
+
 ### Changed
 
 - **`npm run test:all` is now a branded one-shot report** — runs the unit
@@ -31,6 +36,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`RadioGroup` `error` prop** (STU-880). Marks the whole group invalid:
+  `aria-invalid="true"` on the radiogroup, and every item gets the error
+  border and `aria-invalid`. An item's own `error` wins (`error={false}` opts
+  one out), as does a consumer-passed `aria-invalid`. New exported type
+  `RadioGroupProps`, and an `InvalidGroup` story showing the
+  `aria-labelledby` + `aria-describedby` pattern.
 - **Token drift guard** — `src/tokens/tokens.test.ts` fails when the exported
   TS token objects disagree with `tokens.css` (primitive scales, typography,
   spacing, sizing, and every `var()` reference in semantic tokens).

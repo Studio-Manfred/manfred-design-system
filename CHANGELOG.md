@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-09-24
+
+No breaking changes. The build now publishes a machine-readable manifest
+and migration list for the upcoming Manfred DS CLI. `usePrefersReducedMotion`
+and `chartSeriesColor` moved into their own files internally; their public
+exports are unchanged.
+
 ### Added
 
 - **Machine-readable manifest** (STU-901). `npm run build` now writes

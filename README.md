@@ -227,7 +227,7 @@ Copilot, Windsurf, Cline, and friends. The on-ramp:
   [`.mcp.json`](.mcp.json) at repo root; see [AGENTS.md](AGENTS.md) for
   Cursor / Windsurf snippets.
 - **The non-negotiable rule:** never invent component props. Query
-  `list-all-documentation` / `get-documentation` via the MCP before
+  `docs-list` / `docs-show` via the MCP before
   using any DS component.
 
 ## Local development

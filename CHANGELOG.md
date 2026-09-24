@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-09-24
+
+No breaking changes. `FormField` now wires its label and message into the
+wrapped DS control, so `htmlFor`/`id` pairs are no longer needed and it can
+label a `RadioGroup`. Screen-reader users now also hear a field's hint or
+error when it gets focus. Plus CI and docs housekeeping.
+
 ### Added
 
 - **FormField wires its label and message into the wrapped control**

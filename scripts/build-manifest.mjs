@@ -15,7 +15,7 @@ const VAR_REF = /^var\((--[\w-]+)\)$/;
 const TYPES_REACT = /node_modules[\\/]@types[\\/]react[\\/]/;
 // TypeScript's own bundled lib declarations (Boolean/Number/Object/...
 // prototypes). Never real component API from any library — see the
-// ChartContainer note on `propFilter` below.
+// misattribution note on `propFilter` below.
 const TS_LIB = /node_modules[\\/]typescript[\\/]lib[\\/]/;
 // recharts' DOM/SVG attribute adapter (DOMAttributesAdaptChildEvent): it
 // re-declares the DOM event-handler surface in an anonymous TypeLiteral,
@@ -30,6 +30,9 @@ function findLayerBoundaries(css) {
 
   if (!layer2Match) throw new Error('tokens.css: missing "LAYER 2" section header');
   if (!layer3Match) throw new Error('tokens.css: missing "LAYER 3" section header');
+  if (layer2Match.index > layer3Match.index) {
+    throw new Error('tokens.css: "LAYER 2" header appears after "LAYER 3" (layers must be in order 1, 2, 3)');
+  }
 
   return {
     layer2Pos: layer2Match.index,
@@ -154,6 +157,9 @@ function deepFreeze(obj) {
   return obj;
 }
 
+// Code-point order: stable across Node versions and ICU locales, unlike localeCompare.
+const byCodePoint = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
 const typeString = (t) => (t.name === 'enum' ? t.raw ?? t.value.map((v) => v.value).join(' | ') : t.raw ?? t.name);
 
 // Exported components that legitimately document zero props of their own:
@@ -236,10 +242,10 @@ export function componentsFromDocs(docs, { exported, storyTitles, dropped = {}, 
           description: (p.description ?? '').trim(),
         })),
         overrides[d.displayName]?.props ?? [],
-      ).sort((a, b) => a.name.localeCompare(b.name)),
+      ).sort((a, b) => byCodePoint(a.name, b.name)),
     });
   }
-  return out.sort((a, b) => a.name.localeCompare(b.name));
+  return out.sort((a, b) => byCodePoint(a.name, b.name));
 }
 
 function mergeProps(fromDocgen, fromOverride) {
@@ -281,14 +287,15 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
     // asChild from @radix-ui/react-primitive) and recharts config props
     // have their own node_modules parent/declarations and must be kept.
     //
-    // Separately (not a DOM-vs-library judgment call): ChartContainer's
-    // file also exports `usePrefersReducedMotion` (returns `boolean`),
-    // which trips a react-docgen-typescript bug that misattributes
-    // ChartContainer's props to a JS primitive wrapper's own prototype
-    // (Boolean/Number, e.g. `valueOf`, `toFixed`) instead of
-    // ChartContainerProps. Those "props" are declared inside TypeScript's
-    // own bundled lib.*.d.ts and can never be real component API from any
-    // library, so they're excluded unconditionally.
+    // Separately (not a DOM-vs-library judgment call): a non-component
+    // export in the same file as a component (e.g. a hook returning
+    // `boolean`) can make react-docgen-typescript misattribute that
+    // component's props to a JS primitive wrapper's own prototype
+    // (Boolean/Number, e.g. `valueOf`, `toFixed`). Those "props" are
+    // declared inside TypeScript's own bundled lib.*.d.ts and can never be
+    // real component API from any library, so they're excluded
+    // unconditionally. The Chart helpers (usePrefersReducedMotion,
+    // chartSeriesColor) were moved into their own files for this reason.
     propFilter: (prop, component) => {
       if (!isDomSurface(prop)) return true;
       dropped[component.name] = (dropped[component.name] ?? 0) + 1;
@@ -396,7 +403,11 @@ export async function main({
   }
   write(path.join(root, 'dist/manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   write(path.join(root, 'dist/migrations.json'), JSON.stringify(migrations, null, 2) + '\n');
-  log(`✓ dist/manifest.json (${components.length} components, ${tokens.length} tokens), dist/migrations.json (${migrations.length} entries)`);
+  // Ship the schemas so consumers can validate the files they read.
+  for (const kind of ['manifest', 'migrations']) {
+    write(path.join(root, `dist/${kind}.schema.json`), readFileSync(path.join(HERE, `${kind}.schema.json`), 'utf8'));
+  }
+  log(`✓ dist/manifest.json (${components.length} components, ${tokens.length} tokens), dist/migrations.json (${migrations.length} entries), and both schemas`);
 }
 
 const invokedDirectly = import.meta.url === pathToFileURL(process.argv[1] ?? '').href;

@@ -49,8 +49,8 @@
       "properties": {
         "cssImports": { "type": "array", "items": { "type": "string" } },
         "sourceGlob": { "type": "string" },
-        "registry": { "type": "object", "required": ["scope", "url"], "properties": { "scope": { "type": "string" }, "url": { "type": "string" } } },
-        "mcp": { "type": "object", "required": ["name", "url"], "properties": { "name": { "type": "string" }, "url": { "type": "string" } } },
+        "registry": { "type": "object", "required": ["scope", "url"], "additionalProperties": false, "properties": { "scope": { "type": "string" }, "url": { "type": "string" } } },
+        "mcp": { "type": "object", "required": ["name", "url"], "additionalProperties": false, "properties": { "name": { "type": "string" }, "url": { "type": "string" } } },
         "nextUseClientSince": { "type": "string" }
       }
     }

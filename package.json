@@ -28,7 +28,9 @@
     "./styles": "./dist/style.css",
     "./tokens.css": "./dist/tokens.css",
     "./manifest.json": "./dist/manifest.json",
-    "./migrations.json": "./dist/migrations.json"
+    "./migrations.json": "./dist/migrations.json",
+    "./manifest.schema.json": "./dist/manifest.schema.json",
+    "./migrations.schema.json": "./dist/migrations.schema.json"
   },
   "files": [
     "dist"

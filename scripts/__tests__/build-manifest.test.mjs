@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { readFileSync, mkdtempSync, symlinkSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -144,6 +144,20 @@ describe('parseTokens', () => {
     expect(() => parseTokens(noLayer3)).toThrow(/LAYER 3/);
   });
 
+  it('throws if the LAYER 2 header comes after LAYER 3', () => {
+    const reversed = `
+      :root {
+        /* LAYER 1: PRIMITIVE TOKENS */
+        --a: #aaa;
+        /* LAYER 3: SHADCN CONTRACT */
+        --c: var(--a);
+        /* LAYER 2: SEMANTIC TOKENS */
+        --b: var(--a);
+      }
+    `;
+    expect(() => parseTokens(reversed)).toThrow(/"LAYER 2" header appears after "LAYER 3"/);
+  });
+
   it('classifies real tokens.css correctly', () => {
     const realCSS = readFileSync('src/tokens/tokens.css', 'utf8');
     const toks = parseTokens(realCSS);
@@ -222,6 +236,16 @@ describe('componentsFromDocs', () => {
       .toEqual(['Tabs']);
   });
 
+  it('sorts components and props by code point, not locale', () => {
+    const p = (name) => ({ name, required: false, description: '', defaultValue: null, type: { name: 'string' } });
+    const sorted = componentsFromDocs(
+      [doc('Aa', '/r/src/components/A/A.tsx', { aa: p('aa'), aB: p('aB') }), doc('AB', '/r/src/components/A/A.tsx')],
+      { exported: new Set(['Aa', 'AB']), storyTitles: {} },
+    );
+    expect(sorted.map((c) => c.name)).toEqual(['AB', 'Aa']);
+    expect(sorted[1].props.map((x) => x.name)).toEqual(['aB', 'aa']);
+  });
+
   it('sets extendsDom from the per-component dropped-prop counts', () => {
     const withDropped = componentsFromDocs(docs, {
       exported: new Set(['Button', 'RadioGroupItem']),
@@ -280,14 +304,32 @@ describe('PROP_OVERRIDES', () => {
 });
 
 describe('componentsFromDocs on real sources (contract with react-docgen-typescript)', () => {
+  // One TypeScript program for every real-source contract test: each
+  // runDocgen call builds its own, which is slow under the coverage run.
+  const FILES = [
+    'src/components/Button/Button.tsx',
+    'src/components/Radio/Radio.tsx',
+    'src/components/Select/Select.tsx',
+    'src/components/Tabs/Tabs.tsx',
+    'src/components/Chart/ChartTooltip.tsx',
+    'src/components/Chart/ChartLegend.tsx',
+    'src/components/Chart/ChartContainer.tsx',
+  ];
+  let docs;
+  let dropped;
+  const find = (name) => docs.find((d) => d.displayName === name);
+  beforeAll(() => {
+    ({ docs, dropped } = runDocgen(FILES));
+  }, 60_000);
+
   it('reads Button and RadioGroup from the repo', () => {
-    const { docs } = runDocgen(['src/components/Button/Button.tsx', 'src/components/Radio/Radio.tsx']);
-    const out = componentsFromDocs(docs, { exported: new Set(['Button', 'RadioGroup']), storyTitles: {} });
+    const out = componentsFromDocs(docs, { exported: new Set(['Button', 'RadioGroup']), storyTitles: {}, dropped });
     const button = out.find((c) => c.name === 'Button');
     expect(button.props.map((p) => p.name)).toContain('variant');
     expect(button.props.some((p) => p.name === 'onClick')).toBe(false); // inherited HTML props filtered
+    expect(button.extendsDom).toBe(true);
     expect(out.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
-  }, 30_000);
+  });
 
   it('excludes only the @types/react DOM surface, keeping library component API', () => {
     // propFilter drops a prop only when its `parent` (or every one of its
@@ -295,27 +337,19 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     // props (asChild from @radix-ui/react-primitive; Select's
     // value/onValueChange from @radix-ui/react-select) and recharts' own
     // config props are real component API and must survive.
-    const { docs: [buttonDoc], dropped } = runDocgen(['src/components/Button/Button.tsx']);
+    const buttonDoc = find('Button');
     expect(dropped.Button).toBeGreaterThan(0);
     expect(buttonDoc.props.variant).toBeDefined();
     expect(buttonDoc.props.asChild).toBeDefined();
     expect(buttonDoc.props.onClick).toBeUndefined();
     expect(buttonDoc.props.className).toBeUndefined();
 
-    const { docs: selectDocs } = runDocgen(['src/components/Select/Select.tsx']);
-    const select = selectDocs.find((d) => d.displayName === 'Select');
-    expect(select.props.onValueChange).toBeDefined();
-    expect(select.props.value).toBeDefined();
-
-    const { docs: tabsDocs } = runDocgen(['src/components/Tabs/Tabs.tsx']);
-    const tabsTrigger = tabsDocs.find((d) => d.displayName === 'TabsTrigger');
-    expect(tabsTrigger.props.asChild).toBeDefined();
-
-    const { docs: tooltipDocs } = runDocgen(['src/components/Chart/ChartTooltip.tsx']);
-    const chartTooltip = tooltipDocs.find((d) => d.displayName === 'ChartTooltip');
-    expect(chartTooltip.props.valueFormatter).toBeDefined();
-    expect(chartTooltip.props.cursor).toBeDefined();
-  }, 30_000);
+    expect(find('Select').props.onValueChange).toBeDefined();
+    expect(find('Select').props.value).toBeDefined();
+    expect(find('TabsTrigger').props.asChild).toBeDefined();
+    expect(find('ChartTooltip').props.valueFormatter).toBeDefined();
+    expect(find('ChartTooltip').props.cursor).toBeDefined();
+  });
 
   it("ChartLegend drops recharts' DOM/SVG adapter props but keeps its own Legend config", () => {
     // recharts re-declares the DOM/SVG event-handler surface (onAbort,
@@ -323,9 +357,8 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     // DOMAttributesAdaptChildEvent, in node_modules/recharts/types/util/types.d.ts.
     // Props declared ONLY there are dropped; layout/align/verticalAlign are
     // real Legend config declared elsewhere and must survive.
-    const { docs } = runDocgen(['src/components/Chart/ChartLegend.tsx']);
-    const chartLegend = docs.find((d) => d.displayName === 'ChartLegend');
-    const chartLegendContent = docs.find((d) => d.displayName === 'ChartLegendContent');
+    const chartLegend = find('ChartLegend');
+    const chartLegendContent = find('ChartLegendContent');
     expect(chartLegend.props.onAbort).toBeUndefined();
     expect(chartLegend.props.onPointerDown).toBeUndefined();
     expect(chartLegend.props.dangerouslySetInnerHTML).toBeUndefined();
@@ -334,17 +367,16 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     expect(chartLegend.props.verticalAlign).toBeDefined();
     expect(chartLegendContent.props.payload).toBeDefined();
     expect(chartLegendContent.props.className).toBeDefined();
-  }, 30_000);
+  });
 
   it('ChartContainer now extracts its own real props (usePrefersReducedMotion + chartSeriesColor moved out)', () => {
-    const { docs } = runDocgen(['src/components/Chart/ChartContainer.tsx']);
-    const chartContainer = docs.find((d) => d.displayName === 'ChartContainer');
+    const chartContainer = find('ChartContainer');
     expect(chartContainer.props.height).toBeDefined();
     expect(chartContainer.props.data).toBeDefined();
     expect(chartContainer.props.ariaLabel).toBeDefined();
     // The @types/react DOM surface (extends React.HTMLAttributes<HTMLDivElement>) is still excluded.
     expect(chartContainer.props.onClick).toBeUndefined();
-  }, 30_000);
+  });
 });
 
 describe('buildManifest + validate', () => {
@@ -372,6 +404,20 @@ describe('buildManifest + validate', () => {
     const { extendsDom, ...noFlag } = components[0];
     expect(validate('manifest', { ...buildManifest({ pkg, components, tokens }), components: [noFlag] }).join('\n')).toMatch(/extendsDom/);
     expect(validate('manifest', { ...buildManifest({ pkg, components, tokens }), components: [{ ...noFlag, extendsDom: 'yes' }] }).join('\n')).toMatch(/extendsDom/);
+  });
+
+  it('rejects unknown keys in setup.registry and setup.mcp', () => {
+    const m = buildManifest({ pkg, components, tokens });
+    expect(validate('manifest', { ...m, setup: { ...m.setup, registry: { ...m.setup.registry, token: 'x' } } }).join('\n'))
+      .toMatch(/registry.*additional/);
+    expect(validate('manifest', { ...m, setup: { ...m.setup, mcp: { ...m.setup.mcp, extra: 1 } } }).join('\n'))
+      .toMatch(/mcp.*additional/);
+  });
+
+  it('exports both schemas from package.json', () => {
+    const { exports } = JSON.parse(readFileSync('package.json', 'utf8'));
+    expect(exports['./manifest.schema.json']).toBe('./dist/manifest.schema.json');
+    expect(exports['./migrations.schema.json']).toBe('./dist/migrations.schema.json');
   });
 
   it('reports schema errors with a path', () => {
@@ -444,6 +490,10 @@ describe('main', () => {
     expect(comp('CardHeader').props).toEqual([]);
     expect(manifest.components.every((c) => typeof c.extendsDom === 'boolean')).toBe(true);
     expect(written[path.join(process.cwd(), 'dist/migrations.json')].length).toBeGreaterThan(0);
+    for (const kind of ['manifest', 'migrations']) {
+      expect(written[path.join(process.cwd(), `dist/${kind}.schema.json`)])
+        .toEqual(JSON.parse(readFileSync(`scripts/${kind}.schema.json`, 'utf8')));
+    }
   }, 60_000);
 
   it('fails closed and never writes when migrations.json is schema-invalid', async () => {

@@ -1,5 +1,13 @@
 [
   {
+    "version": "0.2.0",
+    "breaking": true,
+    "summary": "CSS Modules removed in favor of Tailwind utility classes; consumer Tailwind builds need @source",
+    "steps": [
+      { "kind": "setup", "note": "Add @source \"<relative path to>/node_modules/@studio-manfred/manfred-design-system/dist\"; to your Tailwind v4 input CSS (after the tokens.css import). Without it, responsive and arbitrary classes used inside DS components (e.g. AppHeader's md:flex) are purged from production builds." }
+    ]
+  },
+  {
     "version": "0.9.0",
     "breaking": false,
     "summary": "recharts peer dependency added for the new Chart primitives",

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Machine-readable manifest** (STU-901). `npm run build` now writes
+  `dist/manifest.json` (exported as `./manifest.json`) and
+  `dist/migrations.json` (`./migrations.json`) — a schema-validated
+  inventory of every component's props, every design token (with its
+  layer and Tailwind utility), peer dependencies, and consumer setup
+  info, plus a machine-actionable list of breaking/setup-affecting
+  release steps. Read by the upcoming Manfred DS CLI; the build fails
+  if either file doesn't validate against its schema.
+
 ## [0.35.0] - 2026-09-24
 
 No breaking changes. `FormField` now wires its label and message into the

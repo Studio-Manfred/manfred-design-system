@@ -230,6 +230,23 @@ Copilot, Windsurf, Cline, and friends. The on-ramp:
   `docs-list` / `docs-show` via the MCP before
   using any DS component.
 
+### Machine-readable manifest
+
+Every published version (**0.36.0+**) ships `dist/manifest.json`, importable
+as `@studio-manfred/manfred-design-system/manifest.json`. It's the offline,
+non-MCP source of truth for tooling: every component's name, story group,
+description and props (type, required, default, description), every design
+token (name, value, layer — `primitive` / `semantic` / `contract` — and the
+Tailwind utility it feeds), the package's peer dependencies, and a `setup`
+block (CSS imports, registry, MCP URL, the `"use client"` cutover version).
+`schemaVersion` is `1`; validate against `scripts/manifest.schema.json` in
+this repo before relying on new fields.
+
+`dist/migrations.json` (`./migrations.json`) is the companion changelog for
+breaking or setup-affecting releases — each entry names the version, whether
+it's breaking, and machine-actionable steps (`peer`, `code`, `setup`). Diff
+your installed version against the list to find what still applies.
+
 ## Local development
 
 ```bash

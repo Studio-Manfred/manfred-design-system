@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
 
@@ -385,5 +385,111 @@ describe('AppHeader — clickable profile avatar', () => {
     render(<AppHeader user={{ name: 'Jens Wedin', onSignOut: () => {} }} />);
     expect(screen.queryByRole('button', { name: 'Jens Wedin' })).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Jens Wedin' })).toBeInTheDocument();
+  });
+
+  it('prefers onAvatarClick over avatarHref and warns about the ignored href', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const onAvatarClick = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <AppHeader
+        user={{ name: 'Jens', onAvatarClick, avatarHref: '/profile', avatarLabel: 'Profile' }}
+      />,
+    );
+    expect(screen.queryByRole('link', { name: 'Profile' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Profile' }));
+    expect(onAvatarClick).toHaveBeenCalledOnce();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('`user.avatarHref` ignored'));
+    warn.mockRestore();
+  });
+
+  it('clicking the avatar inside the mobile drawer fires onAvatarClick and closes the drawer', async () => {
+    const onAvatarClick = vi.fn();
+    const user = userEvent.setup();
+    render(<AppHeader user={{ name: 'Jens', onAvatarClick, avatarLabel: 'Profile' }} />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Profile' }));
+
+    expect(onAvatarClick).toHaveBeenCalledOnce();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+});
+
+describe('AppHeader — user block fallbacks', () => {
+  it('labels an email-only avatar with the email and falls back to its local-part initial', () => {
+    render(<AppHeader user={{ email: 'jens@studiomanfred.com', avatarUrl: '/me.jpg' }} />);
+    const avatar = screen.getByRole('img', { name: 'jens@studiomanfred.com' });
+    // Image fails to load → initials fallback derived from the email local part.
+    fireEvent.error(avatar.querySelector('img')!);
+    expect(avatar).toHaveTextContent('J');
+    // Email shown as text when there is no name.
+    expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
+  });
+
+  it('labels an avatar with "Account" when only an avatarUrl is given', () => {
+    render(<AppHeader user={{ avatarUrl: '/me.jpg' }} />);
+    expect(screen.getByRole('img', { name: 'Account' })).toBeInTheDocument();
+  });
+
+  it('renders no avatar when there is neither a name nor an avatarUrl', () => {
+    render(<AppHeader user={{ email: 'jens@studiomanfred.com' }} />);
+    expect(screen.queryByRole('img', { name: /jens|account/i })).not.toBeInTheDocument();
+    expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
+  });
+
+  it('renders no sign-out button when onSignOut is omitted', () => {
+    render(<AppHeader user={{ name: 'Jens' }} />);
+    expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — dropdown nav active state', () => {
+  it('marks the active top-level link and the active sub-item with data-active', async () => {
+    const user = userEvent.setup();
+    render(
+      <AppHeader
+        navItems={[
+          {
+            label: 'Products',
+            items: [
+              { label: 'Alpha', href: '/p/alpha', active: true },
+              { label: 'Beta', href: '/p/beta' },
+            ],
+          },
+          { label: 'About', href: '/about', active: true },
+          { label: 'Contact', href: '/contact' },
+        ]}
+      />,
+    );
+    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute('data-active');
+    expect(screen.getByRole('link', { name: 'Contact' })).not.toHaveAttribute('data-active');
+
+    await user.click(screen.getByRole('button', { name: 'Products' }));
+    expect(await screen.findByRole('link', { name: 'Alpha' })).toHaveAttribute('data-active');
+    expect(screen.getByRole('link', { name: 'Beta' })).not.toHaveAttribute('data-active');
+  });
+});
+
+describe('AppHeader — theme cycle labels', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  it('announces each preference as it cycles light → dark → system', async () => {
+    window.localStorage.setItem('manfred-theme', 'light');
+    const user = userEvent.setup();
+    render(<AppHeader themeToggle="cycle" />);
+
+    await user.click(await screen.findByRole('button', { name: /theme: light/i }));
+    expect(screen.getByRole('button', { name: /theme: dark/i })).toBeInTheDocument();
+    expect(document.documentElement).toHaveClass('dark');
+
+    await user.click(screen.getByRole('button', { name: /theme: dark/i }));
+    expect(screen.getByRole('button', { name: /theme: system/i })).toBeInTheDocument();
+    expect(document.documentElement).not.toHaveClass('dark');
+    expect(document.documentElement).not.toHaveClass('light');
   });
 });

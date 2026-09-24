@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Label } from './Label';
+import { Checkbox } from '../Checkbox';
 
 describe('Label', () => {
   it('renders the label text', () => {
@@ -55,5 +56,44 @@ describe('Label', () => {
       </Label>,
     );
     expect(screen.getByTestId('lbl')).toBeInTheDocument();
+  });
+
+  describe('accessibility', () => {
+    it("the required asterisk is excluded from the control's accessible name", () => {
+      render(
+        <>
+          <Label htmlFor="name" required>
+            Name
+          </Label>
+          <input id="name" required />
+        </>,
+      );
+      expect(screen.getByRole('textbox', { name: 'Name' })).toBeRequired();
+    });
+
+    it('is not a Tab stop — Tab goes straight to the control', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Label htmlFor="email">Email</Label>
+          <input id="email" />
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('textbox', { name: 'Email' })).toHaveFocus();
+    });
+
+    it('names and toggles a DS Checkbox via htmlFor', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Checkbox id="terms" />
+          <Label htmlFor="terms">I agree to the terms</Label>
+        </>,
+      );
+      const cb = screen.getByRole('checkbox', { name: 'I agree to the terms' });
+      await user.click(screen.getByText('I agree to the terms'));
+      expect(cb).toBeChecked();
+    });
   });
 });

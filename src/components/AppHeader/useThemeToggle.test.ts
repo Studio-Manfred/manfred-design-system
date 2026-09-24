@@ -125,4 +125,113 @@ describe('useThemeToggle', () => {
     expect(result.current.preference).toBe('light');
     expect(window.localStorage.getItem('manfred-theme')).toBe('light');
   });
+
+  it('falls back to "system" when the stored value is not a known preference', () => {
+    window.localStorage.setItem(STORAGE_KEY, 'sepia');
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+    expect(document.documentElement.classList.contains('light')).toBe(false);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
+});
+
+describe('useThemeToggle — OS preference changes', () => {
+  let changeHandler: ((e: MediaQueryListEvent) => void) | undefined;
+  let removeEventListener: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+    changeHandler = undefined;
+    removeEventListener = vi.fn();
+    vi.spyOn(window, 'matchMedia').mockImplementation((q: string) => ({
+      matches: false,
+      media: q,
+      onchange: null,
+      addEventListener: vi.fn((_type: string, handler: (e: MediaQueryListEvent) => void) => {
+        changeHandler = handler;
+      }),
+      removeEventListener,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }) as unknown as MediaQueryList);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const flipOs = (dark: boolean) =>
+    act(() => changeHandler?.({ matches: dark } as MediaQueryListEvent));
+
+  it('follows the OS live while preference is "system"', () => {
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.resolved).toBe('light');
+
+    flipOs(true);
+    expect(result.current.resolved).toBe('dark');
+
+    flipOs(false);
+    expect(result.current.resolved).toBe('light');
+  });
+
+  it('ignores OS changes while an explicit preference is set', () => {
+    window.localStorage.setItem(STORAGE_KEY, 'light');
+    const { result } = renderHook(() => useThemeToggle());
+    flipOs(true);
+    expect(result.current.resolved).toBe('light');
+  });
+
+  it('toggle after an OS flip to dark commits "light"', () => {
+    const { result } = renderHook(() => useThemeToggle());
+    flipOs(true);
+    act(() => result.current.toggle());
+    expect(result.current.preference).toBe('light');
+    expect(window.localStorage.getItem(STORAGE_KEY)).toBe('light');
+  });
+
+  it('stops listening to the OS query on unmount', () => {
+    const { unmount } = renderHook(() => useThemeToggle());
+    const handler = changeHandler;
+    unmount();
+    expect(removeEventListener).toHaveBeenCalledWith('change', handler);
+  });
+});
+
+describe('useThemeToggle — missing browser APIs', () => {
+  const originalMatchMedia = window.matchMedia;
+  const localStorageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage');
+
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  afterEach(() => {
+    window.matchMedia = originalMatchMedia;
+    if (localStorageDescriptor) Object.defineProperty(window, 'localStorage', localStorageDescriptor);
+  });
+
+  it('resolves "system" to light and still toggles when matchMedia is unavailable', () => {
+    // @ts-expect-error — simulate an environment without matchMedia
+    window.matchMedia = undefined;
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+    expect(result.current.resolved).toBe('light');
+
+    act(() => result.current.toggle());
+    expect(result.current.resolved).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
+  it('works in memory (no persistence) when localStorage is unavailable', () => {
+    Object.defineProperty(window, 'localStorage', { value: undefined, configurable: true });
+    const { result } = renderHook(() => useThemeToggle());
+    expect(result.current.preference).toBe('system');
+
+    act(() => result.current.setPreference('dark'));
+    expect(result.current.preference).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
 });

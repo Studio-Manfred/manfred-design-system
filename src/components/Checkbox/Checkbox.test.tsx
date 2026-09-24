@@ -73,4 +73,58 @@ describe('Checkbox', () => {
     const label = screen.getByText('Accept terms').closest('label')!;
     expect(label).toHaveAttribute('for', 'terms');
   });
+
+  // Keyboard + semantics. Space-to-toggle is asserted by the Interactive play
+  // function; these cover the remaining WAI-ARIA checkbox contracts.
+  describe('keyboard and semantics', () => {
+    it('is reachable with Tab', async () => {
+      const user = userEvent.setup();
+      render(<Checkbox label="Accept" />);
+      await user.tab();
+      expect(screen.getByRole('checkbox', { name: 'Accept' })).toHaveFocus();
+    });
+
+    it('does not toggle on Enter (WAI-ARIA checkbox: Space only)', async () => {
+      const user = userEvent.setup();
+      const onCheckedChange = vi.fn();
+      render(<Checkbox label="Accept" onCheckedChange={onCheckedChange} />);
+      await user.tab();
+      await user.keyboard('{Enter}');
+      expect(onCheckedChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('checkbox', { name: 'Accept' })).not.toBeChecked();
+    });
+
+    it('is skipped by Tab when disabled', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Checkbox label="Disabled" disabled />
+          <Checkbox label="Enabled" />
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('checkbox', { name: 'Enabled' })).toHaveFocus();
+    });
+
+    it('exposes checked state via aria-checked', async () => {
+      const user = userEvent.setup();
+      render(<Checkbox label="Accept" />);
+      const cb = screen.getByRole('checkbox', { name: 'Accept' });
+      expect(cb).not.toBeChecked();
+      await user.click(cb);
+      expect(cb).toBeChecked();
+    });
+
+    it('exposes indeterminate as aria-checked="mixed"', () => {
+      render(<Checkbox label="Select all" indeterminate />);
+      expect(screen.getByRole('checkbox', { name: 'Select all' })).toBePartiallyChecked();
+    });
+
+    it('toggles when the visible label text is clicked', async () => {
+      const user = userEvent.setup();
+      render(<Checkbox id="terms" label="Accept terms" />);
+      await user.click(screen.getByText('Accept terms'));
+      expect(screen.getByRole('checkbox', { name: 'Accept terms' })).toBeChecked();
+    });
+  });
 });

@@ -1,5 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { format } from 'date-fns';
+import { sv } from 'date-fns/locale/sv';
 import userEvent from '@testing-library/user-event';
 import { DatePicker } from './DatePicker';
 import { isDateRange } from './datePickerStateHelpers';
@@ -420,6 +422,91 @@ describe('DatePicker range mode', () => {
     );
     // Renders as empty (placeholder)
     expect(screen.getByRole('combobox')).toHaveTextContent(/Pick dates/);
+    warn.mockRestore();
+  });
+});
+
+describe('DatePicker — controlled open, labelling and footer variants', () => {
+  it('controlled `open` renders the popover and reports close requests via onOpenChange', async () => {
+    const user = userEvent.setup();
+    const onOpenChange = vi.fn();
+    render(<DatePicker open onOpenChange={onOpenChange} defaultValue={new Date(2026, 3, 15)} />);
+    const trigger = screen.getByRole('combobox');
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    // Consumer owns `open` and did not flip it — popover stays open.
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('uses the display text as the accessible name when no label is given', () => {
+    render(<DatePicker defaultValue={new Date(2026, 3, 15)} />);
+    expect(screen.getByRole('combobox', { name: '2026-04-15' })).toBeInTheDocument();
+  });
+
+  it('defers to aria-labelledby instead of overriding it with the display text', () => {
+    render(
+      <>
+        <span id="dp-label">Due date</span>
+        <DatePicker aria-labelledby="dp-label" defaultValue={new Date(2026, 3, 15)} />
+      </>,
+    );
+    const trigger = screen.getByRole('combobox', { name: 'Due date' });
+    expect(trigger).not.toHaveAttribute('aria-label');
+  });
+
+  it('Today jumps the calendar to the current month', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker defaultValue={new Date(2020, 0, 15)} />);
+    await user.click(screen.getByRole('combobox'));
+    const dialog = await screen.findByRole('dialog');
+    const pastCaption = format(new Date(2020, 0, 15), 'LLLL y', { locale: sv });
+    const currentCaption = format(new Date(), 'LLLL y', { locale: sv });
+    expect(within(dialog).getByText(pastCaption)).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Today' }));
+
+    expect(within(dialog).queryByText(pastCaption)).toBeNull();
+    expect(within(dialog).getByText(currentCaption)).toBeInTheDocument();
+  });
+
+  it('showTodayButton={false} with a value shows only Clear in the footer', async () => {
+    const user = userEvent.setup();
+    render(<DatePicker showTodayButton={false} defaultValue={new Date(2026, 3, 15)} />);
+    await user.click(screen.getByRole('combobox'));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: 'Today' })).toBeNull();
+  });
+
+  it('showTodayButton={false} and clearable={false} render no footer buttons', async () => {
+    const user = userEvent.setup();
+    render(
+      <DatePicker
+        showTodayButton={false}
+        clearable={false}
+        defaultValue={new Date(2026, 3, 15)}
+      />,
+    );
+    await user.click(screen.getByRole('combobox'));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).queryByRole('button', { name: 'Clear' })).toBeNull();
+    expect(within(dialog).queryByRole('button', { name: 'Today' })).toBeNull();
+  });
+
+  it('warns once when both `value` and `defaultValue` are given, and `value` wins', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const { rerender } = render(
+      <DatePicker value={new Date(2026, 3, 15)} defaultValue={new Date(2026, 3, 1)} />,
+    );
+    rerender(<DatePicker value={new Date(2026, 3, 16)} defaultValue={new Date(2026, 3, 1)} />);
+    const dualWarnings = warn.mock.calls.filter(([msg]) =>
+      String(msg).includes('both `value` and `defaultValue`'),
+    );
+    expect(dualWarnings).toHaveLength(1);
+    expect(screen.getByRole('combobox')).toHaveTextContent('2026-04-16');
     warn.mockRestore();
   });
 });

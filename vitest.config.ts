@@ -20,12 +20,29 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'json-summary'],
-      include: ['src/components/**/*.tsx', 'src/lib/**/*.ts'],
+      // .ts is included on purpose: hooks and state helpers (useThemeToggle,
+      // useDatePickerState, …) live in .ts files and were invisible before.
+      include: [
+        'src/components/**/*.{ts,tsx}',
+        'src/lib/**/*.ts',
+        'src/tokens/*.ts',
+        'scripts/*.mjs',
+      ],
       exclude: [
         'src/**/*.stories.tsx',
         'src/**/*.test.{ts,tsx}',
         'src/**/index.ts',
+        // Walks a live Storybook in Playwright — exercised by running it, not by unit tests.
+        'scripts/a11y-runtime-scan.mjs',
       ],
+      // Floor just under the measured baseline (2026-09-23: 94.3 lines / 96.0
+      // branches). `npm run test:coverage` fails below it. Raise when it rises.
+      thresholds: {
+        lines: 93,
+        branches: 95,
+        functions: 93,
+        statements: 92,
+      },
     },
     projects: [
       {

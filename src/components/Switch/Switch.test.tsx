@@ -109,4 +109,43 @@ describe('Switch', () => {
     rerender(<Switch label="A" checked onCheckedChange={onCheckedChange} />);
     expect(screen.getByRole('switch')).toHaveAttribute('data-state', 'checked');
   });
+
+  // Keyboard + semantics. The Default play function only clicks; these
+  // cover the WAI-ARIA switch keyboard contract.
+  describe('keyboard', () => {
+    it('Tab focuses the switch and Space toggles it', async () => {
+      const user = userEvent.setup();
+      render(<Switch label="Notifications" />);
+      await user.tab();
+      const sw = screen.getByRole('switch', { name: 'Notifications' });
+      expect(sw).toHaveFocus();
+      await user.keyboard(' ');
+      expect(sw).toBeChecked();
+      await user.keyboard(' ');
+      expect(sw).not.toBeChecked();
+    });
+
+    it('Enter toggles the switch (native button activation)', async () => {
+      const user = userEvent.setup();
+      const onCheckedChange = vi.fn();
+      render(<Switch label="Notifications" onCheckedChange={onCheckedChange} />);
+      await user.tab();
+      await user.keyboard('{Enter}');
+      expect(onCheckedChange).toHaveBeenCalledWith(true);
+      expect(screen.getByRole('switch', { name: 'Notifications' })).toBeChecked();
+    });
+
+    it('is skipped by Tab when disabled or loading', async () => {
+      const user = userEvent.setup();
+      render(
+        <>
+          <Switch label="Disabled" disabled />
+          <Switch label="Loading" loading />
+          <Switch label="Enabled" />
+        </>,
+      );
+      await user.tab();
+      expect(screen.getByRole('switch', { name: 'Enabled' })).toHaveFocus();
+    });
+  });
 });

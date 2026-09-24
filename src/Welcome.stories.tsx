@@ -280,7 +280,7 @@ export function App() {
               </Typography>
               <Typography as="li" variant="body">
                 <strong>The non-negotiable rule:</strong> never invent component props. Query{' '}
-                <Code>list-all-documentation</Code> / <Code>get-documentation</Code> via the MCP
+                <Code>docs-list</Code> / <Code>docs-show</Code> via the MCP
                 before using any DS component.
               </Typography>
             </VStack>

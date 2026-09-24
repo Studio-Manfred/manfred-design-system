@@ -34,6 +34,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Storybook MCP tool names corrected in the agent docs** (STU-890).
+  AGENTS.md, CLAUDE.md, README and the Welcome page named tools that
+  don't exist (`list-all-documentation`, `get-documentation`,
+  `run-story-tests`, `preview-stories`). They now list what the servers
+  actually expose: `docs-list`, `docs-show`, `docs-show-story` (local +
+  published) and `get-storybook-story-instructions`, `test-run`,
+  `stories-preview`, `stories-find-by-component`, `stories-changed`
+  (local only).
 - **CI enforces the coverage floor** (STU-889). The CI unit-test step now runs
   `npm run test:coverage` instead of `npm run test`, so a PR that drops
   coverage below the thresholds in `vitest.config.ts` fails the required

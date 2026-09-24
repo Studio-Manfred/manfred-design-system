@@ -33,23 +33,33 @@ session:
 npm run storybook            # serves on http://localhost:6006
 ```
 
-Tools (call before using any DS component):
+Tools (call before using any DS component). Names as the server
+exposes them (verified 2026-09-24):
 
-- **`list-all-documentation`** — full component inventory.
-- **`get-documentation`** — props + example stories for a target
-  component.
+- **`docs-list`** — full component and docs inventory; returns the ids
+  the other docs tools take. Call it first.
+- **`docs-show`** (`id`) — props + example stories for a component or
+  docs entry.
+- **`docs-show-story`** (`storyId`) — one story variant in detail, for
+  more usage examples.
 - **`get-storybook-story-instructions`** — current story-authoring
   conventions before creating or editing a `*.stories.tsx`.
-- **`run-story-tests`** — verify after story changes.
-- **`preview-stories`** — render previews to confirm visual results.
+- **`stories-find-by-component`** (`componentPaths`) — maps component
+  source files to the story ids that render them.
+- **`test-run`** (`stories`, `a11y`) — run story tests (play functions +
+  axe) after story changes.
+- **`stories-preview`** (`stories`) — preview URLs to confirm visual
+  results.
+- **`stories-changed`** — stories marked new / modified / related.
 
 ### Fallback — published (`https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp`)
 
 When Storybook isn't running locally, use the MCP that Chromatic
 publishes on every `main` build. It's public (no auth) and current with
-`main`, but serves the **docs toolset only** — `list-all-documentation`,
-`get-documentation`, `get-documentation-for-story`. The interactive
-`run-story-tests` / `preview-stories` are local-only (they need a live
+`main`, but serves the **docs toolset only**: `docs-list`, `docs-show`,
+`docs-show-story`. The interactive tools (`test-run`,
+`stories-preview`, `stories-find-by-component`, `stories-changed`,
+`get-storybook-story-instructions`) are local-only (they need a live
 Storybook). This is enough to verify props and inventory without
 starting Storybook.
 

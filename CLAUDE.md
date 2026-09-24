@@ -60,16 +60,16 @@ This repo registers a Storybook MCP server at `http://localhost:6006/mcp` (see [
 ### Mandatory workflow
 
 - **CRITICAL: Never hallucinate component properties.** Before using ANY property on a DS component (including common-sounding ones like `shadow`, `elevation`, `tone`, etc.), you MUST verify the property is actually documented for that component via the MCP.
-- Query `list-all-documentation` to get the full component inventory.
-- Query `get-documentation` for the target component to see its real props and example stories.
+- Query `docs-list` to get the full component inventory (and the ids the other docs tools take).
+- Query `docs-show` (`id`) for the target component to see its real props and example stories; `docs-show-story` for one variant in detail.
 - Use only properties that are explicitly documented or shown in example stories. Do NOT assume props from naming conventions or patterns from other libraries — story names sometimes don't reflect prop names accurately.
 - If a property isn't documented, do not invent one. Ask the user.
 - When creating or updating stories, use `get-storybook-story-instructions` to fetch the latest conventions before writing the story.
-- After creating or modifying stories, run `run-story-tests` to verify.
+- After creating or modifying stories, run `test-run` to verify (play functions + axe). Tool names are listed in [AGENTS.md](AGENTS.md).
 
 ### When the MCP is unavailable
 
-If Storybook is not running (`localhost:6006` not reachable), prefer to start it with `npm run storybook &` before invoking MCP tools. If you can't (or don't want to spin up Storybook), fall back to the **published MCP** Chromatic serves at `https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp` — a public, always-current endpoint exposing the **docs toolset only** (`list-all-documentation`, `get-documentation`, `get-documentation-for-story`; no `run-story-tests` / `preview-stories`, which are local-only). Only if **both** are unreachable, do not grep as a substitute — read the source directly via the Read tool when the MCP is genuinely unreachable, and surface that to the user.
+If Storybook is not running (`localhost:6006` not reachable), prefer to start it with `npm run storybook &` before invoking MCP tools. If you can't (or don't want to spin up Storybook), fall back to the **published MCP** Chromatic serves at `https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp` — a public, always-current endpoint exposing the **docs toolset only** (`docs-list`, `docs-show`, `docs-show-story`; no `test-run` / `stories-preview` / `get-storybook-story-instructions`, which are local-only). Only if **both** are unreachable, do not grep as a substitute — read the source directly via the Read tool when the MCP is genuinely unreachable, and surface that to the user.
 
 ## Architecture
 

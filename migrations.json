@@ -1,0 +1,27 @@
+[
+  {
+    "version": "0.9.0",
+    "breaking": false,
+    "summary": "recharts peer dependency added for the new Chart primitives",
+    "steps": [
+      { "kind": "peer", "package": "recharts", "range": "^3.0.0" }
+    ]
+  },
+  {
+    "version": "0.21.0",
+    "breaking": false,
+    "summary": "New ./tokens.css export required so shadcn-shape Tailwind utilities compile",
+    "steps": [
+      { "kind": "setup", "note": "Add @import \"@studio-manfred/manfred-design-system/tokens.css\"; to your Tailwind v4 input CSS, alongside @import \"tailwindcss\";. Without it, shadcn-shape utilities the DS components rely on (bg-muted, text-muted-foreground, bg-accent, bg-card, bg-popover, bg-destructive, border-border, ring-ring, etc.) compile to nothing in your build." }
+    ]
+  },
+  {
+    "version": "0.32.0",
+    "breaking": true,
+    "summary": "react-day-picker v10 peer dependency",
+    "steps": [
+      { "kind": "peer", "package": "react-day-picker", "range": "^10.0.0" },
+      { "kind": "code", "note": "The DatePicker wrapper's public API is unchanged. Code that imports react-day-picker directly must follow its v10 upgrade guide (https://daypicker.dev/upgrading).", "findImports": ["react-day-picker"] }
+    ]
+  }
+]

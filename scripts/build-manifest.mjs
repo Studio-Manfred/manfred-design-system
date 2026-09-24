@@ -213,3 +213,21 @@ export function validate(kind, data) {
   }
   return validators[kind](data) ? [] : validators[kind].errors.map((e) => `${e.instancePath || '/'} ${e.message}`);
 }
+
+const semverTuple = (v) => v.split('.').map(Number);
+const compareVersions = (a, b) => {
+  const x = semverTuple(a), y = semverTuple(b);
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
+  return 0;
+};
+
+export function checkMigrations(list) {
+  const errors = validate('migrations', list);
+  if (errors.length) return errors;
+  for (let i = 1; i < list.length; i++) {
+    if (compareVersions(list[i].version, list[i - 1].version) <= 0) {
+      errors.push(`order: ${list[i].version} comes after ${list[i - 1].version}`);
+    }
+  }
+  return errors;
+}

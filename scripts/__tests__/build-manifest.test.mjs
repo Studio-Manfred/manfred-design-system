@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP } from '../build-manifest.mjs';
+import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP, checkMigrations } from '../build-manifest.mjs';
 
 const CSS = `
 @import "tailwindcss";
@@ -270,6 +270,23 @@ describe('buildManifest + validate', () => {
     expect(Object.isFrozen(m.setup)).toBe(false);
     m.setup.mcp.url = 'mutated';
     expect(SETUP.mcp.url).toBe('https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp');
+  });
+});
+
+describe('checkMigrations', () => {
+  const ok = [
+    { version: '0.9.0', breaking: false, summary: 'a', steps: [{ kind: 'peer', package: 'recharts', range: '^3.0.0' }] },
+    { version: '0.32.0', breaking: true, summary: 'b', steps: [{ kind: 'code', note: 'n', findImports: ['react-day-picker'] }] },
+  ];
+  it('accepts a valid ascending list', () => expect(checkMigrations(ok)).toEqual([]));
+  it('rejects out-of-order versions and names the entry', () => {
+    expect(checkMigrations([ok[1], ok[0]]).join('\n')).toMatch(/0\.9\.0 comes after 0\.32\.0/);
+  });
+  it('rejects an unknown step kind', () => {
+    expect(checkMigrations([{ ...ok[0], steps: [{ kind: 'magic' }] }]).length).toBeGreaterThan(0);
+  });
+  it('the committed migrations.json is valid', () => {
+    expect(checkMigrations(JSON.parse(readFileSync('migrations.json', 'utf8')))).toEqual([]);
   });
 });
 

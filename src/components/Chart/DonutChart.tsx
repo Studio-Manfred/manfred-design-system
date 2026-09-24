@@ -2,10 +2,10 @@ import * as React from 'react';
 import { PieChart as RechartsPieChart, Pie, Cell } from 'recharts';
 import {
   ChartContainer,
-  chartSeriesColor,
-  usePrefersReducedMotion,
   type ChartSeriesDef,
 } from './ChartContainer';
+import { chartSeriesColor } from './chartSeriesColor';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 

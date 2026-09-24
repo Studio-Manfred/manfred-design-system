@@ -11,7 +11,8 @@ import {
 import { BarChart } from './BarChart';
 import { LineChart } from './LineChart';
 import { DonutChart } from './DonutChart';
-import { ChartContainer, chartSeriesColor } from './ChartContainer';
+import { ChartContainer } from './ChartContainer';
+import { chartSeriesColor } from './chartSeriesColor';
 import { ChartTooltip } from './ChartTooltip';
 import { ChartLegend } from './ChartLegend';
 

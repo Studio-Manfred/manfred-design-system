@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { ResponsiveContainer } from 'recharts';
 import { cn } from '@/lib/utils';
+import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 
 export interface ChartSeriesDef {
   key: string;
@@ -17,34 +18,6 @@ const ChartContainerContext = React.createContext<ChartContainerContextValue>({
 
 export function useChartContainer(): ChartContainerContextValue {
   return React.useContext(ChartContainerContext);
-}
-
-/**
- * Detect prefers-reduced-motion in a way that is safe for SSR / jsdom
- * and respects updates to the media query at runtime.
- */
-export function usePrefersReducedMotion(forceReducedMotion?: boolean): boolean {
-  const [reduced, setReduced] = React.useState<boolean>(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return false;
-    }
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
-
-  React.useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return;
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const listener = (e: MediaQueryListEvent) => setReduced(e.matches);
-    if (typeof mq.addEventListener === 'function') {
-      mq.addEventListener('change', listener);
-      return () => mq.removeEventListener('change', listener);
-    }
-    // Older Safari fallback
-    mq.addListener(listener);
-    return () => mq.removeListener(listener);
-  }, []);
-
-  return forceReducedMotion ?? reduced;
 }
 
 /**
@@ -234,18 +207,3 @@ export const ChartContainer = React.forwardRef<HTMLDivElement, ChartContainerPro
   },
 );
 ChartContainer.displayName = 'ChartContainer';
-
-/**
- * Resolve a series colour by zero-based index. Cycles through the six
- * `--chart-1` … `--chart-6` token slots so multi-series charts stay
- * on-palette and theme-aware.
- *
- * @example
- * ```tsx
- * series.map((s, i) => <Bar key={s.key} fill={chartSeriesColor(i)} />)
- * ```
- */
-export function chartSeriesColor(index: number): string {
-  const slot = (index % 6) + 1;
-  return `var(--chart-${slot})`;
-}

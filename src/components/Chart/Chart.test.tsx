@@ -4,7 +4,8 @@ import { render, screen } from '@testing-library/react';
 import { BarChart } from './BarChart';
 import { LineChart } from './LineChart';
 import { DonutChart } from './DonutChart';
-import { ChartContainer, chartSeriesColor } from './ChartContainer';
+import { ChartContainer } from './ChartContainer';
+import { chartSeriesColor } from './chartSeriesColor';
 import { ChartLegendContent } from './ChartLegend';
 
 // Recharts uses ResponsiveContainer which depends on the parent's size; in jsdom

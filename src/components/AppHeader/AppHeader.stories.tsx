@@ -217,6 +217,24 @@ export const SpaNav: Story = {
     // The active item carries aria-current even though it is a <button>.
     const active = canvas.getByRole('button', { name: 'Home' });
     expect(active).toHaveAttribute('aria-current', 'page');
+
+    // STU-886: Tailwind v4's preflight gives <button> cursor: default, so the
+    // DS base layer restores a pointer on enabled buttons.
+    const cursor = (el: Element) => getComputedStyle(el).cursor;
+    for (const name of ['Home', 'Boards', 'Information', 'Sign out']) {
+      expect(cursor(canvas.getByRole('button', { name }))).toBe('pointer');
+    }
+    expect(cursor(canvas.getByRole('button', { name: /theme:/i }))).toBe('pointer');
+
+    // Disabled buttons keep the default cursor.
+    const disabled = document.createElement('button');
+    disabled.disabled = true;
+    canvasElement.appendChild(disabled);
+    try {
+      expect(cursor(disabled)).toBe('default');
+    } finally {
+      disabled.remove();
+    }
   },
 };
 
@@ -250,7 +268,9 @@ export const ProfileAvatar: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    expect(canvas.getByRole('button', { name: 'Edit your profile' })).toBeInTheDocument();
+    const avatar = canvas.getByRole('button', { name: 'Edit your profile' });
+    expect(avatar).toBeInTheDocument();
+    expect(getComputedStyle(avatar).cursor).toBe('pointer'); // STU-886
   },
 };
 

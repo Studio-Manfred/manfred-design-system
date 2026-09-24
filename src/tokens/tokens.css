@@ -498,6 +498,22 @@
 }
 
 /* ==========================================
+   BASE ELEMENT STYLES (STU-886)
+   Tailwind v4's preflight gives <button>
+   `cursor: default` (v3 gave it a pointer). Restore
+   the pointer on enabled buttons, per Tailwind's v4
+   upgrade guide. It lives in the base layer, so
+   utilities like `cursor-not-allowed` still win.
+   ========================================== */
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+/* ==========================================
    TAILWIND V4 THEME
    Bridge the CSS custom properties above into
    Tailwind's utility class generation. Lets us

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.34.0] - 2026-09-24
 
-No breaking changes. One new prop (`RadioGroup` `error`), five bug fixes,
+No breaking changes. One new prop (`RadioGroup` `error`), six bug fixes,
 and a large test/coverage overhaul.
 
 ### Changed
@@ -54,6 +54,15 @@ and a large test/coverage overhaul.
 
 ### Fixed
 
+- **Enabled buttons show a pointer cursor again** (STU-886). Tailwind v4's
+  preflight gives `<button>` `cursor: default`, so button-rendered parts of
+  the DS (AppHeader nav items with `as: 'button'`, dropdown triggers, the
+  avatar, theme toggle, sign-out, the mobile menu) showed the arrow. The DS
+  base layer now sets `cursor: pointer` on `button:not(:disabled)` and
+  `[role="button"]:not([aria-disabled="true"])`, as Tailwind's v4 upgrade
+  guide recommends. **This is DS-wide:** plain buttons in consumer apps that
+  load `style.css` or `tokens.css` get the pointer too. Disabled buttons keep
+  the default cursor, and utilities such as `cursor-not-allowed` still win.
 - **`useThemeToggle` no longer throws when storage is unavailable** (STU-875).
   In Safari private mode, with a full quota or with storage disabled, the
   theme now still switches for the session (state and `<html>` class);

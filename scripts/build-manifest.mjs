@@ -130,13 +130,23 @@ export function storyTitle(storiesSource) {
   return storiesSource.match(/\btitle:\s*['"]([^'"]+)['"]/)?.[1] ?? null;
 }
 
+function deepFreeze(obj) {
+  Object.freeze(obj);
+  Object.getOwnPropertyNames(obj).forEach((prop) => {
+    if (obj[prop] !== null && (typeof obj[prop] === 'object' || typeof obj[prop] === 'function') && !Object.isFrozen(obj[prop])) {
+      deepFreeze(obj[prop]);
+    }
+  });
+  return obj;
+}
+
 const typeString = (t) => (t.name === 'enum' ? t.raw ?? t.value.map((v) => v.value).join(' | ') : t.raw ?? t.name);
 
 export function componentsFromDocs(docs, { exported, storyTitles }) {
   const seen = new Set();
   const out = [];
   for (const d of docs) {
-    if (!exported.has(d.displayName) || seen.has(d.displayName)) continue;
+    if (!exported.has(d.displayName) || seen.has(d.displayName) || !/^[A-Z]/.test(d.displayName)) continue;
     seen.add(d.displayName);
     const group = d.filePath.split(/[\\/]components[\\/]/)[1]?.split(/[\\/]/)[0] ?? d.displayName;
     const title = storyTitles[group];
@@ -175,7 +185,7 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
   return parser.parse(files.map((f) => path.resolve(root, f)));
 }
 
-export const SETUP = Object.freeze({
+export const SETUP = deepFreeze({
   cssImports: ['@studio-manfred/manfred-design-system/tokens.css'],
   sourceGlob: 'node_modules/@studio-manfred/manfred-design-system/dist',
   registry: { scope: '@studio-manfred', url: 'https://npm.pkg.github.com' },

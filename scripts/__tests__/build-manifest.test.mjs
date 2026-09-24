@@ -257,4 +257,32 @@ describe('buildManifest + validate', () => {
     const bad = { ...buildManifest({ pkg, components, tokens }), components: [] };
     expect(validate('manifest', bad).join('\n')).toMatch(/components/);
   });
+
+  it('deep-freezes SETUP and all nested objects', () => {
+    expect(Object.isFrozen(SETUP)).toBe(true);
+    expect(Object.isFrozen(SETUP.registry)).toBe(true);
+    expect(Object.isFrozen(SETUP.mcp)).toBe(true);
+    expect(Object.isFrozen(SETUP.cssImports)).toBe(true);
+  });
+
+  it('makes setup a mutable independent copy', () => {
+    const m = buildManifest({ pkg, components, tokens });
+    expect(Object.isFrozen(m.setup)).toBe(false);
+    m.setup.mcp.url = 'mutated';
+    expect(SETUP.mcp.url).toBe('https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp');
+  });
+});
+
+describe('componentsFromDocs filters PascalCase names', () => {
+  it('keeps only PascalCase components and excludes lowercase helpers', () => {
+    const docs = [
+      { displayName: 'Button', filePath: '/r/src/components/Button/Button.tsx', description: 'Button docs', props: {} },
+      { displayName: 'navigationMenuTriggerStyle', filePath: '/r/src/components/NavigationMenu/NavigationMenu.tsx', description: 'Helper', props: {} },
+    ];
+    const out = componentsFromDocs(docs, {
+      exported: new Set(['Button', 'navigationMenuTriggerStyle']),
+      storyTitles: {},
+    });
+    expect(out.map((c) => c.name)).toEqual(['Button']);
+  });
 });

@@ -12,6 +12,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const DECL = /(--[\w-]+)\s*:\s*([^;]+);/g;
 const VAR_REF = /^var\((--[\w-]+)\)$/;
+const TYPES_REACT = /node_modules[\\/]@types[\\/]react[\\/]/;
+// TypeScript's own bundled lib declarations (Boolean/Number/Object/...
+// prototypes). Never real component API from any library — see the
+// ChartContainer note on `propFilter` below.
+const TS_LIB = /node_modules[\\/]typescript[\\/]lib[\\/]/;
 
 function findLayerBoundaries(css) {
   const layer2Match = css.match(/LAYER\s+2\b/);
@@ -183,12 +188,26 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
     savePropValueAsString: true,
     shouldExtractLiteralValuesFromEnum: true,
     shouldRemoveUndefinedFromOptional: true,
+    // Exclude ONLY the generic DOM/HTML/SVG attribute surface, i.e. props
+    // declared in @types/react — not library component API. Radix (e.g.
+    // asChild from @radix-ui/react-primitive) and recharts config props
+    // have their own node_modules parent/declarations and must be kept.
+    //
+    // Separately (not a DOM-vs-library judgment call): ChartContainer's
+    // file also exports `usePrefersReducedMotion` (returns `boolean`),
+    // which trips a react-docgen-typescript bug that misattributes
+    // ChartContainer's props to a JS primitive wrapper's own prototype
+    // (Boolean/Number, e.g. `valueOf`, `toFixed`) instead of
+    // ChartContainerProps. Those "props" are declared inside TypeScript's
+    // own bundled lib.*.d.ts and can never be real component API from any
+    // library, so they're excluded unconditionally.
     propFilter: (prop) => {
-      if (prop.parent?.fileName.includes('node_modules')) return false;
-      // Props inherited via a mapped/utility type (e.g. recharts' DOM/SVG
-      // event handlers) have no single `parent` interface, but every
-      // declaration site still resolves into node_modules.
-      if (prop.declarations?.length && prop.declarations.every((d) => d.fileName.includes('node_modules'))) return false;
+      const excluded = (fileName) => TYPES_REACT.test(fileName) || TS_LIB.test(fileName);
+      if (excluded(prop.parent?.fileName ?? '')) return false;
+      // Props inherited via a mapped/utility type over React.DOMAttributes
+      // (e.g. some Radix primitives) have no single `parent` interface, but
+      // every declaration site still resolves into @types/react.
+      if (prop.declarations?.length && prop.declarations.every((d) => excluded(d.fileName))) return false;
       return true;
     },
   });

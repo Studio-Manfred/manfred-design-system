@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, mkdtempSync, symlinkSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP, checkMigrations, main } from '../build-manifest.mjs';
 
@@ -231,6 +232,22 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     expect(button.props.some((p) => p.name === 'onClick')).toBe(false); // inherited HTML props filtered
     expect(out.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
   }, 30_000);
+
+  it('drops recharts-inherited DOM/SVG event props from ChartLegend but keeps genuine own props', () => {
+    // ChartLegendProps (ChartLegend's own props type) is a pure alias of
+    // recharts' LegendProps: react-docgen-typescript reports its ~170
+    // inherited props (incl. every DOM/SVG event handler) with no `parent`
+    // set but with `declarations` pointing entirely into node_modules.
+    // ChartLegendContentProps, defined in the same file, is where this
+    // file's genuine own props live.
+    const docs = runDocgen(['src/components/Chart/ChartLegend.tsx']);
+    const chartLegend = docs.find((d) => d.displayName === 'ChartLegend');
+    const chartLegendContent = docs.find((d) => d.displayName === 'ChartLegendContent');
+    expect(chartLegend.props.onAbort).toBeUndefined();
+    expect(chartLegend.props.onPointerDown).toBeUndefined();
+    expect(chartLegendContent.props.payload).toBeDefined();
+    expect(chartLegendContent.props.className).toBeDefined();
+  }, 30_000);
 });
 
 describe('buildManifest + validate', () => {
@@ -317,5 +334,37 @@ describe('main', () => {
     expect(manifest.components.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
     expect(manifest.tokens.find((t) => t.name === '--blue-500').value).toBe('#2c28ec');
     expect(written[path.join(process.cwd(), 'dist/migrations.json')].length).toBeGreaterThan(0);
+  }, 60_000);
+
+  it('fails closed and never writes when migrations.json is schema-invalid', async () => {
+    const tmp = mkdtempSync(path.join(os.tmpdir(), 'ds-manifest-test-'));
+    try {
+      symlinkSync(path.join(process.cwd(), 'src'), path.join(tmp, 'src'), 'dir');
+      copyFileSync(path.join(process.cwd(), 'package.json'), path.join(tmp, 'package.json'));
+      copyFileSync(path.join(process.cwd(), 'tsconfig.json'), path.join(tmp, 'tsconfig.json'));
+      writeFileSync(
+        path.join(tmp, 'migrations.json'),
+        JSON.stringify([
+          { version: 'not-a-version', breaking: false, summary: 'bad', steps: [{ kind: 'peer', package: 'recharts', range: '^3.0.0' }] },
+        ]),
+      );
+
+      const errors = [];
+      let code = 0;
+      let wrote = false;
+      await main({
+        root: tmp,
+        log: () => {},
+        error: (msg) => errors.push(msg),
+        exit: (c) => { code = c; },
+        write: () => { wrote = true; },
+      });
+
+      expect(code).toBe(1);
+      expect(errors.some((e) => e.startsWith('✗'))).toBe(true);
+      expect(wrote).toBe(false);
+    } finally {
+      rmSync(tmp, { recursive: true, force: true });
+    }
   }, 60_000);
 });

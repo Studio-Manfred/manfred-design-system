@@ -183,7 +183,14 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
     savePropValueAsString: true,
     shouldExtractLiteralValuesFromEnum: true,
     shouldRemoveUndefinedFromOptional: true,
-    propFilter: (prop) => !prop.parent || !prop.parent.fileName.includes('node_modules'),
+    propFilter: (prop) => {
+      if (prop.parent?.fileName.includes('node_modules')) return false;
+      // Props inherited via a mapped/utility type (e.g. recharts' DOM/SVG
+      // event handlers) have no single `parent` interface, but every
+      // declaration site still resolves into node_modules.
+      if (prop.declarations?.length && prop.declarations.every((d) => d.fileName.includes('node_modules'))) return false;
+      return true;
+    },
   });
   return parser.parse(files.map((f) => path.resolve(root, f)));
 }

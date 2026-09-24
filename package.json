@@ -26,14 +26,16 @@
       }
     },
     "./styles": "./dist/style.css",
-    "./tokens.css": "./dist/tokens.css"
+    "./tokens.css": "./dist/tokens.css",
+    "./manifest.json": "./dist/manifest.json",
+    "./migrations.json": "./dist/migrations.json"
   },
   "files": [
     "dist"
   ],
   "scripts": {
     "build": "vite build",
-    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs",
+    "postbuild": "node scripts/build-tokens-export.mjs && node scripts/verify-use-client-directive.mjs && node scripts/build-manifest.mjs",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build && node scripts/build-registry.mjs",
     "build-storybook:chromatic": "STORYBOOK_BASE_HREF=/ storybook build",

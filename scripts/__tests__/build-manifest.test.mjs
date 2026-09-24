@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP, checkMigrations } from '../build-manifest.mjs';
+import path from 'node:path';
+import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP, checkMigrations, main } from '../build-manifest.mjs';
 
 const CSS = `
 @import "tailwindcss";
@@ -302,4 +303,19 @@ describe('componentsFromDocs filters PascalCase names', () => {
     });
     expect(out.map((c) => c.name)).toEqual(['Button']);
   });
+});
+
+describe('main', () => {
+  it('writes a valid manifest and migrations for the real repo', async () => {
+    const written = {};
+    let code = 0;
+    await main({ root: process.cwd(), log: () => {}, error: () => {}, exit: (c) => { code = c; },
+                 write: (file, text) => { written[file] = JSON.parse(text); } });
+    expect(code).toBe(0);
+    const manifest = written[path.join(process.cwd(), 'dist/manifest.json')];
+    expect(validate('manifest', manifest)).toEqual([]);
+    expect(manifest.components.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
+    expect(manifest.tokens.find((t) => t.name === '--blue-500').value).toBe('#2c28ec');
+    expect(written[path.join(process.cwd(), 'dist/migrations.json')].length).toBeGreaterThan(0);
+  }, 60_000);
 });

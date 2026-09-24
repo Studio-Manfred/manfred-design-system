@@ -3,8 +3,8 @@
 // main() does the I/O and runs as the last postbuild step.
 
 import { createRequire } from 'node:module';
-import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import path from 'node:path';
 
 const require = createRequire(import.meta.url);
@@ -108,7 +108,10 @@ export function parseTokens(css) {
 
 // Value exports that are intentionally not React components, or that docgen cannot see.
 // Filled from the first real run (Task 5 step 3); every entry needs a one-line reason.
-export const NON_COMPONENT_EXPORTS = new Set([]);
+export const NON_COMPONENT_EXPORTS = new Set([
+  // String constant ('page-body'), not a component — react-docgen-typescript only parses component files.
+  'PAGE_SHELL_DEFAULT_MAIN_ID',
+]);
 
 export function barrelExports(indexSource) {
   const names = new Set();
@@ -230,4 +233,59 @@ export function checkMigrations(list) {
     }
   }
   return errors;
+}
+
+function componentFiles(root) {
+  const dir = path.join(root, 'src/components');
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .flatMap((d) => readdirSync(path.join(dir, d.name))
+      .filter((f) => /\.tsx$/.test(f) && !/\.(test|stories)\.tsx$/.test(f))
+      .map((f) => path.join('src/components', d.name, f)));
+}
+
+function storyTitles(root) {
+  const dir = path.join(root, 'src/components');
+  const out = {};
+  for (const d of readdirSync(dir, { withFileTypes: true }).filter((x) => x.isDirectory())) {
+    const file = path.join(dir, d.name, `${d.name}.stories.tsx`);
+    if (existsSync(file)) {
+      const title = storyTitle(readFileSync(file, 'utf8'));
+      if (title) out[d.name] = title;
+    }
+  }
+  return out;
+}
+
+export async function main({
+  root = process.cwd(), log = console.log, error = console.error, exit = process.exit,
+  write = (file, text) => { mkdirSync(path.dirname(file), { recursive: true }); writeFileSync(file, text); },
+} = {}) {
+  const read = (f) => readFileSync(path.join(root, f), 'utf8');
+  const pkg = JSON.parse(read('package.json'));
+  const exported = barrelExports(read('src/index.ts'));
+  const components = componentsFromDocs(runDocgen(componentFiles(root), { root }), { exported, storyTitles: storyTitles(root) });
+  const tokens = parseTokens(read('src/tokens/tokens.css'));
+  const manifest = buildManifest({ pkg, components, tokens });
+  const migrations = JSON.parse(read('migrations.json'));
+
+  const problems = [
+    ...missingComponents(exported, components, NON_COMPONENT_EXPORTS)
+      .map((n) => `no docgen entry for exported component ${n} (add to NON_COMPONENT_EXPORTS with a reason if intended)`),
+    ...validate('manifest', manifest).map((e) => `manifest ${e}`),
+    ...checkMigrations(migrations).map((e) => `migrations ${e}`),
+  ];
+  if (problems.length) {
+    for (const p of problems) error(`✗ ${p}`);
+    exit(1);
+    return;
+  }
+  write(path.join(root, 'dist/manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
+  write(path.join(root, 'dist/migrations.json'), JSON.stringify(migrations, null, 2) + '\n');
+  log(`✓ dist/manifest.json (${components.length} components, ${tokens.length} tokens), dist/migrations.json (${migrations.length} entries)`);
+}
+
+const invokedDirectly = import.meta.url === pathToFileURL(process.argv[1] ?? '').href;
+if (invokedDirectly) {
+  main().catch((e) => { console.error(e); process.exit(2); });
 }

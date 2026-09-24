@@ -202,3 +202,55 @@ describe('RadioGroup', () => {
     });
   });
 });
+
+describe('RadioGroup error', () => {
+  function Invalid(props: { groupAriaInvalid?: boolean; itemError?: boolean }) {
+    return (
+      <RadioGroup
+        aria-label="Plan"
+        error
+        {...(props.groupAriaInvalid !== undefined ? { 'aria-invalid': props.groupAriaInvalid } : {})}
+      >
+        <RadioGroupItem id="p1" value="p1" label="Basic" />
+        <RadioGroupItem id="p2" value="p2" label="Pro" error={props.itemError} />
+      </RadioGroup>
+    );
+  }
+
+  it('marks the radiogroup itself as invalid', () => {
+    render(<Invalid />);
+    expect(screen.getByRole('radiogroup', { name: 'Plan' })).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('marks every item invalid and gives it the error border', () => {
+    render(<Invalid />);
+    for (const name of ['Basic', 'Pro']) {
+      const radio = screen.getByRole('radio', { name });
+      expect(radio).toHaveAttribute('aria-invalid', 'true');
+      expect(radio.className).toMatch(/var\(--color-feedback-error-fg\)/);
+    }
+  });
+
+  it('lets an item opt out with error={false}', () => {
+    render(<Invalid itemError={false} />);
+    const pro = screen.getByRole('radio', { name: 'Pro' });
+    expect(pro).not.toHaveAttribute('aria-invalid');
+    expect(pro.className).not.toMatch(/var\(--color-feedback-error-fg\)/);
+    expect(screen.getByRole('radio', { name: 'Basic' })).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  it('lets a consumer-passed aria-invalid on the group win', () => {
+    render(<Invalid groupAriaInvalid={false} />);
+    expect(screen.getByRole('radiogroup', { name: 'Plan' })).toHaveAttribute('aria-invalid', 'false');
+  });
+
+  it('adds nothing when error is not set', () => {
+    render(
+      <RadioGroup aria-label="Plan">
+        <RadioGroupItem id="q1" value="q1" label="Basic" />
+      </RadioGroup>,
+    );
+    expect(screen.getByRole('radiogroup', { name: 'Plan' })).not.toHaveAttribute('aria-invalid');
+    expect(screen.getByRole('radio', { name: 'Basic' })).not.toHaveAttribute('aria-invalid');
+  });
+});

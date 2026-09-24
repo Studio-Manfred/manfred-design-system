@@ -202,7 +202,7 @@ export { ProgressBar } from './components/ProgressBar';
 export type { ProgressBarProps, ProgressBarVariant, ProgressBarSize } from './components/ProgressBar';
 
 export { RadioGroup, RadioGroupItem } from './components/Radio';
-export type { RadioGroupItemProps } from './components/Radio';
+export type { RadioGroupProps, RadioGroupItemProps } from './components/Radio';
 
 export { SearchBar } from './components/SearchBar';
 export type { SearchBarProps, SearchBarSize } from './components/SearchBar';

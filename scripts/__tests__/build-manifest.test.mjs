@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync, mkdtempSync, symlinkSync, copyFileSync, writeFileSync, rmSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, runDocgen, buildManifest, validate, SETUP, checkMigrations, main } from '../build-manifest.mjs';
+import { parseTokens, barrelExports, storybookId, storyTitle, componentsFromDocs, missingComponents, zeroPropProblems, HTML_WRAPPER_COMPONENTS, PROP_OVERRIDES, runDocgen, buildManifest, validate, SETUP, checkMigrations, main } from '../build-manifest.mjs';
 
 const CSS = `
 @import "tailwindcss";
@@ -221,11 +221,67 @@ describe('componentsFromDocs', () => {
     expect(missingComponents(new Set(['Button', 'Tabs', 'toast', 'buttonVariants', 'Ghost']), out, new Set(['Ghost'])))
       .toEqual(['Tabs']);
   });
+
+  it('sets extendsDom from the per-component dropped-prop counts', () => {
+    const withDropped = componentsFromDocs(docs, {
+      exported: new Set(['Button', 'RadioGroupItem']),
+      storyTitles: {},
+      dropped: { Button: 3 },
+    });
+    expect(withDropped.find((c) => c.name === 'Button').extendsDom).toBe(true);
+    expect(withDropped.find((c) => c.name === 'RadioGroupItem').extendsDom).toBe(false);
+    expect(out.every((c) => c.extendsDom === false)).toBe(true); // no counts given → false
+  });
+
+  it('merges PROP_OVERRIDES-style hand-written props over docgen props, sorted', () => {
+    const merged = componentsFromDocs(docs, {
+      exported: new Set(['Button']),
+      storyTitles: {},
+      overrides: {
+        Button: { props: [
+          { name: 'zeta', type: 'string', required: false, default: null, description: 'z' },
+          { name: 'asChild', type: 'boolean', required: false, default: 'false', description: 'overridden' },
+        ] },
+      },
+    });
+    expect(merged[0].props.map((p) => p.name)).toEqual(['asChild', 'variant', 'zeta']);
+    expect(merged[0].props[0]).toEqual({ name: 'asChild', type: 'boolean', required: false, default: 'false', description: 'overridden' });
+  });
+});
+
+describe('zeroPropProblems', () => {
+  const c = (name, props = []) => ({ name, props });
+  it('flags a zero-prop component that is not allowlisted', () => {
+    expect(zeroPropProblems([c('Ghost'), c('Wrapper'), c('Button', [{ name: 'x' }])], new Set(['Wrapper']))).toEqual(['Ghost']);
+  });
+  it('passes when every zero-prop component is allowlisted', () => {
+    expect(zeroPropProblems([c('Wrapper')], new Set(['Wrapper']))).toEqual([]);
+  });
+  it('allowlists only pure HTML wrappers, never NavItem', () => {
+    expect(HTML_WRAPPER_COMPONENTS.has('NavItem')).toBe(false);
+    expect(HTML_WRAPPER_COMPONENTS.has('CardHeader')).toBe(true);
+  });
+});
+
+describe('PROP_OVERRIDES', () => {
+  it('every override prop name is declared in the component source, so a rename breaks this test', () => {
+    for (const [name, { file, props }] of Object.entries(PROP_OVERRIDES)) {
+      const src = readFileSync(file, 'utf8');
+      for (const p of props) {
+        expect(src, `${name}.${p.name} in ${file}`).toMatch(new RegExp(`\\b${p.name}\\??:`));
+      }
+    }
+  });
+  it('gives NavItem its documented as and active props', () => {
+    const byName = Object.fromEntries(PROP_OVERRIDES.NavItem.props.map((p) => [p.name, p]));
+    expect(byName.as.default).toBe('a');
+    expect(byName.active).toMatchObject({ type: 'boolean', required: false, default: 'false' });
+  });
 });
 
 describe('componentsFromDocs on real sources (contract with react-docgen-typescript)', () => {
   it('reads Button and RadioGroup from the repo', () => {
-    const docs = runDocgen(['src/components/Button/Button.tsx', 'src/components/Radio/Radio.tsx']);
+    const { docs } = runDocgen(['src/components/Button/Button.tsx', 'src/components/Radio/Radio.tsx']);
     const out = componentsFromDocs(docs, { exported: new Set(['Button', 'RadioGroup']), storyTitles: {} });
     const button = out.find((c) => c.name === 'Button');
     expect(button.props.map((p) => p.name)).toContain('variant');
@@ -239,22 +295,23 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     // props (asChild from @radix-ui/react-primitive; Select's
     // value/onValueChange from @radix-ui/react-select) and recharts' own
     // config props are real component API and must survive.
-    const [buttonDoc] = runDocgen(['src/components/Button/Button.tsx']);
+    const { docs: [buttonDoc], dropped } = runDocgen(['src/components/Button/Button.tsx']);
+    expect(dropped.Button).toBeGreaterThan(0);
     expect(buttonDoc.props.variant).toBeDefined();
     expect(buttonDoc.props.asChild).toBeDefined();
     expect(buttonDoc.props.onClick).toBeUndefined();
     expect(buttonDoc.props.className).toBeUndefined();
 
-    const selectDocs = runDocgen(['src/components/Select/Select.tsx']);
+    const { docs: selectDocs } = runDocgen(['src/components/Select/Select.tsx']);
     const select = selectDocs.find((d) => d.displayName === 'Select');
     expect(select.props.onValueChange).toBeDefined();
     expect(select.props.value).toBeDefined();
 
-    const tabsDocs = runDocgen(['src/components/Tabs/Tabs.tsx']);
+    const { docs: tabsDocs } = runDocgen(['src/components/Tabs/Tabs.tsx']);
     const tabsTrigger = tabsDocs.find((d) => d.displayName === 'TabsTrigger');
     expect(tabsTrigger.props.asChild).toBeDefined();
 
-    const tooltipDocs = runDocgen(['src/components/Chart/ChartTooltip.tsx']);
+    const { docs: tooltipDocs } = runDocgen(['src/components/Chart/ChartTooltip.tsx']);
     const chartTooltip = tooltipDocs.find((d) => d.displayName === 'ChartTooltip');
     expect(chartTooltip.props.valueFormatter).toBeDefined();
     expect(chartTooltip.props.cursor).toBeDefined();
@@ -266,7 +323,7 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
     // DOMAttributesAdaptChildEvent, in node_modules/recharts/types/util/types.d.ts.
     // Props declared ONLY there are dropped; layout/align/verticalAlign are
     // real Legend config declared elsewhere and must survive.
-    const docs = runDocgen(['src/components/Chart/ChartLegend.tsx']);
+    const { docs } = runDocgen(['src/components/Chart/ChartLegend.tsx']);
     const chartLegend = docs.find((d) => d.displayName === 'ChartLegend');
     const chartLegendContent = docs.find((d) => d.displayName === 'ChartLegendContent');
     expect(chartLegend.props.onAbort).toBeUndefined();
@@ -280,7 +337,7 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
   }, 30_000);
 
   it('ChartContainer now extracts its own real props (usePrefersReducedMotion + chartSeriesColor moved out)', () => {
-    const docs = runDocgen(['src/components/Chart/ChartContainer.tsx']);
+    const { docs } = runDocgen(['src/components/Chart/ChartContainer.tsx']);
     const chartContainer = docs.find((d) => d.displayName === 'ChartContainer');
     expect(chartContainer.props.height).toBeDefined();
     expect(chartContainer.props.data).toBeDefined();
@@ -292,7 +349,7 @@ describe('componentsFromDocs on real sources (contract with react-docgen-typescr
 
 describe('buildManifest + validate', () => {
   const pkg = { name: '@studio-manfred/manfred-design-system', version: '0.35.0', peerDependencies: { react: '>=18.0.0' } };
-  const components = [{ name: 'Button', group: 'Button', description: 'x', storybook: 'components-button', props: [] }];
+  const components = [{ name: 'Button', group: 'Button', description: 'x', storybook: 'components-button', extendsDom: true, props: [] }];
   const tokens = [{ name: '--blue-500', value: '#2c28ec', layer: 'primitive' }];
 
   it('assembles a valid manifest', () => {
@@ -309,6 +366,12 @@ describe('buildManifest + validate', () => {
     expect(SETUP.nextUseClientSince).toBe('0.23.0');
     expect(SETUP.cssImports).toEqual(['@studio-manfred/manfred-design-system/tokens.css']);
     expect(SETUP.sourceGlob).toBe('node_modules/@studio-manfred/manfred-design-system/dist');
+  });
+
+  it('requires a boolean extendsDom on every component', () => {
+    const { extendsDom, ...noFlag } = components[0];
+    expect(validate('manifest', { ...buildManifest({ pkg, components, tokens }), components: [noFlag] }).join('\n')).toMatch(/extendsDom/);
+    expect(validate('manifest', { ...buildManifest({ pkg, components, tokens }), components: [{ ...noFlag, extendsDom: 'yes' }] }).join('\n')).toMatch(/extendsDom/);
   });
 
   it('reports schema errors with a path', () => {
@@ -373,6 +436,13 @@ describe('main', () => {
     expect(validate('manifest', manifest)).toEqual([]);
     expect(manifest.components.find((c) => c.name === 'RadioGroup').props.map((p) => p.name)).toContain('error');
     expect(manifest.tokens.find((t) => t.name === '--blue-500').value).toBe('#2c28ec');
+    const comp = (n) => manifest.components.find((c) => c.name === n);
+    expect(comp('NavItem').props.map((p) => p.name)).toEqual(expect.arrayContaining(['as', 'active']));
+    expect(comp('NavItem').extendsDom).toBe(true);
+    expect(comp('Button').extendsDom).toBe(true);
+    expect(comp('CardHeader').extendsDom).toBe(true);
+    expect(comp('CardHeader').props).toEqual([]);
+    expect(manifest.components.every((c) => typeof c.extendsDom === 'boolean')).toBe(true);
     expect(written[path.join(process.cwd(), 'dist/migrations.json')].length).toBeGreaterThan(0);
   }, 60_000);
 

@@ -156,7 +156,64 @@ function deepFreeze(obj) {
 
 const typeString = (t) => (t.name === 'enum' ? t.raw ?? t.value.map((v) => v.value).join(' | ') : t.raw ?? t.name);
 
-export function componentsFromDocs(docs, { exported, storyTitles }) {
+// Exported components that legitimately document zero props of their own:
+// each is a pure `React.HTMLAttributes` wrapper (a styled <div>/<p>/<footer>),
+// so every prop it takes is a DOM attribute (see `extendsDom`). Any other
+// zero-prop component fails the build — it usually means docgen lost the
+// type (see PROP_OVERRIDES). Every entry needs a one-line reason.
+export const HTML_WRAPPER_COMPONENTS = new Set([
+  // forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>> — styled <div>.
+  'CardContent',
+  // forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>> — styled <p>.
+  'CardDescription',
+  // forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>> — styled <div>.
+  'CardFooter',
+  // forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>> — styled <div>.
+  'CardHeader',
+  // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the dialog.
+  'DialogFooter',
+  // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the dialog.
+  'DialogHeader',
+  // PageFooterProps extends React.HTMLAttributes<HTMLElement> with no own members — <footer> landmark.
+  'PageFooter',
+  // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the sheet.
+  'SheetFooter',
+  // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the sheet.
+  'SheetHeader',
+]);
+
+// Hand-written props merged over docgen's output, for components whose
+// public type docgen cannot read. Keyed by component name; `file` is the
+// source the props must be declared in (a test checks each name is still
+// there, so a rename breaks the build instead of drifting silently).
+export const PROP_OVERRIDES = deepFreeze({
+  // NavItemProps is a union whose last member is
+  // React.ComponentPropsWithRef<React.ElementType>; that collapses the type
+  // for docgen, which then reports zero props. Values mirror NavBar.tsx.
+  NavItem: {
+    file: 'src/components/NavBar/NavBar.tsx',
+    props: [
+      {
+        name: 'as',
+        type: '"a" | "button" | React.ElementType',
+        required: false,
+        default: 'a',
+        description:
+          'Element or component to render. Defaults to `<a>` (anchor attributes); set `as="button"` for button semantics, or pass any component (router `Link`, etc.) to render that instead while keeping the visual contract.',
+      },
+      {
+        name: 'active',
+        type: 'boolean',
+        required: false,
+        default: 'false',
+        description:
+          'Apply active styling and `aria-current="page"`. Set this on the single item that represents the current route.',
+      },
+    ],
+  },
+});
+
+export function componentsFromDocs(docs, { exported, storyTitles, dropped = {}, overrides = {} }) {
   const seen = new Set();
   const out = [];
   for (const d of docs) {
@@ -169,18 +226,30 @@ export function componentsFromDocs(docs, { exported, storyTitles }) {
       group,
       description: (d.description ?? '').trim(),
       storybook: title ? storybookId(title) : null,
-      props: Object.values(d.props ?? {})
-        .map((p) => ({
+      extendsDom: (dropped[d.displayName] ?? 0) > 0,
+      props: mergeProps(
+        Object.values(d.props ?? {}).map((p) => ({
           name: p.name,
           type: typeString(p.type),
           required: Boolean(p.required),
           default: p.defaultValue?.value ?? null,
           description: (p.description ?? '').trim(),
-        }))
-        .sort((a, b) => a.name.localeCompare(b.name)),
+        })),
+        overrides[d.displayName]?.props ?? [],
+      ).sort((a, b) => a.name.localeCompare(b.name)),
     });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function mergeProps(fromDocgen, fromOverride) {
+  const byName = new Map(fromDocgen.map((p) => [p.name, p]));
+  for (const p of fromOverride) byName.set(p.name, { ...p });
+  return [...byName.values()];
+}
+
+export function zeroPropProblems(components, allow) {
+  return components.filter((c) => c.props.length === 0 && !allow.has(c.name)).map((c) => c.name);
 }
 
 export function missingComponents(exported, components, allow) {
@@ -188,8 +257,21 @@ export function missingComponents(exported, components, allow) {
   return [...exported].filter((n) => /^[A-Z]/.test(n) && !have.has(n) && !allow.has(n)).sort();
 }
 
+// Returns { docs, dropped }: `dropped` counts, per component name, the props
+// propFilter removed as DOM surface — the source of each component's `extendsDom`.
 export function runDocgen(files, { root = process.cwd() } = {}) {
   const docgen = require('react-docgen-typescript');
+  const dropped = {};
+  const isDomSurface = (prop) => {
+    const excluded = (fileName) => TYPES_REACT.test(fileName) || TS_LIB.test(fileName);
+    if (excluded(prop.parent?.fileName ?? '')) return true;
+    // Props inherited via a mapped/utility type over React.DOMAttributes
+    // (e.g. some Radix primitives) have no single `parent` interface, but
+    // every declaration site still resolves into @types/react.
+    if (prop.declarations?.length && prop.declarations.every((d) => excluded(d.fileName))) return true;
+    if (prop.declarations?.length && prop.declarations.every((d) => RECHARTS_DOM_ADAPTER.test(d.fileName))) return true;
+    return false;
+  };
   const parser = docgen.withCustomConfig(path.join(root, 'tsconfig.json'), {
     savePropValueAsString: true,
     shouldExtractLiteralValuesFromEnum: true,
@@ -207,18 +289,14 @@ export function runDocgen(files, { root = process.cwd() } = {}) {
     // ChartContainerProps. Those "props" are declared inside TypeScript's
     // own bundled lib.*.d.ts and can never be real component API from any
     // library, so they're excluded unconditionally.
-    propFilter: (prop) => {
-      const excluded = (fileName) => TYPES_REACT.test(fileName) || TS_LIB.test(fileName);
-      if (excluded(prop.parent?.fileName ?? '')) return false;
-      // Props inherited via a mapped/utility type over React.DOMAttributes
-      // (e.g. some Radix primitives) have no single `parent` interface, but
-      // every declaration site still resolves into @types/react.
-      if (prop.declarations?.length && prop.declarations.every((d) => excluded(d.fileName))) return false;
-      if (prop.declarations?.length && prop.declarations.every((d) => RECHARTS_DOM_ADAPTER.test(d.fileName))) return false;
-      return true;
+    propFilter: (prop, component) => {
+      if (!isDomSurface(prop)) return true;
+      dropped[component.name] = (dropped[component.name] ?? 0) + 1;
+      return false;
     },
   });
-  return parser.parse(files.map((f) => path.resolve(root, f)));
+  const docs = parser.parse(files.map((f) => path.resolve(root, f)));
+  return { docs, dropped };
 }
 
 export const SETUP = deepFreeze({
@@ -297,7 +375,8 @@ export async function main({
   const read = (f) => readFileSync(path.join(root, f), 'utf8');
   const pkg = JSON.parse(read('package.json'));
   const exported = barrelExports(read('src/index.ts'));
-  const components = componentsFromDocs(runDocgen(componentFiles(root), { root }), { exported, storyTitles: storyTitles(root) });
+  const { docs, dropped } = runDocgen(componentFiles(root), { root });
+  const components = componentsFromDocs(docs, { exported, storyTitles: storyTitles(root), dropped, overrides: PROP_OVERRIDES });
   const tokens = parseTokens(read('src/tokens/tokens.css'));
   const manifest = buildManifest({ pkg, components, tokens });
   const migrations = JSON.parse(read('migrations.json'));
@@ -305,6 +384,8 @@ export async function main({
   const problems = [
     ...missingComponents(exported, components, NON_COMPONENT_EXPORTS)
       .map((n) => `no docgen entry for exported component ${n} (add to NON_COMPONENT_EXPORTS with a reason if intended)`),
+    ...zeroPropProblems(components, HTML_WRAPPER_COMPONENTS)
+      .map((n) => `${n} has no props (docgen likely lost its type: add a PROP_OVERRIDES entry, or HTML_WRAPPER_COMPONENTS with a reason if it is a pure HTML wrapper)`),
     ...validate('manifest', manifest).map((e) => `manifest ${e}`),
     ...checkMigrations(migrations).map((e) => `migrations ${e}`),
   ];

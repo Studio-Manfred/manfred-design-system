@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **CI enforces the coverage floor** (STU-889). The CI unit-test step now runs
+  `npm run test:coverage` instead of `npm run test`, so a PR that drops
+  coverage below the thresholds in `vitest.config.ts` fails the required
+  `test` job. Dev tooling only; nothing in `dist/` changes.
+
 ## [0.34.0] - 2026-09-24
 
 No breaking changes. One new prop (`RadioGroup` `error`), six bug fixes,

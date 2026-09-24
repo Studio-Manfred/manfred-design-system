@@ -4,6 +4,10 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
+## 2026-09-24 — CI enforces the coverage floor (STU-889)
+
+Branch `ci/stu-889-enforce-coverage-floor`. The CI "Unit tests" step now runs `npm run test:coverage` (unit project + v8 coverage), so the v0.34.0 thresholds (lines 93 / branches 95 / functions 93 / statements 92) gate the required `test` job. Local main: 837 tests, 93.44 / 96.05 / 94.32 / 94.4. Headroom is thin (~0.4 on lines/stmts), so a PR adding untested code will now go red; that's intended. Unreleased (dev tooling only, no version bump needed). Also filed STU-888 (FormField can't label/describe a RadioGroup; message not wired via aria-describedby).
+
 ## Current state — 2026-09-23 (test coverage work + STU-875..879 fixes)
 
 - **Latest release:** v0.33.1. Everything below sits under `[Unreleased]`

@@ -33,8 +33,10 @@ jobs:
         # Required gate; new components must enter scripts/play-tiers.json.
         run: npm run lint:play-tiers
 
-      - name: Unit tests
-        run: npm run test
+      - name: Unit tests + coverage floor
+        # test:coverage = the unit project + v8 coverage; fails when coverage
+        # drops below the thresholds in vitest.config.ts (STU-889).
+        run: npm run test:coverage
 
       - name: Build library and verify RSC "use client" banner
         # Builds dist/ and runs scripts/verify-use-client-directive.mjs

@@ -15,7 +15,7 @@ npm run build-storybook     # static Storybook → storybook-static/
 
 npm run test                # vitest run, unit project only (jsdom)
 npm run test:watch          # vitest watch, unit project only
-npm run test:coverage       # v8 coverage (components incl. .ts hooks, lib, tokens, scripts); fails under the thresholds in vitest.config.ts
+npm run test:coverage       # v8 coverage (components incl. .ts hooks, lib, tokens, scripts); fails under the thresholds in vitest.config.ts — CI runs this (STU-889)
 npm run test:storybook      # play functions, headless Chromium (CI-gated since v0.20.1)
 npm run test:all            # unit + storybook + play-tier lint in parallel, branded per-suite report (--unit skips Chromium)
 npm run lint:play-tiers     # regex tier compliance (required CI gate)

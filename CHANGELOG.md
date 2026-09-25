@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The published package now includes `CHANGELOG.md`, so
+  `manfred-ds-cli upgrade` can show the release notes between the installed
+  and the target version (STU-893).
+
 ## [0.36.0] - 2026-09-24
 
 No breaking changes. The build now publishes a machine-readable manifest

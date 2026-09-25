@@ -33,7 +33,8 @@
     "./migrations.schema.json": "./dist/migrations.schema.json"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "scripts": {
     "build": "vite build",

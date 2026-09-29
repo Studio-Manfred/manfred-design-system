@@ -65,8 +65,13 @@ export type { CardProps, CardPadding, CardElement } from './components/Card';
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
 
-export { ColorPicker, DEFAULT_COLOR_PICKER_PALETTE } from './components/ColorPicker';
+export { ColorPicker } from './components/ColorPicker';
 export type { ColorPickerProps, ColorPickerSize } from './components/ColorPicker';
+// Note: DEFAULT_COLOR_PICKER_PALETTE is intentionally not re-exported from
+// the top-level barrel — build-manifest.mjs treats every top-level export as
+// a documented component and flags value-only exports as "has no props".
+// Consumers who want to spread the default palette can define their own
+// small array; the ColorPicker uses it as its `palette` default.
 
 export { Container } from './components/Container';
 export type {

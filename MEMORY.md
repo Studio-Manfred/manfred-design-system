@@ -19,6 +19,52 @@ Blocks-cleared: STU-978 unblocked by STU-977 (bootstrap merged as PR #3 earlier 
 - Rollout STU-977 updates to existing consumer repos (whiteboard, intranet, web) so their `designer.md` + `release-manager.md` pick up the DS-first workflow-step.
 - Optionally: play `ds-designer` on STU-979 (design the ColorPicker API + write failing tests) to complete the DS-first loop end-to-end.
 
+## 2026-09-29 — STU-979 · ColorPicker via ds-designer + v0.37.1 released · shipped
+
+Branches: `feat/STU-979-color-picker` (PR #96), `chore/release-0.37.0` (PR #97),
+`fix/color-picker-manifest` (PR #99).
+
+First component filed through the DS-first handoff pattern (bootstrap STU-977).
+Consumer `manfred-whiteboard` (STU-980) checked the DS for coverage, found no
+ColorPicker, filed STU-979 with the template, stubbed locally with a
+`TODO(STU-979)` marker. `ds-designer` (Opus subagent) picked it up and built
+end-to-end:
+
+- 25 Vitest assertions (default palette, arrow-key navigation, wrap, Space to
+  select, Enter does NOT select (WAI-ARIA spec), disabled state, custom-hex
+  commit-on-blur/Enter, pattern validation with `aria-invalid`, focus
+  behaviour, palette casing).
+- 6 Storybook stories (Default, WithCustomHex, Disabled, CustomPalette,
+  Sizes, KeyboardInteraction with play function). Storybook a11y addon runs
+  axe on every story.
+- Registered in tier B (form control) alongside Checkbox / Radio / Switch.
+
+Two deliberate API deviations from the consumer's sketch, documented back
+to the ticket:
+
+1. **No `variant` prop.** The ticket's "compact vs. expanded" split
+   describes use cases, not variants. Ships as inline radiogroup only;
+   toolbar use composes with `Popover` (which owns Escape-to-close).
+2. **Enter does not select.** WAI-ARIA `radiogroup` uses Space; Radix
+   `RadioGroup` follows spec.
+
+**Release drama:** v0.37.0's publish workflow failed on `build-manifest.mjs`'s
+top-level-export rule — see `knowledge/ERRORS.md`. Patch release v0.37.1
+moved `DEFAULT_COLOR_PICKER_PALETTE` out of `src/index.ts`; still available
+via `src/components/ColorPicker/index.ts` for deep-imports. Consumers who
+want to extend the palette can pass their own array via the `palette` prop.
+
+**Live consumer:** `manfred-whiteboard` STU-980 (change-stroke-colour). Local
+`_ds-stubs/ColorPicker.tsx` retired on this ship; real DS import + toolbar
+integration merged as whiteboard PR #23.
+
+**Loop closed:** ~2.5 hours from consumer's DS-first check to whiteboard
+feature merged. Real proof the DS-first handoff pattern works.
+
+**Next pickup:** normal DS component work resumes. Follow-up filed in
+bootstrap: STU-921 (harness model-availability test to protect against Fable
+drift), STU-923 (single-source-of-truth for role files).
+
 ## 2026-09-24 — FormField context wiring (STU-888)
 
 Branch `feat/stu-888-formfield-context`. New `src/components/FormField/FormFieldContext.ts` (internal, not exported from the barrel): `useFormFieldControl` (single controls) + `useFormFieldGroup` (RadioGroup, registers so the label renders as `<span id>`). Wired: TextInput, Textarea, SelectTrigger, DatePicker, Checkbox, Switch, RadioGroup. Decisions (Jens, 2026-09-24): automatic context, field `status="error"` → control invalid incl. styling (own prop wins), auto `<span>` label for groups. Verified: unit 855/855, coverage 93.71/96.22/94.53/94.63, storybook 268/268 with axe=error, play-tiers ok, build + use-client ok; tsc errors == main (20, all in stories). Not done: VoiceOver spot check (manual), exporting the hooks for custom consumer controls (possible follow-up). Note: AGENTS.md lists MCP tool names (`get-documentation`, `list-all-documentation`, `run-story-tests`) that the servers don't expose; the real ones are `docs-list`, `docs-show`, `test-run`, … Worth a docs fix.

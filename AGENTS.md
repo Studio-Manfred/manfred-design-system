@@ -121,6 +121,45 @@ Chromatic publishes on every `main` build instead — public, no auth,
 https://main--6a26cfd37771192ff26832bf.chromatic.com/mcp
 ```
 
+## Roles
+
+You act in one of nine roles, each backed by a specific Claude model. Eight
+are the standard Manfred roles (from `manfred-bootstrap` STU-917); the
+ninth, `ds-designer`, is DS-repo-specific.
+
+### Router
+
+| Task | Role | Model |
+|---|---|---|
+| Framing outcomes | strategist | Fable |
+| Turning strategy into a spec | analyst | Fable |
+| UX / IA / tone of voice | designer | Fable |
+| Technical design, plan | architect | Opus |
+| Implementing a plan task | builder | Sonnet |
+| Failing tests, verification, behavioural review | tester | Opus |
+| CHANGELOG / MEMORY / knowledge / release notes | documenter | Haiku |
+| Merge, deploy, smoke, rollback | release-manager | Sonnet |
+| **Design system component API + a11y + DS releases** | **ds-designer** | **Opus** |
+
+The `ds-designer` role reads component-request tickets in the Studio Manfred
+"Design System" Linear project (P-STU-1), filed by consumer projects that
+followed the DS-first convention (bootstrap STU-977).
+
+### Wear the hat, or dispatch?
+
+**Dispatch a subagent** when the task holds a plan-task's worth of context,
+when the role's model differs from your session's, or when you want
+parallelism.
+
+**Wear the hat yourself** for single-edit doc passes, two-line fixes, or any
+interactive skill that dialogues with the human (`/brainstorming`,
+`/writing-plans`).
+
+See `knowledge/roles.md` for the full role definitions. **Note:** the
+standard `designer` role's "DS-first" check is a no-op inside this repo
+(you can't check the DS from inside the DS) — that check is meaningful for
+consumer projects.
+
 ## Working in this repo
 
 - **Commands** — `npm run storybook`, `npm run test`, `npm run build`,

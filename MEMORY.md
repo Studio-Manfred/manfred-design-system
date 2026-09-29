@@ -4,6 +4,21 @@ Snapshot of where the repo stands. Update this file at the end of each
 working session so the next one picks up cleanly (see `CLAUDE.md` →
 Memory).
 
+## 2026-09-29 — STU-978 role system + ds-designer installed
+
+Branch `feat/STU-978-role-system-install`. Surgical install (not full `bootstrap overlay`, which would have added conflicting `eslint.config.js`, `playwright.config.ts`, `vercel.json`, etc. that the DS repo's mature setup doesn't need). Added:
+
+- 8 standard role files under `.claude/agents/` copied verbatim from `manfred-bootstrap/starter/.claude/agents/`.
+- `.claude/agents/ds-designer.md` (9th role — DS-specialist, Opus-bound). Reads tickets from the "Design System" Linear project (P-STU-1) that consumer projects file when their DS-first check surfaces a component gap.
+- `knowledge/roles.md` copied verbatim, then extended with a `DS Designer` H2 section and one router row.
+- `AGENTS.md` gains a `## Roles` section (9-row router + hat/dispatch paragraph + note that the standard `designer` role's DS-first check is a no-op inside this repo).
+
+Blocks-cleared: STU-978 unblocked by STU-977 (bootstrap merged as PR #3 earlier today). First real DS-first-flow ticket that landed here: STU-979 (ColorPicker component, from `manfred-whiteboard` STU-980's stub).
+
+**Next pickup:**
+- Rollout STU-977 updates to existing consumer repos (whiteboard, intranet, web) so their `designer.md` + `release-manager.md` pick up the DS-first workflow-step.
+- Optionally: play `ds-designer` on STU-979 (design the ColorPicker API + write failing tests) to complete the DS-first loop end-to-end.
+
 ## 2026-09-24 — FormField context wiring (STU-888)
 
 Branch `feat/stu-888-formfield-context`. New `src/components/FormField/FormFieldContext.ts` (internal, not exported from the barrel): `useFormFieldControl` (single controls) + `useFormFieldGroup` (RadioGroup, registers so the label renders as `<span id>`). Wired: TextInput, Textarea, SelectTrigger, DatePicker, Checkbox, Switch, RadioGroup. Decisions (Jens, 2026-09-24): automatic context, field `status="error"` → control invalid incl. styling (own prop wins), auto `<span>` label for groups. Verified: unit 855/855, coverage 93.71/96.22/94.53/94.63, storybook 268/268 with axe=error, play-tiers ok, build + use-client ok; tsc errors == main (20, all in stories). Not done: VoiceOver spot check (manual), exporting the hooks for custom consumer controls (possible follow-up). Note: AGENTS.md lists MCP tool names (`get-documentation`, `list-all-documentation`, `run-story-tests`) that the servers don't expose; the real ones are `docs-list`, `docs-show`, `test-run`, … Worth a docs fix.

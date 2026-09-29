@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`ColorPicker` component** (STU-979). Accessible palette-based colour
+  picker built on `@radix-ui/react-radio-group`: a horizontal
+  `role="radiogroup"` of round swatches (each `role="radio"`, named by
+  its hex value), with roving tab-index, arrow-key navigation, and
+  `Enter`/`Space` selection. Optional `allowCustom` flag renders a
+  validated hex text input that commits on blur or Enter. Ships with a
+  brand-adjacent eight-swatch default palette exported as
+  `DEFAULT_COLOR_PICKER_PALETTE`. First consumer: whiteboard's
+  change-stroke-colour flow (STU-980). Wrap in the DS `Popover` when a
+  compact toolbar trigger is required.
+
 ### Changed
 
 - The published package now includes `CHANGELOG.md`, so

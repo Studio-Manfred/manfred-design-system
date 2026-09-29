@@ -65,6 +65,9 @@ export type { CardProps, CardPadding, CardElement } from './components/Card';
 export { Checkbox } from './components/Checkbox';
 export type { CheckboxProps } from './components/Checkbox';
 
+export { ColorPicker, DEFAULT_COLOR_PICKER_PALETTE } from './components/ColorPicker';
+export type { ColorPickerProps, ColorPickerSize } from './components/ColorPicker';
+
 export { Container } from './components/Container';
 export type {
   ContainerProps,

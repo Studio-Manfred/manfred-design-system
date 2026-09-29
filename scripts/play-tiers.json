@@ -19,6 +19,7 @@
       "Button",
       "Card",
       "Checkbox",
+      "ColorPicker",
       "FormField",
       "Radio",
       "SearchBar",

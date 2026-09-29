@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.1] - 2026-09-29
+
+### Fixed
+
+- **ColorPicker: unpublishable manifest (v0.37.0 → v0.37.1).**
+  `DEFAULT_COLOR_PICKER_PALETTE` was re-exported from the top-level barrel;
+  `build-manifest.mjs` treats every top-level export as a documented
+  component and rejected the value-only export as "has no props", failing
+  the publish workflow for v0.37.0. Dropped the top-level re-export — the
+  constant still lives in the component-local barrel for deep-import
+  escape hatches, and consumers who want to spread it can supply their own
+  small palette array via the `palette` prop. (STU-979)
+
 ## [0.37.0] - 2026-09-29
 
 ### Added

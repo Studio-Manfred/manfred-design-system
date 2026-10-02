@@ -36,6 +36,7 @@
       "Dialog",
       "NavBar",
       "NavigationMenu",
+      "NotificationBell",
       "Popover",
       "Select",
       "Sheet",

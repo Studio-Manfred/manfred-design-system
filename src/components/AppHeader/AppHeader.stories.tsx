@@ -4,6 +4,7 @@ import { AppHeader } from './AppHeader';
 import { SearchBar } from '../SearchBar';
 import { Button } from '../Button';
 import { Kbd } from '../Kbd';
+import { NotificationBell } from '../NotificationBell';
 
 const meta: Meta<typeof AppHeader> = {
   title: 'Components/AppHeader',
@@ -299,5 +300,39 @@ export const SpaNavMobile: Story = {
     expect(drawerHome).toBeTruthy();
     await userEvent.click(drawerHome!);
     await waitFor(() => expect(body.queryByRole('dialog')).not.toBeInTheDocument());
+  },
+};
+
+export const WithNotificationBell: Story = {
+  name: 'With notification bell (actions slot)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Place `NotificationBell` in the `actions` slot: it renders between ' +
+          'search and the user block on desktop, and stacked in the mobile drawer.',
+      },
+    },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: NAV,
+    themeToggle: 'cycle',
+    actions: (
+      <NotificationBell
+        items={[
+          { id: '1', title: 'Moa commented on “Q4 plan”', timestamp: new Date(Date.now() - 300_000), href: '#c1' },
+          { id: '2', title: 'Board archived', timestamp: '2h ago', read: true },
+        ]}
+        onMarkAllRead={() => {}}
+      />
+    ),
+    user: { name: 'Jens Wedin', onSignOut: () => {} },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const bell = canvas.getByRole('button', { name: 'Notifications, 1 unread' });
+    await userEvent.click(bell);
+    expect(await within(document.body).findByRole('dialog', { name: 'Notifications' })).toBeInTheDocument();
   },
 };

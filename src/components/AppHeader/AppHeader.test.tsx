@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AppHeader } from './AppHeader';
+import type { ComponentProps } from 'react';
 
 describe('AppHeader (shell)', () => {
   it('renders a single <header> landmark with default aria-label', () => {
@@ -499,5 +500,297 @@ describe('AppHeader — theme cycle labels', () => {
     expect(screen.getByRole('button', { name: /theme: system/i })).toBeInTheDocument();
     expect(document.documentElement).not.toHaveClass('dark');
     expect(document.documentElement).not.toHaveClass('light');
+  });
+});
+
+describe('AppHeader — user menu (STU-1001)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  const baseUser = {
+    name: 'Jens Wedin',
+    email: 'jens@studiomanfred.com',
+    signOutLabel: 'Log out',
+  };
+
+  function setup(
+    userOverrides: Partial<NonNullable<ComponentProps<typeof AppHeader>['user']>> = {},
+    props: Partial<ComponentProps<typeof AppHeader>> = {},
+  ) {
+    const onSignOut = vi.fn();
+    const onProfile = vi.fn();
+    const onSettings = vi.fn();
+    const ue = userEvent.setup();
+    render(
+      <AppHeader
+        user={{
+          ...baseUser,
+          onSignOut,
+          menuItems: [
+            { label: 'Profile', onSelect: onProfile, icon: 'settings' },
+            { label: 'Settings', onSelect: onSettings },
+          ],
+          ...userOverrides,
+        }}
+        {...props}
+      />,
+    );
+    const trigger = screen.getByRole('button', { name: 'Account menu for Jens Wedin' });
+    return { ue, trigger, onSignOut, onProfile, onSettings };
+  }
+
+  it('keeps today\'s behaviour when no menuItems are given (back-compat)', () => {
+    render(<AppHeader user={{ ...baseUser, onSignOut: () => {} }} />);
+    expect(screen.getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    expect(document.querySelector('[aria-haspopup="menu"]')).toBeNull();
+  });
+
+  it('turns the avatar into a menu button and drops the sign-out button from the bar', () => {
+    const { trigger } = setup();
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('opens on click: labelled menu with name/email header, items, separator and sign-out; first item focused', async () => {
+    const { ue, trigger } = setup();
+    await ue.click(trigger);
+    const menu = await screen.findByRole('menu', { name: 'Account menu for Jens Wedin' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    const items = within(menu).getAllByRole('menuitem');
+    expect(items.map((i) => i.textContent)).toEqual(['Profile', 'Settings', 'Log out']);
+    expect(within(menu).getByRole('separator')).toBeInTheDocument();
+    expect(screen.getByText('jens@studiomanfred.com')).toBeInTheDocument();
+    // The header text lives outside role="menu" (only menuitems/separators inside).
+    expect(menu).not.toHaveTextContent('jens@studiomanfred.com');
+    await waitFor(() => expect(items[0]).toHaveFocus());
+    // Roving focus: items are not in the tab order.
+    items.forEach((i) => expect(i).toHaveAttribute('tabindex', '-1'));
+  });
+
+  it('selecting an item fires onSelect, closes the menu and returns focus to the trigger', async () => {
+    const { ue, trigger, onProfile } = setup();
+    await ue.click(trigger);
+    await ue.click(await screen.findByRole('menuitem', { name: 'Profile' }));
+    expect(onProfile).toHaveBeenCalledOnce();
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('the sign-out menuitem fires onSignOut', async () => {
+    const { ue, trigger, onSignOut } = setup();
+    await ue.click(trigger);
+    await ue.click(await screen.findByRole('menuitem', { name: 'Log out' }));
+    expect(onSignOut).toHaveBeenCalledOnce();
+  });
+
+  it('ArrowDown on the trigger opens and focuses the first item; arrows/Home/End move with wrap', async () => {
+    const { ue, trigger } = setup();
+    trigger.focus();
+    await ue.keyboard('{ArrowDown}');
+    const items = await screen.findAllByRole('menuitem');
+    await waitFor(() => expect(items[0]).toHaveFocus());
+    await ue.keyboard('{ArrowDown}');
+    expect(items[1]).toHaveFocus();
+    await ue.keyboard('{End}');
+    expect(items[2]).toHaveFocus();
+    await ue.keyboard('{ArrowDown}');
+    expect(items[0]).toHaveFocus(); // wraps
+    await ue.keyboard('{ArrowUp}');
+    expect(items[2]).toHaveFocus(); // wraps back
+    await ue.keyboard('{Home}');
+    expect(items[0]).toHaveFocus();
+  });
+
+  it('ArrowUp on the trigger opens and focuses the last item', async () => {
+    const { ue, trigger } = setup();
+    trigger.focus();
+    await ue.keyboard('{ArrowUp}');
+    const items = await screen.findAllByRole('menuitem');
+    await waitFor(() => expect(items[items.length - 1]).toHaveFocus());
+  });
+
+  it.each([['{Enter}'], [' ']])('%s on the trigger opens the menu with the first item focused', async (key) => {
+    const { ue, trigger } = setup();
+    trigger.focus();
+    await ue.keyboard(key);
+    const items = await screen.findAllByRole('menuitem');
+    await waitFor(() => expect(items[0]).toHaveFocus());
+  });
+
+  it('Escape closes the menu and returns focus to the trigger', async () => {
+    const { ue, trigger } = setup();
+    await ue.click(trigger);
+    await screen.findByRole('menu');
+    await ue.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('Tab closes the menu (focus back on the trigger)', async () => {
+    const { ue, trigger } = setup();
+    await ue.click(trigger);
+    await screen.findByRole('menu');
+    await ue.keyboard('{Tab}');
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+  });
+
+  it('renders href items as link menuitems and marks the active item aria-current="page"', async () => {
+    const { ue, trigger } = setup({
+      menuItems: [{ label: 'Profile', href: '/profile', active: true }],
+    });
+    await ue.click(trigger);
+    const item = await screen.findByRole('menuitem', { name: 'Profile' });
+    expect(item.tagName).toBe('A');
+    expect(item).toHaveAttribute('href', '/profile');
+    expect(item).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('Space activates a link menuitem', async () => {
+    const onSelect = vi.fn();
+    const { ue, trigger } = setup({
+      menuItems: [{ label: 'Profile', href: '#profile', onSelect }],
+    });
+    await ue.click(trigger);
+    const item = await screen.findByRole('menuitem', { name: 'Profile' });
+    await waitFor(() => expect(item).toHaveFocus());
+    await ue.keyboard(' ');
+    expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it('avatarActive rings the trigger without putting aria-current on a menu button', () => {
+    const { trigger } = setup({ avatarActive: true });
+    expect(trigger.className).toContain('ring-primary');
+    expect(trigger).not.toHaveAttribute('aria-current');
+  });
+
+  it('menuLabel overrides the trigger name; email-only users get an email-based default', () => {
+    const { unmount } = render(
+      <AppHeader user={{ name: 'Jens', menuLabel: 'Your account', menuItems: [] }} />,
+    );
+    expect(screen.getByRole('button', { name: 'Your account' })).toHaveAttribute('aria-haspopup', 'menu');
+    unmount();
+    render(<AppHeader user={{ email: 'jens@studiomanfred.com', menuItems: [] }} />);
+    expect(
+      screen.getByRole('button', { name: 'Account menu for jens@studiomanfred.com' }),
+    ).toBeInTheDocument();
+    // The email is in the menu header, not repeated in the bar.
+    expect(screen.queryByText('jens@studiomanfred.com')).not.toBeInTheDocument();
+  });
+
+  it('themeInMenu moves the theme control into the menu; activating it cycles and keeps the menu open', async () => {
+    const { ue, trigger } = setup({ themeInMenu: true }, { themeToggle: 'cycle' });
+    expect(screen.queryByRole('button', { name: /theme:/i })).not.toBeInTheDocument();
+    await ue.click(trigger);
+    const themeItem = await screen.findByRole('menuitem', { name: 'Theme: System' });
+    await ue.click(themeItem);
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Theme: Light' })).toBeInTheDocument();
+    expect(window.localStorage.getItem('manfred-theme')).toBe('light');
+  });
+
+  it('themeInMenu with the 2-state toggle offers "Switch to dark mode"', async () => {
+    const { ue, trigger } = setup({ themeInMenu: true }, { themeToggle: true });
+    await ue.click(trigger);
+    await ue.click(await screen.findByRole('menuitem', { name: 'Switch to dark mode' }));
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
+  it('without themeInMenu the theme control stays in the bar', () => {
+    setup({}, { themeToggle: 'cycle' });
+    expect(screen.getByRole('button', { name: /theme:/i })).toBeInTheDocument();
+  });
+
+  it('mobile drawer lists the menu items as plain buttons (no nested menu) and closes on select', async () => {
+    const { ue, onProfile } = setup();
+    await ue.click(screen.getByRole('button', { name: 'Open menu' }));
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).queryByRole('menu')).not.toBeInTheDocument();
+    const group = within(drawer).getByRole('group', { name: 'Account' });
+    expect(within(group).getByRole('button', { name: 'Settings' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    await ue.click(within(group).getByRole('button', { name: 'Profile' }));
+    expect(onProfile).toHaveBeenCalledOnce();
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+  });
+
+  it('mobile drawer renders href items as links with aria-current', async () => {
+    const ue = userEvent.setup();
+    render(
+      <AppHeader
+        user={{ name: 'Jens', menuItems: [{ label: 'Profile', href: '/profile', active: true }] }}
+      />,
+    );
+    await ue.click(screen.getByRole('button', { name: 'Open menu' }));
+    const drawer = await screen.findByRole('dialog');
+    const link = within(drawer).getByRole('link', { name: 'Profile' });
+    expect(link).toHaveAttribute('href', '/profile');
+    expect(link).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('ArrowDown/ArrowUp on the trigger while open move focus into the menu', async () => {
+    const { ue, trigger } = setup();
+    await ue.click(trigger);
+    const items = await screen.findAllByRole('menuitem');
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'ArrowUp' });
+    expect(items[items.length - 1]).toHaveFocus();
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    expect(items[0]).toHaveFocus();
+  });
+
+  it('ArrowUp from outside the items focuses the last item; other keys are ignored', async () => {
+    const { ue, trigger } = setup();
+    await ue.click(trigger);
+    const menu = await screen.findByRole('menu');
+    const items = within(menu).getAllByRole('menuitem');
+    trigger.focus();
+    fireEvent.keyDown(menu, { key: 'a' });
+    expect(trigger).toHaveFocus();
+    fireEvent.keyDown(menu, { key: 'ArrowUp' });
+    expect(items[items.length - 1]).toHaveFocus();
+  });
+
+  it('a menu with no name, items or sign-out is labelled "Account menu" and has no separator', async () => {
+    const ue = userEvent.setup();
+    render(<AppHeader user={{ avatarUrl: '/me.jpg', menuItems: [] }} />);
+    const trigger = screen.getByRole('button', { name: 'Account menu' });
+    await ue.click(trigger);
+    const menu = await screen.findByRole('menu');
+    expect(within(menu).queryByRole('separator')).not.toBeInTheDocument();
+    expect(within(menu).queryAllByRole('menuitem')).toHaveLength(0);
+    // Keyboard on an empty menu is a no-op.
+    fireEvent.keyDown(menu, { key: 'ArrowDown' });
+  });
+
+  it('sign-out only: no separator, default "Sign out" label', async () => {
+    const ue = userEvent.setup();
+    render(<AppHeader user={{ name: 'Jens', onSignOut: () => {}, menuItems: [] }} />);
+    await ue.click(screen.getByRole('button', { name: 'Account menu for Jens' }));
+    const menu = await screen.findByRole('menu');
+    expect(within(menu).queryByRole('separator')).not.toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Sign out' })).toBeInTheDocument();
+  });
+
+  it.each([
+    ['light', 'Theme: Light'],
+    ['dark', 'Theme: Dark'],
+  ])('themeInMenu cycle item reflects a stored "%s" preference', async (stored, label) => {
+    window.localStorage.setItem('manfred-theme', stored);
+    const { ue, trigger } = setup({ themeInMenu: true }, { themeToggle: 'cycle' });
+    await ue.click(trigger);
+    expect(await screen.findByRole('menuitem', { name: label })).toBeInTheDocument();
+  });
+
+  it('themeInMenu 2-state toggle offers "Switch to light mode" when dark', async () => {
+    window.localStorage.setItem('manfred-theme', 'dark');
+    const { ue, trigger } = setup({ themeInMenu: true }, { themeToggle: true });
+    await ue.click(trigger);
+    expect(await screen.findByRole('menuitem', { name: 'Switch to light mode' })).toBeInTheDocument();
   });
 });

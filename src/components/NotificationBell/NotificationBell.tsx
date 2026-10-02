@@ -55,29 +55,48 @@ export interface NotificationBellProps {
   loading?: boolean;
   /** Extra classes on the bell button. */
   className?: string;
+  /** Text of the mark-all button. Default `"Mark all as read"`. */
+  markAllReadLabel?: string;
+  /** Screen-reader text of the loading spinner. Default `"Loading notifications"`. */
+  loadingLabel?: string;
+  /** Visually hidden cue read before each unread row's title. Default `"Unread"`. */
+  unreadLabel?: string;
+  /**
+   * Unread phrase appended to `label` in the bell's accessible name and the
+   * live announcement (`"<label>, <phrase>"`). Default `` n => `${n} unread` ``.
+   */
+  formatUnreadCount?: (count: number) => string;
+  /**
+   * Formats `Date` / ISO-string timestamps. Default: English relative time
+   * ("5 minutes ago"). Other strings always render verbatim.
+   */
+  formatTimestamp?: (date: Date) => string;
 }
 
 const MAX_BADGE = 9;
 
-function unreadPhrase(n: number): string {
-  return `${n} unread notification${n === 1 ? '' : 's'}`;
-}
+const defaultFormatUnreadCount = (n: number): string => `${n} unread`;
+const defaultFormatTimestamp = (date: Date): string => formatRelativeTime(date);
 
 function NotificationRow({
   item,
   onActivate,
+  unreadLabel,
+  formatTimestamp,
 }: {
   item: NotificationItem;
   onActivate: (item: NotificationItem) => void;
+  unreadLabel: string;
+  formatTimestamp: (date: Date) => string;
 }): React.ReactElement {
   const date = toDate(item.timestamp);
-  const when = formatRelativeTime(item.timestamp);
+  const when = date ? formatTimestamp(date) : (item.timestamp as string);
   const body = (
     <>
       {item.avatar ? <span className="shrink-0">{item.avatar}</span> : null}
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className={cn('text-sm', !item.read && 'font-semibold')}>
-          {!item.read ? <span className="sr-only">Unread</span> : null}
+          {!item.read ? <span className="sr-only">{unreadLabel}</span> : null}
           {!item.read ? <span className="sr-only">: </span> : null}
           {item.title}
         </span>
@@ -135,7 +154,7 @@ function NotificationRow({
  *   focus moves into it, Tab walks the items, Esc closes and returns focus.
  * - Unread rows carry a visually hidden "Unread" cue (colour is not the only
  *   signal).
- * - A polite live region announces "N unread notifications" only when the
+ * - A polite live region announces the bell's name ("Notifications, N unread") only when the
  *   count goes **up** after mount — never on first render or on decrease.
  *
  * @example
@@ -164,6 +183,11 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
       emptyState,
       loading = false,
       className,
+      markAllReadLabel = 'Mark all as read',
+      loadingLabel = 'Loading notifications',
+      unreadLabel = 'Unread',
+      formatUnreadCount = defaultFormatUnreadCount,
+      formatTimestamp = defaultFormatTimestamp,
     },
     ref,
   ) {
@@ -176,6 +200,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
     };
 
     const unread = unreadCount ?? items.filter((i) => !i.read).length;
+    const accessibleName = unread > 0 ? `${label}, ${formatUnreadCount(unread)}` : label;
     const headingId = React.useId();
     const contentRef = React.useRef<HTMLDivElement>(null);
 
@@ -183,9 +208,10 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
     const prevUnread = React.useRef(unread);
     const [announcement, setAnnouncement] = React.useState('');
     React.useEffect(() => {
-      if (unread > prevUnread.current) setAnnouncement(unreadPhrase(unread));
+      if (unread > prevUnread.current) setAnnouncement(accessibleName);
       else if (unread < prevUnread.current) setAnnouncement('');
       prevUnread.current = unread;
+      // Only the count drives announcements; label/formatter changes don't.
     }, [unread]);
 
     const onActivate = (item: NotificationItem) => {
@@ -197,7 +223,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
     if (loading) {
       body = (
         <div className="flex justify-center px-4 py-8">
-          <Spinner size="sm" label="Loading notifications" />
+          <Spinner size="sm" label={loadingLabel} />
         </div>
       );
     } else if (items.length === 0) {
@@ -211,7 +237,12 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
         <ul className="divide-y divide-border">
           {items.map((item) => (
             <li key={item.id}>
-              <NotificationRow item={item} onActivate={onActivate} />
+              <NotificationRow
+                item={item}
+                onActivate={onActivate}
+                unreadLabel={unreadLabel}
+                formatTimestamp={formatTimestamp}
+              />
             </li>
           ))}
         </ul>
@@ -225,7 +256,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
             <button
               ref={ref}
               type="button"
-              aria-label={unread > 0 ? `${label}, ${unread} unread` : label}
+              aria-label={accessibleName}
               className={cn(
                 'relative inline-flex items-center justify-center',
                 'h-8 w-8 rounded-full',
@@ -278,7 +309,7 @@ export const NotificationBell = React.forwardRef<HTMLButtonElement, Notification
               </h2>
               {onMarkAllRead && unread > 0 ? (
                 <Button variant="ghost" size="sm" onClick={onMarkAllRead}>
-                  Mark all as read
+                  {markAllReadLabel}
                 </Button>
               ) : null}
             </div>

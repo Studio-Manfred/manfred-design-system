@@ -180,6 +180,31 @@ export const LiveUpdates: Story = {
     expect(region).toHaveTextContent('');
     await userEvent.click(canvas.getByRole('button', { name: 'Simulate new notification' }));
     expect(canvas.getByRole('button', { name: 'Notifications, 3 unread' })).toBeInTheDocument();
-    await waitFor(() => expect(region).toHaveTextContent('3 unread notifications'));
+    await waitFor(() => expect(region).toHaveTextContent('Notifications, 3 unread'));
+  },
+};
+
+/** Every built-in string is a prop; defaults are English. */
+export const Localised: Story = {
+  name: 'Localised strings (Swedish)',
+  args: {
+    items: ITEMS,
+    onMarkAllRead: () => {},
+    label: 'Aviseringar',
+    markAllReadLabel: 'Markera alla som lästa',
+    loadingLabel: 'Laddar aviseringar',
+    unreadLabel: 'Oläst',
+    emptyState: 'Inga aviseringar',
+    formatUnreadCount: (n: number) => `${n} olästa`,
+    formatTimestamp: (d: Date) =>
+      new Intl.DateTimeFormat('sv-SE', { dateStyle: 'short', timeStyle: 'short' }).format(d),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const bell = canvas.getByRole('button', { name: 'Aviseringar, 2 olästa' });
+    await userEvent.click(bell);
+    const dialog = await within(document.body).findByRole('dialog', { name: 'Aviseringar' });
+    expect(within(dialog).getByRole('button', { name: 'Markera alla som lästa' })).toBeInTheDocument();
+    expect(within(dialog).getAllByText('Oläst')).toHaveLength(2);
   },
 };

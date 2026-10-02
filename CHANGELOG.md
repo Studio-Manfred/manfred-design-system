@@ -23,9 +23,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `aria-hidden` badge; panel is a dialog labelled by its heading; focus
   moves to the first control on open and returns to the bell on Esc;
   unread rows carry a visually hidden "Unread" cue; a polite live region
-  announces only increases in the unread count. Place it in `AppHeader`'s
-  existing `actions` slot (new story `With notification bell`). New
-  exports `NotificationBell`, `NotificationBellProps`, `NotificationItem`.
+  announces only increases in the unread count (the same phrase as the
+  bell's name). Localisable strings: `markAllReadLabel`, `loadingLabel`,
+  `unreadLabel`, `formatUnreadCount(count)` (name + announcement suffix,
+  default `"N unread"`) and `formatTimestamp(date)` (default English
+  relative time); defaults stay English. New exports `NotificationBell`,
+  `NotificationBellProps`, `NotificationItem`.
+- **AppHeader: `pinnedActions` slot** (STU-1002). Content that stays in the
+  bar at every width — after `actions` / before `user` on desktop, next to
+  the hamburger on mobile, not repeated in the drawer. Fits wordmark + app
+  name + bell + hamburger at 320px. Opt-in: without it the header markup is
+  unchanged and `actions` still collapses into the drawer.
 
 ## [0.37.1] - 2026-09-29
 

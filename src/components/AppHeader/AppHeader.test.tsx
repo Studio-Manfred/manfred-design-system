@@ -501,3 +501,58 @@ describe('AppHeader — theme cycle labels', () => {
     expect(document.documentElement).not.toHaveClass('light');
   });
 });
+
+describe('AppHeader — pinnedActions (STU-1002)', () => {
+  it('renders pinnedActions once, in the bar, outside the collapsing desktop cluster', () => {
+    render(
+      <AppHeader
+        navItems={[{ label: 'Home', href: '/' }]}
+        actions={<button type="button">CTA</button>}
+        pinnedActions={<button type="button">Bell</button>}
+      />,
+    );
+    const bell = screen.getByRole('button', { name: 'Bell' });
+    // Not inside a breakpoint-hidden container (`hidden md:flex`).
+    let el: HTMLElement | null = bell.parentElement;
+    while (el && el.tagName !== 'HEADER') {
+      expect(el.className).not.toMatch(/(^|\s)hidden(\s|$)/);
+      el = el.parentElement;
+    }
+    // `actions` still lives in the collapsing cluster.
+    expect(screen.getByRole('button', { name: 'CTA' }).closest('.hidden')).not.toBeNull();
+  });
+
+  it('sits between actions and the user block on desktop', () => {
+    render(
+      <AppHeader
+        actions={<button type="button">CTA</button>}
+        pinnedActions={<button type="button">Bell</button>}
+        user={{ name: 'Jens', onSignOut: () => {} }}
+      />,
+    );
+    const order = screen
+      .getAllByRole('button')
+      .map((b) => b.textContent || b.getAttribute('aria-label'))
+      .filter((n) => ['CTA', 'Bell', 'Sign out'].includes(n ?? ''));
+    expect(order).toEqual(['CTA', 'Bell', 'Sign out']);
+  });
+
+  it('is not duplicated into the mobile drawer', async () => {
+    const ue = userEvent.setup();
+    render(
+      <AppHeader
+        navItems={[{ label: 'Home', href: '/' }]}
+        pinnedActions={<button type="button">Bell</button>}
+      />,
+    );
+    await ue.click(screen.getByRole('button', { name: 'Open menu' }));
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).queryByRole('button', { name: 'Bell' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Bell', hidden: true })).toHaveLength(1);
+  });
+
+  it('renders no pinned wrapper when pinnedActions is omitted', () => {
+    const { container } = render(<AppHeader />);
+    expect(container.querySelector('[data-slot="app-header-pinned-actions"]')).toBeNull();
+  });
+});

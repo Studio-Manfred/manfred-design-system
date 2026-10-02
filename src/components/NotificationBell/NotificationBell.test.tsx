@@ -227,20 +227,70 @@ describe('NotificationBell — live announcement', () => {
     expect(region).toBeInTheDocument();
     expect(region).toHaveTextContent('');
     act(() => rerender(<NotificationBell items={[]} unreadCount={3} />));
-    expect(region).toHaveTextContent('3 unread notifications');
+    expect(region).toHaveTextContent('Notifications, 3 unread');
     act(() => rerender(<NotificationBell items={[]} unreadCount={3} />));
-    expect(region).toHaveTextContent('3 unread notifications');
+    expect(region).toHaveTextContent('Notifications, 3 unread');
     act(() => rerender(<NotificationBell items={[]} unreadCount={1} />));
     expect(region).toHaveTextContent('');
     act(() => rerender(<NotificationBell items={[]} unreadCount={2} />));
-    expect(region).toHaveTextContent('2 unread notifications');
+    expect(region).toHaveTextContent('Notifications, 2 unread');
   });
 
-  it('uses singular wording for one unread', () => {
+  it('announces the same phrase as the accessible name', () => {
     const { rerender } = render(<NotificationBell items={[]} unreadCount={0} />);
     act(() => rerender(<NotificationBell items={[]} unreadCount={1} />));
-    expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('1 unread notification');
+    expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Notifications, 1 unread');
     expect(screen.getByRole('button', { name: 'Notifications, 1 unread' })).toBeInTheDocument();
+  });
+});
+
+describe('NotificationBell — localisation (label props)', () => {
+  const sv = {
+    label: 'Aviseringar',
+    markAllReadLabel: 'Markera alla som lästa',
+    loadingLabel: 'Laddar aviseringar',
+    unreadLabel: 'Oläst',
+    formatUnreadCount: (n: number) => `${n} olästa`,
+    formatTimestamp: (d: Date) => `ts:${d.toISOString().slice(0, 10)}`,
+  };
+
+  it('uses formatUnreadCount for the accessible name and the live announcement', () => {
+    const { rerender } = render(<NotificationBell {...sv} items={[]} unreadCount={1} />);
+    expect(screen.getByRole('button', { name: 'Aviseringar, 1 olästa' })).toBeInTheDocument();
+    act(() => rerender(<NotificationBell {...sv} items={[]} unreadCount={2} />));
+    expect(document.querySelector('[aria-live="polite"]')).toHaveTextContent('Aviseringar, 2 olästa');
+  });
+
+  it('localises "Mark all as read", the hidden "Unread" cue and timestamps', async () => {
+    const ue = userEvent.setup();
+    render(
+      <NotificationBell
+        {...sv}
+        onMarkAllRead={() => {}}
+        items={[
+          { id: '1', title: 'Hej', timestamp: new Date('2026-10-01T10:00:00Z'), href: '#1' },
+          { id: '2', title: 'Iso', timestamp: '2026-09-30T10:00:00Z', read: true },
+          { id: '3', title: 'Verbatim', timestamp: 'igår', read: true },
+        ]}
+      />,
+    );
+    await ue.click(screen.getByRole('button', { name: 'Aviseringar, 1 olästa' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Aviseringar' });
+    expect(within(dialog).getByRole('button', { name: 'Markera alla som lästa' })).toBeInTheDocument();
+    const [first, second, third] = within(dialog).getAllByRole('listitem');
+    expect(within(first).getByText('Oläst')).toHaveClass('sr-only');
+    expect(first.querySelector('time')).toHaveTextContent('ts:2026-10-01');
+    expect(second.querySelector('time')).toHaveTextContent('ts:2026-09-30');
+    // Pre-formatted strings bypass formatTimestamp.
+    expect(third).toHaveTextContent('igår');
+  });
+
+  it('localises the loading status', async () => {
+    const ue = userEvent.setup();
+    render(<NotificationBell {...sv} items={[]} loading />);
+    await ue.click(screen.getByRole('button', { name: 'Aviseringar' }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('status')).toHaveTextContent('Laddar aviseringar');
   });
 });
 

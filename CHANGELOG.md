@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-10-02
+
+No breaking changes. `AppHeader` can put the account actions in an avatar
+menu and pin content (like the new `NotificationBell`) in the top bar on
+mobile. Everything is opt-in; existing headers render exactly as before.
+
 ### Added
 
 - **AppHeader: avatar opens a user menu** (STU-1001). New `user.menuItems`

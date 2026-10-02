@@ -130,6 +130,9 @@ export type {
   NavigationMenuIndicatorProps,
 } from './components/NavigationMenu';
 
+export { NotificationBell } from './components/NotificationBell';
+export type { NotificationBellProps, NotificationItem } from './components/NotificationBell';
+
 export { PageBackground, pageBackgroundVariants } from './components/PageBackground';
 export type {
   PageBackgroundProps,

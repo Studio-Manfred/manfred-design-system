@@ -173,6 +173,14 @@ const BREAKPOINT_VISIBLE_BELOW: Record<AppHeaderBreakpoint, string> = {
   lg: 'lg:hidden',
 };
 
+// With `pinnedActions`, the right side is one always-visible row: tight on
+// mobile (next to the hamburger at 320px), the usual spacing from the breakpoint.
+const BREAKPOINT_WIDE_SPACING: Record<AppHeaderBreakpoint, string> = {
+  sm: 'sm:gap-3 sm:ml-6',
+  md: 'md:gap-3 md:ml-6',
+  lg: 'lg:gap-3 lg:ml-6',
+};
+
 function hasDropdowns(items: AppHeaderNavItem[]): boolean {
   return items.some((item) => Array.isArray(item.items) && item.items.length > 0);
 }
@@ -472,6 +480,14 @@ export interface AppHeaderProps
    */
   actions?: React.ReactNode;
   /**
+   * Content that stays in the bar at every width (STU-1002), e.g.
+   * `<NotificationBell />`. On desktop it renders after `actions`, before
+   * `user`; below `mobileBreakpoint` it sits next to the hamburger instead of
+   * collapsing into the drawer (and is not repeated there). Keep it to one or
+   * two icon buttons so the bar fits at 320px.
+   */
+  pinnedActions?: React.ReactNode;
+  /**
    * Typed convenience for the common pattern (email/name + avatar +
    * sign-out button). To render a fully custom user menu instead, omit
    * `user` and pass your own dropdown via `actions`.
@@ -547,6 +563,7 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
       nav,
       search,
       actions,
+      pinnedActions,
       user,
       themeToggle = false,
       mobileBreakpoint = 'md',
@@ -605,40 +622,14 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
         : renderFlatNav(navItems)
       : null;
 
-    return (
-      <header
-        ref={ref}
-        aria-label={ariaLabel}
-        className={cn(appHeaderVariants({ tone, sticky }), className)}
-        {...rest}
-      >
-        <div className="flex items-center gap-8 min-w-0 flex-1">
-          <div className="flex items-center gap-3 min-w-0">
-            {logoNode &&
-              (hasLogoLink ? (
-                <a
-                  href={logoHref}
-                  className="inline-flex items-center rounded-[var(--radius-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  {logoNode}
-                </a>
-              ) : (
-                logoNode
-              ))}
-            {appName ? (
-              <span className="font-semibold text-base truncate">{appName}</span>
-            ) : null}
-          </div>
-          {navNode ? <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'text-sm')}>{navNode}</div> : null}
-        </div>
-        <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3 ml-6 shrink-0')}>
-          {search ? <div>{search}</div> : null}
-          {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
-          {user ? renderUser(user, themeMenuItem) : null}
-          {themeToggle && !themeMenuItem
-            ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle })
-            : null}
-        </div>
+    const searchNode = search ? <div>{search}</div> : null;
+    const actionsNode = actions ? <div className="flex items-center gap-2">{actions}</div> : null;
+    const userNode = user ? renderUser(user, themeMenuItem) : null;
+    // With `themeInMenu`, the theme control lives in the user menu instead.
+    const themeNode = themeToggle && !themeMenuItem
+      ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle })
+      : null;
+    const drawer = (
         <div className={BREAKPOINT_VISIBLE_BELOW[mobileBreakpoint]}>
           <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
             <SheetTrigger asChild>
@@ -781,6 +772,69 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
             </SheetContent>
           </Sheet>
         </div>
+    );
+
+    return (
+      <header
+        ref={ref}
+        aria-label={ariaLabel}
+        className={cn(appHeaderVariants({ tone, sticky }), className)}
+        {...rest}
+      >
+        <div className="flex items-center gap-8 min-w-0 flex-1">
+          <div className="flex items-center gap-3 min-w-0">
+            {logoNode &&
+              (hasLogoLink ? (
+                <a
+                  href={logoHref}
+                  className="inline-flex items-center rounded-[var(--radius-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  {logoNode}
+                </a>
+              ) : (
+                logoNode
+              ))}
+            {appName ? (
+              <span className="font-semibold text-base truncate">{appName}</span>
+            ) : null}
+          </div>
+          {navNode ? <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'text-sm')}>{navNode}</div> : null}
+        </div>
+        {pinnedActions != null ? (
+          <div
+            className={cn(
+              'flex items-center gap-2 ml-3 shrink-0',
+              BREAKPOINT_WIDE_SPACING[mobileBreakpoint],
+            )}
+          >
+            {search || actions ? (
+              <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3')}>
+                {searchNode}
+                {actionsNode}
+              </div>
+            ) : null}
+            <div data-slot="app-header-pinned-actions" className="flex items-center gap-2">
+              {pinnedActions}
+            </div>
+            {user || themeToggle ? (
+              <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3')}>
+                {userNode}
+                {themeNode}
+              </div>
+            ) : null}
+            {drawer}
+          </div>
+        ) : (
+          <>
+            <div className={cn(BREAKPOINT_HIDDEN[mobileBreakpoint], 'items-center gap-3 ml-6 shrink-0')}>
+              {searchNode}
+              {actionsNode}
+              {userNode}
+              {themeNode}
+            </div>
+            {drawer}
+          </>
+        )}
         {children}
       </header>
     );

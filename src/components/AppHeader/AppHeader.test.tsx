@@ -503,6 +503,61 @@ describe('AppHeader — theme cycle labels', () => {
   });
 });
 
+describe('AppHeader — pinnedActions (STU-1002)', () => {
+  it('renders pinnedActions once, in the bar, outside the collapsing desktop cluster', () => {
+    render(
+      <AppHeader
+        navItems={[{ label: 'Home', href: '/' }]}
+        actions={<button type="button">CTA</button>}
+        pinnedActions={<button type="button">Bell</button>}
+      />,
+    );
+    const bell = screen.getByRole('button', { name: 'Bell' });
+    // Not inside a breakpoint-hidden container (`hidden md:flex`).
+    let el: HTMLElement | null = bell.parentElement;
+    while (el && el.tagName !== 'HEADER') {
+      expect(el.className).not.toMatch(/(^|\s)hidden(\s|$)/);
+      el = el.parentElement;
+    }
+    // `actions` still lives in the collapsing cluster.
+    expect(screen.getByRole('button', { name: 'CTA' }).closest('.hidden')).not.toBeNull();
+  });
+
+  it('sits between actions and the user block on desktop', () => {
+    render(
+      <AppHeader
+        actions={<button type="button">CTA</button>}
+        pinnedActions={<button type="button">Bell</button>}
+        user={{ name: 'Jens', onSignOut: () => {} }}
+      />,
+    );
+    const order = screen
+      .getAllByRole('button')
+      .map((b) => b.textContent || b.getAttribute('aria-label'))
+      .filter((n) => ['CTA', 'Bell', 'Sign out'].includes(n ?? ''));
+    expect(order).toEqual(['CTA', 'Bell', 'Sign out']);
+  });
+
+  it('is not duplicated into the mobile drawer', async () => {
+    const ue = userEvent.setup();
+    render(
+      <AppHeader
+        navItems={[{ label: 'Home', href: '/' }]}
+        pinnedActions={<button type="button">Bell</button>}
+      />,
+    );
+    await ue.click(screen.getByRole('button', { name: 'Open menu' }));
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).queryByRole('button', { name: 'Bell' })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'Bell', hidden: true })).toHaveLength(1);
+  });
+
+  it('renders no pinned wrapper when pinnedActions is omitted', () => {
+    const { container } = render(<AppHeader />);
+    expect(container.querySelector('[data-slot="app-header-pinned-actions"]')).toBeNull();
+  });
+});
+
 describe('AppHeader — user menu (STU-1001)', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -792,5 +847,82 @@ describe('AppHeader — user menu (STU-1001)', () => {
     const { ue, trigger } = setup({ themeInMenu: true }, { themeToggle: true });
     await ue.click(trigger);
     expect(await screen.findByRole('menuitem', { name: 'Switch to light mode' })).toBeInTheDocument();
+  });
+});
+
+describe('AppHeader — user menu + pinnedActions together (STU-1001 × STU-1002)', () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    document.documentElement.classList.remove('light', 'dark');
+  });
+
+  const props = {
+    navItems: [{ label: 'Home', href: '/' }],
+    search: <input aria-label="Search" />,
+    actions: <button type="button">CTA</button>,
+    pinnedActions: <button type="button">Bell</button>,
+    themeToggle: 'cycle' as const,
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', onSelect: () => {} }],
+    },
+  };
+
+  it('desktop: search, actions, pinned bell, then the account menu; theme lives in the menu', async () => {
+    const ue = userEvent.setup();
+    render(<AppHeader {...props} />);
+    const header = screen.getByRole('banner');
+    const controls = Array.from(header.querySelectorAll('input, button'))
+      .map((el) => el.getAttribute('aria-label') ?? el.textContent)
+      .filter((n) => n !== 'Open menu');
+    expect(controls).toEqual(['Search', 'CTA', 'Bell', 'Account menu for Jens Wedin']);
+    expect(screen.queryByRole('button', { name: /theme:/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
+
+    await ue.click(screen.getByRole('button', { name: 'Account menu for Jens Wedin' }));
+    const menu = await screen.findByRole('menu');
+    expect(within(menu).getAllByRole('menuitem').map((i) => i.textContent)).toEqual([
+      'Profile',
+      'Theme: System',
+      'Log out',
+    ]);
+  });
+
+  it('desktop: without themeInMenu the theme control returns to the bar after the user block', () => {
+    render(<AppHeader {...props} user={{ ...props.user, themeInMenu: false }} />);
+    const header = screen.getByRole('banner');
+    const names = Array.from(header.querySelectorAll('button')).map(
+      (el) => el.getAttribute('aria-label') ?? el.textContent,
+    );
+    expect(names.indexOf('Account menu for Jens Wedin')).toBeLessThan(
+      names.findIndex((n) => /^Theme:/.test(n ?? '')),
+    );
+  });
+
+  it('mobile: bell stays in the bar next to the hamburger; drawer holds nav, actions, account list and sign-out', async () => {
+    const ue = userEvent.setup();
+    render(<AppHeader {...props} />);
+    const hamburger = screen.getByRole('button', { name: 'Open menu' });
+    const bell = screen.getByRole('button', { name: 'Bell' });
+    // Bell and hamburger share the always-visible pinned row.
+    const row = screen.getByRole('banner').querySelector('[data-slot="app-header-pinned-actions"]')!
+      .parentElement!;
+    expect(row.contains(bell)).toBe(true);
+    expect(row.contains(hamburger)).toBe(true);
+
+    await ue.click(hamburger);
+    const drawer = await screen.findByRole('dialog');
+    expect(within(drawer).queryByRole('button', { name: 'Bell' })).not.toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'CTA' })).toBeInTheDocument();
+    const account = within(drawer).getByRole('group', { name: 'Account' });
+    expect(within(account).getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+    // The drawer keeps its own theme button (themeInMenu only affects the desktop bar).
+    expect(within(drawer).getByRole('button', { name: /theme:/i })).toBeInTheDocument();
+    expect(within(drawer).queryByRole('menu')).not.toBeInTheDocument();
   });
 });

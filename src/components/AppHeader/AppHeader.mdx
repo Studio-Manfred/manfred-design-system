@@ -125,6 +125,16 @@ Accessibility: WAI-ARIA menu-button pattern built on the DS `Popover` — `aria-
 />
 ```
 
+### Pinned actions (`pinnedActions`)
+
+`actions` collapses into the mobile drawer below `mobileBreakpoint`. For controls that must stay in the bar at every width (a `NotificationBell`), use `pinnedActions`: on desktop it renders after `actions` and before `user`; on mobile it sits next to the hamburger and is not repeated in the drawer. Keep it to one or two icon buttons — the bar fits a wordmark, app name, bell and hamburger at 320px. Without `pinnedActions` the header markup is unchanged.
+
+<Canvas of={AppHeaderStories.WithNotificationBell} />
+
+```tsx
+<AppHeader pinnedActions={<NotificationBell items={items} onMarkAllRead={markAllRead} />} user={…} />
+```
+
 ## `useThemeToggle`
 
 `AppHeader` exports its theme-preference hook so consumers can render a custom theme switcher elsewhere on the page. Reads `localStorage('manfred-theme')` and flips `<html>` between `light` / `dark` / system. Returns `toggle()` (2-state) and `cycle()` (3-state light→dark→system) alongside `preference` and `resolved`.

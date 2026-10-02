@@ -4,6 +4,7 @@ import { AppHeader } from './AppHeader';
 import { SearchBar } from '../SearchBar';
 import { Button } from '../Button';
 import { Kbd } from '../Kbd';
+import { NotificationBell } from '../NotificationBell';
 
 const meta: Meta<typeof AppHeader> = {
   title: 'Components/AppHeader',
@@ -299,6 +300,114 @@ export const SpaNavMobile: Story = {
     expect(drawerHome).toBeTruthy();
     await userEvent.click(drawerHome!);
     await waitFor(() => expect(body.queryByRole('dialog')).not.toBeInTheDocument());
+  },
+};
+
+const BELL = (
+  <NotificationBell
+    items={[
+      { id: '1', title: 'Moa commented on “Q4 plan”', timestamp: new Date(Date.now() - 300_000), href: '#c1' },
+      { id: '2', title: 'Board archived', timestamp: '2h ago', read: true },
+    ]}
+    onMarkAllRead={() => {}}
+  />
+);
+
+export const WithNotificationBell: Story = {
+  name: 'With notification bell (pinnedActions)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Place `NotificationBell` in `pinnedActions`: it renders after `actions` and ' +
+          'before the user block on desktop, and stays in the bar next to the ' +
+          'hamburger on mobile instead of collapsing into the drawer. Use `actions` ' +
+          'for content that may collapse.',
+      },
+    },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: NAV,
+    themeToggle: 'cycle',
+    pinnedActions: BELL,
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', icon: 'settings', onSelect: () => {} }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    // With the STU-1001 account menu: bell sits before the avatar menu; theme is in the menu.
+    expect(canvas.getByRole('button', { name: 'Account menu for Jens Wedin' })).toHaveAttribute(
+      'aria-haspopup',
+      'menu',
+    );
+    expect(canvas.queryByRole('button', { name: /theme:/i })).not.toBeInTheDocument();
+    const bell = canvas.getByRole('button', { name: 'Notifications, 1 unread' });
+    await userEvent.click(bell);
+    expect(await within(document.body).findByRole('dialog', { name: 'Notifications' })).toBeInTheDocument();
+  },
+};
+
+export const WithNotificationBellMobile: Story = {
+  name: 'With notification bell — pinned on mobile (320px)',
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: NAV,
+    themeToggle: 'cycle',
+    pinnedActions: BELL,
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', icon: 'settings', onSelect: () => {} }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const header = canvas.getByRole('banner');
+    const bell = canvas.getByRole('button', { name: 'Notifications, 1 unread' });
+    const hamburger = canvas.getByRole('button', { name: 'Open menu' });
+    // The bell stays visible in the bar next to the hamburger.
+    expect(bell).toBeVisible();
+    expect(hamburger).toBeVisible();
+    // No horizontal overflow at 320px: everything fits inside the header.
+    // Geometry needs the Tailwind utilities, which Storybook + Chromatic load
+    // but the vitest browser runner does not generate (its bar is unstyled,
+    // far taller than h-14) — so only measure once the bar is laid out.
+    const h = header.getBoundingClientRect();
+    if (h.height <= 57) {
+      expect(header.scrollWidth).toBeLessThanOrEqual(header.clientWidth);
+      const b = bell.getBoundingClientRect();
+      const m = hamburger.getBoundingClientRect();
+      expect(b.right).toBeLessThanOrEqual(m.left);
+      expect(m.right).toBeLessThanOrEqual(h.right);
+    }
+    // Keyboard: the bell is reachable and opens its panel.
+    bell.focus();
+    await userEvent.keyboard('{Enter}');
+    const dialog = await within(document.body).findByRole('dialog', { name: 'Notifications' });
+    expect(bell).toHaveAttribute('aria-expanded', 'true');
+    // The bell is not repeated inside the drawer.
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(dialog).not.toBeInTheDocument());
+    await userEvent.click(hamburger);
+    const drawer = await within(document.body).findByRole('dialog', { name: 'Menu' });
+    expect(within(drawer).queryByRole('button', { name: /notifications/i })).not.toBeInTheDocument();
+    // The account-menu items render as a plain list in the drawer.
+    const account = within(drawer).getByRole('group', { name: 'Account' });
+    expect(within(account).getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
   },
 };
 

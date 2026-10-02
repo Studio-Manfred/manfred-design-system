@@ -70,6 +70,10 @@ Opinionated, configurable application header. Renders a single `<header>` landma
 
 <Canvas of={AppHeaderStories.ProfileAvatar} />
 
+### Account menu — avatar opens a user menu
+
+<Canvas of={AppHeaderStories.AccountMenu} />
+
 ## Props
 
 <Controls of={AppHeaderStories.Default} />
@@ -100,6 +104,26 @@ For client-routed apps, give each `navItems` entry `as: 'button'` + an `onClick`
 ### Clickable profile avatar
 
 Pass `user.onAvatarClick` (SPA) or `user.avatarHref` (link) to make the avatar navigate to a profile page; `user.avatarActive` adds the active ring and `aria-current="page"`; `user.avatarLabel` sets its accessible name. Omit all of these for a display-only avatar.
+
+### Account menu (`user.menuItems`)
+
+Pass `user.menuItems` (`AppHeaderUserMenuItem[]`: `{ label, onSelect?, href?, icon?, active? }`) to turn the desktop avatar into a menu button. The menu shows the user's name and email, the items, a separator, then a sign-out item built from `onSignOut` / `signOutLabel` — the outline sign-out button and the email no longer render in the bar. `user.menuLabel` names the trigger (default `"Account menu for <name>"`). `user.themeInMenu` moves the `themeToggle` control into the menu (activating it keeps the menu open). `user.avatarActive` still rings the avatar; put `active: true` on the matching item for `aria-current="page"`.
+
+In the mobile drawer the items render as a plain list (a labelled `role="group"`), followed by the full-width sign-out button; the drawer avatar keeps `onAvatarClick` / `avatarHref` / `avatarLabel`.
+
+Accessibility: WAI-ARIA menu-button pattern built on the DS `Popover` — `aria-haspopup="menu"` + `aria-expanded` on the trigger, `role="menu"` labelled by the trigger, `role="menuitem"` items with roving focus. Enter / Space / ArrowDown open on the first item, ArrowUp on the last; arrows (wrapping) and Home / End move; Esc and Tab close and return focus to the avatar.
+
+```tsx
+<AppHeader
+  themeToggle="cycle"
+  user={{
+    name, email, avatarUrl, signOutLabel: 'Log out', onSignOut,
+    avatarActive: page === 'profile',
+    themeInMenu: true,
+    menuItems: [{ label: 'Profile', active: page === 'profile', onSelect: goToProfile }],
+  }}
+/>
+```
 
 ### Pinned actions (`pinnedActions`)
 

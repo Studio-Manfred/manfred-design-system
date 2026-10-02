@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **AppHeader: avatar opens a user menu** (STU-1001). New `user.menuItems`
+  (`AppHeaderUserMenuItem[]`: `{ label, onSelect?, href?, icon?, active? }`)
+  turns the desktop avatar into a menu button: name/email header, the items,
+  a separator, then the sign-out item from `onSignOut` / `signOutLabel`. The
+  outline sign-out button and the bar email are dropped in menu mode.
+  `user.menuLabel` names the trigger (default "Account menu for <name>");
+  `user.themeInMenu` moves the `themeToggle` control into the menu. The
+  mobile drawer lists the items as a plain group. WAI-ARIA menu-button
+  pattern composed from `Popover` (no new dependency): Enter / Space /
+  ArrowDown open, ArrowUp opens on the last item, arrows + Home / End move
+  with wrap, Esc and Tab close and return focus. Backwards compatible —
+  without `menuItems` the header renders exactly as before. New type export
+  `AppHeaderUserMenuItem`.
 - **`NotificationBell` component** (STU-1002). Bell icon button with an
   unread indicator (`indicator="count"` badge capped at "9+", or `"dot"`)
   that opens a `Popover` panel listing notifications. Props: `items`

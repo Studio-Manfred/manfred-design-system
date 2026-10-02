@@ -36,6 +36,7 @@ export type {
   AppHeaderProps,
   AppHeaderNavItem,
   AppHeaderUser,
+  AppHeaderUserMenuItem,
   AppHeaderTone,
   AppHeaderLogo,
   AppHeaderBreakpoint,

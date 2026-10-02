@@ -3,7 +3,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/Avatar';
 import { Button } from '@/components/Button';
-import { Icon } from '@/components/Icon';
+import { Icon, type IconName } from '@/components/Icon';
 import { Logo, type LogoColor, type LogoVariant } from '@/components/Logo';
 import { NavBar, NavItem } from '@/components/NavBar';
 import {
@@ -23,6 +23,7 @@ import {
   SheetTitle,
 } from '@/components/Sheet';
 import { useThemeToggle, type ThemePreference } from './useThemeToggle';
+import { UserMenu, type UserMenuEntry } from './UserMenu';
 
 const appHeaderVariants = cva(
   cn(
@@ -78,6 +79,23 @@ export interface AppHeaderNavItem {
   type?: 'button' | 'submit' | 'reset';
 }
 
+/**
+ * One entry in the AppHeader user menu (STU-1001). Renders as a
+ * `role="menuitem"` — a `<button>` by default, an `<a>` when `href` is set.
+ */
+export interface AppHeaderUserMenuItem {
+  /** Visible label, also the item's accessible name. */
+  label: string;
+  /** Called when the item is activated (click, Enter, Space). The menu then closes. */
+  onSelect?: () => void;
+  /** Render the item as a link. `onSelect` still fires on activation (before navigation). */
+  href?: string;
+  /** Optional leading icon from the DS set (decorative). */
+  icon?: IconName;
+  /** Mark the item as the current page: `aria-current="page"` + bold. */
+  active?: boolean;
+}
+
 export interface AppHeaderUser {
   /** Display name, e.g. "Jens Wedin". Used as the Avatar's accessible alt. */
   name?: string;
@@ -97,6 +115,27 @@ export interface AppHeaderUser {
   avatarActive?: boolean;
   /** Accessible label for the avatar control, e.g. "Edit your profile". */
   avatarLabel?: string;
+  /**
+   * Turns the avatar into a menu button (STU-1001). When set (even to `[]`),
+   * the desktop avatar opens a menu with a name/email header, these items,
+   * a separator, then the sign-out item (from `onSignOut` / `signOutLabel`);
+   * the sign-out button and the email are no longer rendered in the bar.
+   * `onAvatarClick` / `avatarHref` / `avatarLabel` then only apply to the
+   * mobile drawer's avatar. In the drawer the items render as a plain list.
+   * Omit to keep the pre-menu behaviour.
+   */
+  menuItems?: AppHeaderUserMenuItem[];
+  /**
+   * Accessible name of the menu trigger (and the menu). Defaults to
+   * `"Account menu for <name>"` (or the email), else `"Account menu"`.
+   */
+  menuLabel?: string;
+  /**
+   * With `menuItems` and `themeToggle` set: render the theme control as a
+   * menu item instead of a button in the bar. Activating it changes the
+   * theme and keeps the menu open. The mobile drawer keeps its theme button.
+   */
+  themeInMenu?: boolean;
 }
 
 /**
@@ -275,7 +314,42 @@ function AvatarControl({
   );
 }
 
-function renderUser(u: AppHeaderUser): React.ReactNode {
+const THEME_LABEL: Record<ThemePreference, string> = {
+  light: 'Light',
+  dark: 'Dark',
+  system: 'System',
+};
+
+function hasMenu(u: AppHeaderUser | undefined): u is AppHeaderUser & {
+  menuItems: AppHeaderUserMenuItem[];
+} {
+  return Array.isArray(u?.menuItems);
+}
+
+function renderUserMenu(
+  u: AppHeaderUser & { menuItems: AppHeaderUserMenuItem[] },
+  theme: UserMenuEntry | null,
+): React.ReactNode {
+  const subject = u.name ?? u.email;
+  const footerItems: UserMenuEntry[] = u.onSignOut
+    ? [{ label: u.signOutLabel ?? 'Sign out', onSelect: u.onSignOut, icon: 'log-out' }]
+    : [];
+  return (
+    <UserMenu
+      triggerLabel={u.menuLabel ?? (subject ? `Account menu for ${subject}` : 'Account menu')}
+      name={u.name}
+      email={u.email}
+      avatarUrl={u.avatarUrl}
+      initialsSource={u.name ?? u.email?.split('@')[0] ?? ''}
+      active={u.avatarActive}
+      items={theme ? [...u.menuItems, theme] : u.menuItems}
+      footerItems={footerItems}
+    />
+  );
+}
+
+function renderUser(u: AppHeaderUser, theme: UserMenuEntry | null): React.ReactNode {
+  if (hasMenu(u)) return renderUserMenu(u, theme);
   return (
     <div className="flex items-center gap-3">
       <AvatarControl u={u} />
@@ -522,6 +596,24 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
     const logoNode = renderLogo();
     const hasLogoLink = logoNode !== null && (logo === 'wordmark' || logo === 'monogram');
 
+    // STU-1001: theme control as a user-menu item instead of a bar button.
+    const themeMenuItem: UserMenuEntry | null =
+      themeToggle && hasMenu(user) && user.themeInMenu
+        ? themeToggle === 'cycle'
+          ? {
+              label: `Theme: ${THEME_LABEL[preference]}`,
+              icon: preference === 'light' ? 'sun' : preference === 'dark' ? 'moon' : 'monitor',
+              onSelect: cycle,
+              keepOpen: true,
+            }
+          : {
+              label: resolved === 'dark' ? 'Switch to light mode' : 'Switch to dark mode',
+              icon: resolved === 'dark' ? 'sun' : 'moon',
+              onSelect: toggle,
+              keepOpen: true,
+            }
+        : null;
+
     const navNode: React.ReactNode | null = nav
       ? nav
       : navItems && navItems.length > 0
@@ -532,8 +624,9 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
 
     const searchNode = search ? <div>{search}</div> : null;
     const actionsNode = actions ? <div className="flex items-center gap-2">{actions}</div> : null;
-    const userNode = user ? renderUser(user) : null;
-    const themeNode = themeToggle
+    const userNode = user ? renderUser(user, themeMenuItem) : null;
+    // With `themeInMenu`, the theme control lives in the user menu instead.
+    const themeNode = themeToggle && !themeMenuItem
       ? renderThemeControl(themeToggle, { resolved, toggle, preference, cycle })
       : null;
     const drawer = (
@@ -600,6 +693,40 @@ export const AppHeader = React.forwardRef<HTMLElement, AppHeaderProps>(
 
                 {/* Optional actions stacked */}
                 {actions ? <div className="flex flex-col gap-2 mt-4">{actions}</div> : null}
+
+                {/* STU-1001: user-menu items as a plain list (no nested menu). */}
+                {hasMenu(user) && user.menuItems.length > 0 ? (
+                  <div role="group" aria-label="Account" className="flex flex-col gap-1 mt-4">
+                    {user.menuItems.map((item) => {
+                      const cls = cn(
+                        'flex w-full items-center gap-2 px-3 py-3 text-base text-left rounded-[var(--radius-md)]',
+                        'text-foreground hover:bg-accent',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+                        item.active && 'bg-accent font-semibold',
+                      );
+                      const handle = () => {
+                        item.onSelect?.();
+                        setMenuOpen(false);
+                      };
+                      const inner = (
+                        <>
+                          {item.icon ? <Icon name={item.icon} size="sm" aria-hidden /> : null}
+                          {item.label}
+                        </>
+                      );
+                      const current = item.active ? { 'aria-current': 'page' as const } : {};
+                      return item.href != null ? (
+                        <a key={item.label} href={item.href} onClick={handle} className={cls} {...current}>
+                          {inner}
+                        </a>
+                      ) : (
+                        <button key={item.label} type="button" onClick={handle} className={cls} {...current}>
+                          {inner}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
 
                 {/* Footer pinned to bottom of the drawer */}
                 <div className="mt-auto">

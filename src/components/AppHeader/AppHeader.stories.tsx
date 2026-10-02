@@ -331,10 +331,23 @@ export const WithNotificationBell: Story = {
     navItems: NAV,
     themeToggle: 'cycle',
     pinnedActions: BELL,
-    user: { name: 'Jens Wedin', onSignOut: () => {} },
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', icon: 'settings', onSelect: () => {} }],
+    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // With the STU-1001 account menu: bell sits before the avatar menu; theme is in the menu.
+    expect(canvas.getByRole('button', { name: 'Account menu for Jens Wedin' })).toHaveAttribute(
+      'aria-haspopup',
+      'menu',
+    );
+    expect(canvas.queryByRole('button', { name: /theme:/i })).not.toBeInTheDocument();
     const bell = canvas.getByRole('button', { name: 'Notifications, 1 unread' });
     await userEvent.click(bell);
     expect(await within(document.body).findByRole('dialog', { name: 'Notifications' })).toBeInTheDocument();
@@ -351,7 +364,14 @@ export const WithNotificationBellMobile: Story = {
     navItems: NAV,
     themeToggle: 'cycle',
     pinnedActions: BELL,
-    user: { name: 'Jens Wedin', onSignOut: () => {} },
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', icon: 'settings', onSelect: () => {} }],
+    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -384,5 +404,117 @@ export const WithNotificationBellMobile: Story = {
     await userEvent.click(hamburger);
     const drawer = await within(document.body).findByRole('dialog', { name: 'Menu' });
     expect(within(drawer).queryByRole('button', { name: /notifications/i })).not.toBeInTheDocument();
+    // The account-menu items render as a plain list in the drawer.
+    const account = within(drawer).getByRole('group', { name: 'Account' });
+    expect(within(account).getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
+  },
+};
+
+export const AccountMenu: Story = {
+  name: 'Account menu (avatar opens a user menu)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Set `user.menuItems` to turn the avatar into a menu button (STU-1001). ' +
+          'The menu shows the name/email, the items, a separator, then sign-out ' +
+          '(from `onSignOut` / `signOutLabel`). The sign-out button leaves the bar. ' +
+          '`user.themeInMenu` moves the `themeToggle` control into the menu. ' +
+          'Keyboard: Enter / Space / ArrowDown open (ArrowUp opens on the last item), ' +
+          'arrows + Home / End move, Esc and Tab close and return focus to the avatar.',
+      },
+    },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      avatarActive: true,
+      themeInMenu: true,
+      menuItems: [{ label: 'Profile', icon: 'settings', active: true, onSelect: () => {} }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(document.body);
+    // Log out is no longer a bar button; the theme control moved into the menu.
+    expect(canvas.queryByRole('button', { name: 'Log out' })).not.toBeInTheDocument();
+    expect(canvas.queryByRole('button', { name: /theme:/i })).not.toBeInTheDocument();
+
+    const trigger = canvas.getByRole('button', { name: 'Account menu for Jens Wedin' });
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    // Keyboard open → first item focused.
+    trigger.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    const menu = await body.findByRole('menu', { name: 'Account menu for Jens Wedin' });
+    const items = within(menu).getAllByRole('menuitem');
+    expect(items.map((i) => i.textContent)).toEqual(['Profile', 'Theme: System', 'Log out']);
+    await waitFor(() => expect(items[0]).toHaveFocus());
+    expect(items[0]).toHaveAttribute('aria-current', 'page');
+
+    // Arrow / Home / End roving focus with wrap.
+    await userEvent.keyboard('{ArrowDown}');
+    expect(items[1]).toHaveFocus();
+    await userEvent.keyboard('{End}');
+    expect(items[2]).toHaveFocus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(items[0]).toHaveFocus();
+    await userEvent.keyboard('{Home}');
+    expect(items[0]).toHaveFocus();
+
+    // Esc closes and returns focus to the avatar.
+    await userEvent.keyboard('{Escape}');
+    await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+
+    // Reopen with Enter; Tab closes.
+    await userEvent.keyboard('{Enter}');
+    await body.findByRole('menu');
+    await userEvent.keyboard('{Tab}');
+    await waitFor(() => expect(body.queryByRole('menu')).not.toBeInTheDocument());
+    await waitFor(() => expect(trigger).toHaveFocus());
+
+    // Leave it open so the snapshot + axe cover the open menu.
+    await userEvent.click(trigger);
+    await body.findByRole('menu');
+  },
+};
+
+export const AccountMenuMobile: Story = {
+  name: 'Account menu — drawer list (mobile)',
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+  },
+  args: {
+    appName: 'Intranet',
+    navItems: SPA_NAV,
+    themeToggle: 'cycle',
+    user: {
+      name: 'Jens Wedin',
+      email: 'jens@studiomanfred.com',
+      signOutLabel: 'Log out',
+      onSignOut: () => {},
+      menuItems: [{ label: 'Profile', icon: 'settings', onSelect: () => {} }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: 'Open menu' }));
+    const body = within(document.body);
+    const drawer = await body.findByRole('dialog');
+    // No nested menu in the drawer — the items are a plain list.
+    expect(within(drawer).queryByRole('menu')).not.toBeInTheDocument();
+    const group = within(drawer).getByRole('group', { name: 'Account' });
+    expect(within(group).getByRole('button', { name: 'Profile' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('button', { name: 'Log out' })).toBeInTheDocument();
   },
 };

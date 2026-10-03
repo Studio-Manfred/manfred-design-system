@@ -118,7 +118,7 @@ export const KeyboardInteraction: Story = {
     const items = within(menu).getAllByRole('menuitem');
     await waitFor(() => expect(items[0]).toHaveFocus());
     await userEvent.keyboard('{ArrowDown}');
-    expect(items[1]).toHaveFocus();
+    await waitFor(() => expect(items[1]).toHaveFocus());
 
     await userEvent.keyboard('{Escape}');
     await waitFor(() => expect(trigger).toHaveFocus());
@@ -126,7 +126,7 @@ export const KeyboardInteraction: Story = {
 
     await userEvent.click(trigger);
     await userEvent.click(await body.findByRole('menuitem', { name: 'Rename' }));
-    expect(onRename).toHaveBeenCalled();
+    await waitFor(() => expect(onRename).toHaveBeenCalled());
     await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
   },
 };

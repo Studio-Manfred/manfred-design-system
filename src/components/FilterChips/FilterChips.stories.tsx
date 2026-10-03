@@ -99,7 +99,14 @@ export const KeyboardAndClick: Story = {
     await userEvent.keyboard('{/ArrowRight}');
     expect(sales).toHaveAttribute('aria-checked', 'true');
 
-    await userEvent.keyboard('{ArrowLeft}{ArrowLeft}');
+    // One key at a time, waiting for Radix's deferred roving focus after each:
+    // back-to-back presses race on slower runners (Chromatic).
+    await userEvent.keyboard('{ArrowLeft>}');
+    await waitFor(() => expect(onboarding).toHaveFocus());
+    await userEvent.keyboard('{/ArrowLeft}');
+    await userEvent.keyboard('{ArrowLeft>}');
+    await waitFor(() => expect(all).toHaveFocus());
+    await userEvent.keyboard('{/ArrowLeft}');
     await userEvent.keyboard('{Enter}');
     await waitFor(() =>
       expect(canvas.getByRole('radio', { name: 'All, 7' })).toHaveAttribute('aria-checked', 'true'),

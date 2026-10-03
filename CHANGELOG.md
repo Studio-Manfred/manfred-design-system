@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.39.0] - 2026-10-03
+
 No breaking changes. Two new components for the intranet Boards page.
 
 ### Added
@@ -20,7 +22,8 @@ No breaking changes. Two new components for the intranet Boards page.
   the group. Built on `@radix-ui/react-radio-group` like `RadioGroup`:
   `radiogroup` / `radio` + `aria-checked`, one tab stop, arrow keys move and
   select (skipping disabled chips), Space and Enter select. The count is
-  part of the accessible name ("Onboarding, 3"); selection is shown by fill
+  part of the accessible name ("Onboarding, 3"; text labels set it via
+  `aria-label`, since Chrome otherwise reads "Onboarding , 3"); selection is shown by fill
   and font weight, not colour alone; the row wraps. New type exports
   `FilterChipsProps`, `FilterChipItem`, `FilterChipsSize`.
 - **`DropdownMenu` component** (STU-1012). Compound actions menu:

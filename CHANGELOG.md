@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No breaking changes. Two new components for the intranet Boards page.
+
+### Added
+
+- **`FilterChips` component** (STU-1011). Single-select filter chips with
+  optional counts ("All 7 · Onboarding 3 · Sales 1"). Props: `items`
+  (`FilterChipItem[]`: `{ value, label, count?, disabled? }`), `label`
+  (required accessible group name), `size?: 'sm' | 'md'` (28px / 32px,
+  default `md`), plus the Radix RadioGroup Root props (`value` /
+  `defaultValue` / `onValueChange`, `disabled`, `name`, …); ref forwards to
+  the group. Built on `@radix-ui/react-radio-group` like `RadioGroup`:
+  `radiogroup` / `radio` + `aria-checked`, one tab stop, arrow keys move and
+  select (skipping disabled chips), Space and Enter select. The count is
+  part of the accessible name ("Onboarding, 3"); selection is shown by fill
+  and font weight, not colour alone; the row wraps. New type exports
+  `FilterChipsProps`, `FilterChipItem`, `FilterChipsSize`.
+- **`DropdownMenu` component** (STU-1012). Compound actions menu:
+  `DropdownMenu` (`open?` / `defaultOpen?` / `onOpenChange?`),
+  `DropdownMenuTrigger` (`asChild`), `DropdownMenuContent` (`align?`
+  default `start`, `side?`, `sideOffset?` default 4, `className?`),
+  `DropdownMenuItem` (`onSelect?(event)` — call `event.preventDefault()` to
+  keep the menu open, `disabled?`, `variant?: 'default' | 'destructive'`,
+  `icon?` slot, `asChild` for link items), `DropdownMenuSeparator`,
+  `DropdownMenuLabel`. Extracted from the AppHeader user menu and built on
+  the DS `Popover` (no new dependency): trigger `aria-haspopup="menu"` +
+  `aria-expanded`, menu named by the trigger, Enter / Space / ArrowDown open
+  on the first item (ArrowUp on the last), arrows + Home / End move with
+  wrap and skip disabled items, typeahead, Esc and Tab close and return
+  focus. New type exports `DropdownMenuProps`, `DropdownMenuTriggerProps`,
+  `DropdownMenuContentProps`, `DropdownMenuItemProps`,
+  `DropdownMenuItemVariant`, `DropdownMenuSeparatorProps`,
+  `DropdownMenuLabelProps`.
+
+### Changed
+
+- **AppHeader user menu now runs on `DropdownMenu`** (STU-1012). Internal
+  refactor only — same public API and behaviour; the menu also gains
+  typeahead.
+
 ## [0.38.0] - 2026-10-02
 
 No breaking changes. `AppHeader` can put the account actions in an avatar

@@ -84,6 +84,27 @@ export type {
 export { DatePicker } from './components/DatePicker';
 export type { DatePickerProps } from './components/DatePicker';
 
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from './components/DropdownMenu';
+export type {
+  DropdownMenuProps,
+  DropdownMenuTriggerProps,
+  DropdownMenuContentProps,
+  DropdownMenuItemProps,
+  DropdownMenuItemVariant,
+  DropdownMenuSeparatorProps,
+  DropdownMenuLabelProps,
+} from './components/DropdownMenu';
+
+export { FilterChips } from './components/FilterChips';
+export type { FilterChipsProps, FilterChipItem, FilterChipsSize } from './components/FilterChips';
+
 export { FormField } from './components/FormField';
 export type { FormFieldProps, FormFieldStatus } from './components/FormField';
 

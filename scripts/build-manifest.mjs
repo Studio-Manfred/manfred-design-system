@@ -180,6 +180,8 @@ export const HTML_WRAPPER_COMPONENTS = new Set([
   'DialogFooter',
   // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the dialog.
   'DialogHeader',
+  // forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>> — styled <div> heading inside the menu.
+  'DropdownMenuLabel',
   // PageFooterProps extends React.HTMLAttributes<HTMLElement> with no own members — <footer> landmark.
   'PageFooter',
   // (props: React.HTMLAttributes<HTMLDivElement>) — styled <div> in the sheet.

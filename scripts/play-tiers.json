@@ -34,6 +34,8 @@
       "Chart",
       "DatePicker",
       "Dialog",
+      "DropdownMenu",
+      "FilterChips",
       "NavBar",
       "NavigationMenu",
       "NotificationBell",

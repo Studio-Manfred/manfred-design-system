@@ -111,7 +111,7 @@ Pass `user.menuItems` (`AppHeaderUserMenuItem[]`: `{ label, onSelect?, href?, ic
 
 In the mobile drawer the items render as a plain list (a labelled `role="group"`), followed by the full-width sign-out button; the drawer avatar keeps `onAvatarClick` / `avatarHref` / `avatarLabel`.
 
-Accessibility: WAI-ARIA menu-button pattern built on the DS `Popover` — `aria-haspopup="menu"` + `aria-expanded` on the trigger, `role="menu"` labelled by the trigger, `role="menuitem"` items with roving focus. Enter / Space / ArrowDown open on the first item, ArrowUp on the last; arrows (wrapping) and Home / End move; Esc and Tab close and return focus to the avatar.
+Accessibility: WAI-ARIA menu-button pattern from the DS `DropdownMenu` (built on `Popover`) — `aria-haspopup="menu"` + `aria-expanded` on the trigger, `role="menu"` labelled by the trigger, `role="menuitem"` items with roving focus. Enter / Space / ArrowDown open on the first item, ArrowUp on the last; arrows (wrapping) and Home / End move; typing jumps to a matching item; Esc and Tab close and return focus to the avatar.
 
 ```tsx
 <AppHeader

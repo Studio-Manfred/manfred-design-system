@@ -36,6 +36,26 @@ describe('FilterChips (STU-1011)', () => {
     expect(screen.getByRole('radio', { name: 'General' })).toBeInTheDocument();
   });
 
+  it('a text label + count is named by aria-label, so no browser inserts a space before the comma', () => {
+    // Chromatic build 77: Chrome named the chip "All , 7" because flex items
+    // and the absolutely positioned sr-only comma get spaces around them.
+    render(<FilterChips label="Filter" items={items} defaultValue="all" />);
+    expect(screen.getByRole('radio', { name: 'All, 7' })).toHaveAttribute('aria-label', 'All, 7');
+    expect(screen.getByRole('radio', { name: 'General' })).not.toHaveAttribute('aria-label');
+  });
+
+  it('a rich (non-text) label keeps its content and the count in the name', () => {
+    render(
+      <FilterChips
+        label="Filter"
+        items={[{ value: 'x', label: <em>Starred</em>, count: 2 }]}
+        defaultValue="x"
+      />,
+    );
+    const chip = screen.getByRole('radio', { name: /Starred.*2/ });
+    expect(chip).not.toHaveAttribute('aria-label');
+  });
+
   it('marks the defaultValue chip checked (aria-checked + data-state)', () => {
     render(<FilterChips label="Filter" items={items} defaultValue="sales" />);
     const sales = screen.getByRole('radio', { name: 'Sales, 1' });

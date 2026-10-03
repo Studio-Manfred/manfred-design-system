@@ -120,6 +120,14 @@ const FilterChips = React.forwardRef<
     >
       {items.map((item) => (
         <RadioGroupPrimitive.Item
+          // "All, 7" exactly. Built from the DOM, browsers insert spaces
+          // around flex items and the sr-only comma ("All , 7", Chromatic
+          // build 77), so text labels name the chip explicitly.
+          aria-label={
+            typeof item.label === 'string' && item.count != null
+              ? `${item.label}, ${item.count}`
+              : undefined
+          }
           key={item.value}
           value={item.value}
           disabled={item.disabled}
@@ -136,7 +144,8 @@ const FilterChips = React.forwardRef<
           <span>{item.label}</span>
           {item.count != null ? (
             <>
-              {/* "Onboarding, 3" for AT; the flex gap does the visual spacing. */}
+              {/* Fallback for rich labels: "Onboarding, 3" for AT; the flex gap
+                  does the visual spacing. Text labels use aria-label instead. */}
               <span className="sr-only">,</span>{' '}
               <span
                 className={cn(

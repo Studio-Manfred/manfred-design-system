@@ -253,8 +253,8 @@ describe('lintComponent — robustness', () => {
 describe('lintAll — repository walker', () => {
   it('runs against the real repo and returns a result per component', async () => {
     const results = await lintAll();
-    // 45 components should produce 45 results (DropdownMenu + FilterChips added in STU-1011/1012).
-    expect(results.length).toBe(45);
+    // 46 components should produce 46 results (TableOfContents added in STU-1022).
+    expect(results.length).toBe(46);
     // All results must have ok set.
     expect(results.every((r) => typeof r.ok === 'boolean')).toBe(true);
   });

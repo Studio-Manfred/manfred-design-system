@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+No breaking changes. Client-side navigation for `Breadcrumb` and a new
+`TableOfContents` for the intranet Handbook page.
+
+### Added
+
+- **`Breadcrumb`: `onNavigate` for single-page apps** (STU-1021). New
+  optional prop `onNavigate?: (href, event) => void`. When set, a plain
+  left-click on a crumb calls `event.preventDefault()` and then
+  `onNavigate(href, event)`, so the app routes without a full reload — with
+  react-router: `onNavigate={(href) => navigate(href)}` from
+  `useNavigate()`. Cmd / Ctrl / Shift / Alt and middle-clicks are left to the
+  browser, and crumbs stay real `<a href>` links (new tab and copy link keep
+  working). Without the prop nothing changes. No router dependency.
+- **`TableOfContents` component** (STU-1022). "On this page" navigation for
+  long pages. Props: `items` (`TableOfContentsItem[]`:
+  `{ id, label, level: 1 | 2 | 3 }`, ids of headings already in the DOM;
+  levels are relative, so a higher level nests one step under the previous
+  item), `activeId?: string | null` (controlled; leave unset for built-in
+  tracking), `offsetTop?: number` (sticky-header height in px, default 0),
+  `label?: string` (default "On this page"), `onNavigate?: (id) => void`,
+  plus native `<nav>` attributes; ref forwards to the `<nav>`. Built-in
+  tracking uses an `IntersectionObserver` (the last heading at or above the
+  `offsetTop` line is active) and is skipped without one (SSR, jsdom), with
+  no crash. Clicking a link scrolls to the heading (smooth unless
+  `prefers-reduced-motion`) and focuses it — give headings `tabIndex={-1}`
+  and a `scroll-margin-top` matching `offsetTop`. The URL hash is not
+  changed. A11y: `<nav>` labelled by its visible title, nested lists of
+  links to `#id`, the active link has `aria-current="location"` plus a
+  brand-colour bar and bold text (not colour alone). New type exports
+  `TableOfContentsProps`, `TableOfContentsItem`.
+
 ## [0.39.0] - 2026-10-03
 
 No breaking changes. Two new components for the intranet Boards page.

@@ -37,6 +37,34 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
    * shells; `slash` for a denser, text-only treatment.
    */
   separator?: 'chevron' | 'slash';
+  /**
+   * Client-side navigation hook for single-page apps (STU-1021). When set,
+   * a **plain left-click** on a crumb calls `event.preventDefault()` and then
+   * `onNavigate(href, event)`, so the app can route without a full reload —
+   * e.g. `onNavigate={(href) => navigate(href)}` with react-router's
+   * `useNavigate()`.
+   *
+   * Cmd / Ctrl / Shift / Alt clicks and middle-clicks are left to the
+   * browser (new tab, new window, download), and crumbs stay real
+   * `<a href>` elements, so "Open in new tab" and "Copy link" keep working.
+   * Omit it and crumbs behave as plain links.
+   */
+  onNavigate?: (href: string, event: React.MouseEvent<HTMLAnchorElement>) => void;
+}
+
+/**
+ * True for a click the browser would treat as "follow this link here":
+ * primary button, no modifier keys, not already handled.
+ */
+function isPlainLeftClick(event: React.MouseEvent<HTMLAnchorElement>): boolean {
+  return (
+    !event.defaultPrevented &&
+    event.button === 0 &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  );
 }
 
 /**
@@ -46,6 +74,8 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
  * Renders a `<nav aria-label="Breadcrumb">` containing an ordered list.
  * The current page (last item) is rendered with `aria-current="page"`,
  * not a link; intermediate items become `<a>` tags when `href` is set.
+ * In a single-page app, pass `onNavigate` to route crumb clicks through
+ * the app's router instead of reloading the page.
  *
  * Accessibility:
  * - Wrapped in a navigation landmark with an explicit label so screen
@@ -64,10 +94,20 @@ export interface BreadcrumbProps extends React.HTMLAttributes<HTMLElement> {
  *   ]}
  * />
  * ```
+ *
+ * @example react-router (client-side navigation)
+ * ```tsx
+ * const navigate = useNavigate();
+ * <Breadcrumb
+ *   items={[{ label: 'Boards', href: '/boards' }, { label: 'Sales' }]}
+ *   onNavigate={(href) => navigate(href)}
+ * />
+ * ```
  */
 export function Breadcrumb({
   items,
   separator = 'chevron',
+  onNavigate,
   className,
   'aria-label': ariaLabel = 'Breadcrumb',
   ...rest
@@ -96,6 +136,15 @@ export function Breadcrumb({
                 ) : item.href ? (
                   <a
                     href={item.href}
+                    onClick={
+                      onNavigate
+                        ? (event) => {
+                            if (!isPlainLeftClick(event)) return;
+                            event.preventDefault();
+                            onNavigate(item.href as string, event);
+                          }
+                        : undefined
+                    }
                     className="text-muted-foreground hover:text-foreground hover:underline underline-offset-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
                   >
                     {item.label}

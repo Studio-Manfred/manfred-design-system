@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Breadcrumb } from './Breadcrumb';
 
 describe('Breadcrumb', () => {
@@ -43,5 +43,65 @@ describe('Breadcrumb', () => {
     const noHref = [{ label: 'A' }, { label: 'B' }];
     render(<Breadcrumb items={noHref} />);
     expect(screen.queryByRole('link')).not.toBeInTheDocument();
+  });
+
+  describe('onNavigate (STU-1021)', () => {
+    it('calls onNavigate with the href and prevents the default on a plain left-click', () => {
+      const onNavigate = vi.fn();
+      render(<Breadcrumb items={items} onNavigate={onNavigate} />);
+      const link = screen.getByRole('link', { name: 'Docs' });
+      const notCancelled = fireEvent.click(link, { button: 0 });
+      expect(notCancelled).toBe(false);
+      expect(onNavigate).toHaveBeenCalledTimes(1);
+      expect(onNavigate).toHaveBeenCalledWith('/docs', expect.objectContaining({ type: 'click' }));
+    });
+
+    it.each([
+      ['metaKey', { metaKey: true }],
+      ['ctrlKey', { ctrlKey: true }],
+      ['shiftKey', { shiftKey: true }],
+      ['altKey', { altKey: true }],
+      ['middle button', { button: 1 }],
+    ])('leaves %s clicks to the browser', (_name, init) => {
+      const onNavigate = vi.fn();
+      render(<Breadcrumb items={items} onNavigate={onNavigate} />);
+      const link = screen.getByRole('link', { name: 'Home' });
+      const notCancelled = fireEvent.click(link, { button: 0, ...init });
+      expect(notCancelled).toBe(true);
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when the click was already default-prevented', () => {
+      const onNavigate = vi.fn();
+      render(
+        <div onClickCapture={(e) => e.preventDefault()}>
+          <Breadcrumb items={items} onNavigate={onNavigate} />
+        </div>,
+      );
+      fireEvent.click(screen.getByRole('link', { name: 'Home' }), { button: 0 });
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
+    it('keeps the real href so links stay openable in a new tab', () => {
+      render(<Breadcrumb items={items} onNavigate={() => {}} />);
+      expect(screen.getByRole('link', { name: 'Docs' })).toHaveAttribute('href', '/docs');
+    });
+
+    it('without onNavigate, a plain click is not prevented (plain anchors)', () => {
+      render(<Breadcrumb items={items} />);
+      const notCancelled = fireEvent.click(screen.getByRole('link', { name: 'Home' }), { button: 0 });
+      expect(notCancelled).toBe(true);
+    });
+
+    it('the current page is never a link, even with onNavigate', () => {
+      render(
+        <Breadcrumb
+          items={[{ label: 'Home', href: '/' }, { label: 'Here', href: '/here' }]}
+          onNavigate={() => {}}
+        />,
+      );
+      expect(screen.queryByRole('link', { name: 'Here' })).not.toBeInTheDocument();
+      expect(screen.getByText('Here')).toHaveAttribute('aria-current', 'page');
+    });
   });
 });
